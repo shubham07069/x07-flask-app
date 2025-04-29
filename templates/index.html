@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGod - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Landing Page Section -->
+    <section class="landing-page">
+        <div class="background-image"></div>
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>Welcome to ChatGod</h1>
+            <p class="tagline">Your AI Buddy to Explore the Universe</p>
+            <div class="feature-container">
+                <a href="{{ url_for('chat') }}" class="feature-card ai-chat">
+                    <img src="https://images.unsplash.com/photo-1677442136019-16298eb1fc2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="AI Chat">
+                    <h3>Chat with AI</h3>
+                    <p>Experience the future of conversation with ChatGod.</p>
+                </a>
+                <div class="feature-card forex-trading">
+                    <img src="https://images.unsplash.com/photo-1590283603385-4d1b1f4316ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Forex Trading">
+                    <h3>Master the Markets</h3>
+                    <p>Trade smarter with real-time forex insights.</p>
+                </div>
+                <div class="feature-card messaging-app">
+                    <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Messaging App">
+                    <h3>Connect Instantly</h3>
+                    <p>Message your friends with speed and security.</p>
+                </div>
+            </div>
+            <div class="auth-buttons">
+                <a href="{{ url_for('login') }}" class="auth-button">Login</a>
+                <a href="{{ url_for('register') }}" class="auth-button">Register</a>
+            </div>
+        </div>
+    </section>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
