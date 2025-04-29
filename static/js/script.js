@@ -48,8 +48,9 @@ async function sendMessage() {
     // Scroll to bottom with smooth behavior
     chatWindow.scrollTop = chatWindow.scrollHeight;
 
-    // Clear input
+    // Clear input and reset search box height
     document.getElementById('userInput').value = '';
+    adjustSearchBoxHeight();
 
     try {
         console.log("Sending request to /ask endpoint with mode:", currentMode);
@@ -170,6 +171,31 @@ function loadChat(index) {
     main.classList.remove('sidebar-active');
 }
 
+// Function to auto-expand search box based on input content
+function adjustSearchBoxHeight() {
+    const userInput = document.getElementById('userInput');
+    const searchBox = document.querySelector('.search-box');
+    const searchBoxRow = document.querySelector('.search-box-row');
+
+    // Reset height to auto to calculate the natural height
+    userInput.style.height = 'auto';
+    searchBox.style.height = 'auto';
+
+    // Calculate the new height based on scrollHeight
+    const inputHeight = userInput.scrollHeight;
+    userInput.style.height = `${inputHeight}px`;
+
+    // Adjust search box height to accommodate input and mode selector
+    const modeSelector = document.querySelector('.mode-selector');
+    const modeSelectorHeight = modeSelector ? modeSelector.offsetHeight : 0;
+    const padding = 24; // 2 * 12px (top and bottom padding of search-box)
+    const newHeight = inputHeight + modeSelectorHeight + padding;
+    searchBox.style.height = `${newHeight}px`;
+
+    // Ensure search box row height matches input height
+    searchBoxRow.style.height = `${inputHeight}px`;
+}
+
 // Allow sending message with Enter key and rocket button, and handle dropup menu
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
@@ -185,6 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 sendMessage();
             }
         });
+
+        // Auto-expand search box on input
+        userInput.addEventListener('input', adjustSearchBoxHeight);
+        // Initial adjustment
+        adjustSearchBoxHeight();
     } else {
         console.error("userInput element not found!");
     }
