@@ -425,16 +425,30 @@ body {
     text-align: center;
 }
 
-.chatbot-page .search-box {
+.chatbot-page .search-box-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100%;
-    max-width: 700px;
+    transition: all 0.5s ease;
+}
+
+.chatbot-page .search-box-wrapper.bottom {
+    top: auto;
+    bottom: 20px;
+    transform: translate(-50%, 0);
+}
+
+.chatbot-page .search-box {
     display: flex;
     flex-direction: row;
     align-items: center;
+    width: 100%;
     padding: 0.8rem 1.2rem;
     background: #2a2a2a;
     border-radius: 35px;
@@ -442,15 +456,14 @@ body {
               0 5px 15px 5px rgba(255, 105, 180, 0.5),
               inset 0 2px 5px rgba(255, 0, 102, 0.3),
               inset 0 -2px 5px rgba(255, 105, 180, 0.3);
-    transform: perspective(1000px) rotateX(10deg) translate(-50%, -50%);
     z-index: 5;
-    transition: all 0.5s ease;
 }
 
-.chatbot-page .search-box.bottom {
-    top: auto;
-    bottom: 20px;
-    transform: translate(-50%, 0);
+.chatbot-page .search-box:hover {
+    box-shadow: 0 8px 20px 8px rgba(255, 0, 102, 0.7),
+                0 8px 20px 8px rgba(255, 105, 180, 0.7),
+                inset 0 3px 8px rgba(255, 0, 102, 0.4),
+                inset 0 -3px 8px rgba(255, 105, 180, 0.4);
 }
 
 .chatbot-page .plus-button {
@@ -473,27 +486,8 @@ body {
     transform: scale(1.1);
 }
 
-.chatbot-page .search-box:hover {
-    box-shadow: 0 8px 20px 8px rgba(255, 0, 102, 0.7),
-                0 8px 20px 8px rgba(255, 105, 180, 0.7),
-                inset 0 3px 8px rgba(255, 0, 102, 0.4),
-                inset 0 -3px 8px rgba(255, 105, 180, 0.4);
-    transform: perspective(1000px) rotateX(5deg) translate(-50%, -50%);
-}
-
-.chatbot-page .search-box.bottom:hover {
-    transform: perspective(1000px) rotateX(5deg) translate(-50%, 0);
-}
-
-.chatbot-page .search-content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    align-items: center;
-}
-
 .chatbot-page #userInput {
-    width: 100%;
+    flex: 1;
     padding: 0.8rem 1.2rem;
     border: none;
     border-radius: 20px;
@@ -501,7 +495,7 @@ body {
     color: #e0e0e0;
     font-size: 1.1rem;
     font-family: 'Inter', sans-serif;
-    margin-bottom: 0.5rem;
+    margin-right: 1rem;
 }
 
 .chatbot-page #userInput:focus {
@@ -513,6 +507,7 @@ body {
     flex-direction: column;
     gap: 0.5rem;
     align-items: center;
+    margin-top: 0.5rem;
 }
 
 .chatbot-page .search-icons .icon {
@@ -543,7 +538,6 @@ body {
     align-items: center;
     cursor: pointer;
     transition: transform 0.3s ease;
-    margin-left: 1rem;
 }
 
 .chatbot-page .search-box .send-button:hover {
@@ -737,27 +731,27 @@ body {
         gap: 1rem;
     }
 
-    .chatbot-page .search-box {
+    .chatbot-page .search-box-wrapper {
         width: 90vw;
         max-width: none;
-        padding: 0.6rem 0.8rem;
         top: 50%;
         transform: translate(-50%, -50%);
-        box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5),
-                    0 5px 15px 5px rgba(255, 105, 180, 0.5);
     }
 
-    .chatbot-page .search-box.bottom {
+    .chatbot-page .search-box-wrapper.bottom {
         bottom: 10px;
         transform: translate(-50%, 0);
     }
 
-    .chatbot-page .search-box:hover {
-        transform: perspective(1000px) rotateX(5deg) translate(-50%, -50%);
+    .chatbot-page .search-box {
+        padding: 0.6rem 0.8rem;
+        box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5),
+                    0 5px 15px 5px rgba(255, 105, 180, 0.5);
     }
 
-    .chatbot-page .search-box.bottom:hover {
-        transform: perspective(1000px) rotateX(5deg) translate(-50%, 0);
+    .chatbot-page .search-box:hover {
+        box-shadow: 0 8px 20px 8px rgba(255, 0, 102, 0.7),
+                    0 8px 20px 8px rgba(255, 105, 180, 0.7);
     }
 
     .chatbot-page .plus-button {
@@ -771,11 +765,12 @@ body {
         padding: 0.6rem 1rem;
         font-size: 0.9rem;
         border-radius: 15px;
-        margin-bottom: 0.4rem;
+        margin-right: 0.5rem;
     }
 
     .chatbot-page .search-icons {
         gap: 0.4rem;
+        margin-top: 0.4rem;
     }
 
     .chatbot-page .search-icons .icon {
@@ -872,15 +867,14 @@ body {
         gap: 1.5rem;
     }
 
-    .chatbot-page .search-box {
+    .chatbot-page .search-box-wrapper {
         width: 80vw;
         max-width: none;
-        padding: 0.8rem 1rem;
         top: 50%;
         transform: translate(-50%, -50%);
     }
 
-    .chatbot-page .search-box.bottom {
+    .chatbot-page .search-box-wrapper.bottom {
         bottom: 15px;
         transform: translate(-50%, 0);
     }
@@ -894,11 +888,12 @@ body {
     .chatbot-page #userInput {
         padding: 0.8rem 1rem;
         font-size: 1rem;
-        margin-bottom: 0.5rem;
+        margin-right: 0.8rem;
     }
 
     .chatbot-page .search-icons {
         gap: 0.5rem;
+        margin-top: 0.5rem;
     }
 
     .chatbot-page .search-icons .icon {
@@ -980,14 +975,13 @@ body {
         gap: 1.5rem;
     }
 
-    .chatbot-page .search-box {
+    .chatbot-page .search-box-wrapper {
         max-width: 700px;
-        padding: 0.8rem 1.2rem;
         top: 50%;
         transform: translate(-50%, -50%);
     }
 
-    .chatbot-page .search-box.bottom {
+    .chatbot-page .search-box-wrapper.bottom {
         bottom: 20px;
         transform: translate(-50%, 0);
     }
@@ -1001,11 +995,12 @@ body {
     .chatbot-page #userInput {
         padding: 0.8rem 1.2rem;
         font-size: 1.1rem;
-        margin-bottom: 0.5rem;
+        margin-right: 1rem;
     }
 
     .chatbot-page .search-icons {
         gap: 0.5rem;
+        margin-top: 0.5rem;
     }
 
     .chatbot-page .search-icons .icon {
