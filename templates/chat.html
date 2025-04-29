@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGod - Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- AI Chatbot Section -->
+    <section class="chatbot-page" id="chatbotPage">
+        <!-- Header -->
+        <header>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="logo">ChatGod</div>
+        </header>
+
+        <!-- Sidebar for Chat History -->
+        <div class="sidebar" id="sidebar">
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="{{ url_for('logout') }}">Home</a></li>
+                </ul>
+                <hr class="divider">
+                <div class="chat-history">
+                    <h3>Chat History</h3>
+                    <ul id="chatHistoryList">
+                        <!-- Chat history will be populated by JavaScript -->
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Chat Section -->
+        <main>
+            <div class="chat-container">
+                <div class="chat-window" id="chatWindow">
+                    <div class="greeting-message">
+                        Yo, what's good, bhai? 😊 Ready to dive into some tech shit or just here to chill? Chutiye, spill the beans! 🎉
+                    </div>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="userInput" placeholder="How can ChatGod help?">
+                    <div class="search-icons">
+                        <span class="icon"><i class="fas fa-search"></i> Deepsearch</span>
+                        <span class="icon"><i class="fas fa-lightbulb"></i> Think</span>
+                        <span class="icon"><i class="fas fa-robot"></i> ChatGod</span>
+                        <button onclick="sendMessage()" class="send-button">
+                            <span class="shuttle">🚀</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
