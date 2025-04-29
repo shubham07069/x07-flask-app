@@ -483,7 +483,7 @@ body {
     box-shadow: 0 8px 20px 8px rgba(255, 0, 102, 0.7),
                 0 8px 20px 8px rgba(255, 105, 180, 0.7),
                 inset 0 3px 8px rgba(255, 0, 102, 0.4),
-                inset 0 -3px 8px rgba(255, 105, 180, 0.4);
+                inset 0 -3px 8px rgba(255, 0, 102, 0.4);
 }
 
 .chatbot-page .plus-button {
@@ -498,23 +498,17 @@ body {
     font-size: 1.5rem;
     color: #fff;
     cursor: pointer;
-    margin-right: 1rem;
+    margin-right: 0.5rem;
     transition: transform 0.3s ease;
+    aspect-ratio: 1 / 1;
 }
 
 .chatbot-page .plus-button:hover {
     transform: scale(1.1);
 }
 
-.chatbot-page .search-content {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    align-items: center;
-}
-
 .chatbot-page #userInput {
-    width: 100%;
+    flex: 1;
     padding: 0.8rem 1.2rem;
     border: none;
     border-radius: 20px;
@@ -522,7 +516,7 @@ body {
     color: #e0e0e0;
     font-size: 1.1rem;
     font-family: 'Inter', sans-serif;
-    margin-bottom: 0.5rem;
+    margin: 0 0.5rem;
 }
 
 .chatbot-page #userInput:focus {
@@ -532,15 +526,15 @@ body {
 .chatbot-page .search-icons {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: 0.5rem;
     align-items: center;
-    margin-top: 0.5rem;
+    margin: 0 0.5rem;
 }
 
 .chatbot-page .search-icons .icon {
     font-size: 0.9rem;
     color: #e0e0e0;
-    padding: 0.4rem 1rem;
+    padding: 0.4rem 0.8rem;
     background: #3a3a3a;
     border-radius: 18px;
     cursor: pointer;
@@ -558,14 +552,15 @@ body {
     background: linear-gradient(90deg, #ff0066, #ff69b4);
     border: none;
     border-radius: 50%;
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     transition: transform 0.3s ease;
-    margin-left: 1rem;
+    margin-left: 0.5rem;
+    aspect-ratio: 1 / 1;
 }
 
 .chatbot-page .search-box .send-button:hover {
@@ -784,22 +779,23 @@ body {
     }
 
     .chatbot-page .plus-button {
-        width: 40px; /* Fixed width */
-        height: 40px; /* Fixed height */
+        width: 40px;
+        height: 40px;
         font-size: 1.2rem;
         margin-right: 0.5rem;
-        aspect-ratio: 1 / 1; /* Ensure button is round */
+        aspect-ratio: 1 / 1;
     }
 
     .chatbot-page #userInput {
-        padding: 0.6rem 1rem;
+        padding: 0.6rem 0.8rem;
         font-size: 0.9rem;
         border-radius: 15px;
-        margin-bottom: 0.4rem;
+        margin: 0 0.3rem;
     }
 
     .chatbot-page .search-icons {
-        gap: 0.5rem;
+        gap: 0.3rem;
+        margin: 0 0.3rem;
     }
 
     .chatbot-page .search-icons .icon {
@@ -808,10 +804,10 @@ body {
     }
 
     .chatbot-page .search-box .send-button {
-        width: 40px; /* Fixed width */
-        height: 40px; /* Fixed height */
+        width: 40px;
+        height: 40px;
         margin-left: 0.5rem;
-        aspect-ratio: 1 / 1; /* Ensure button is round */
+        aspect-ratio: 1 / 1;
     }
 
     .chatbot-page .message {
@@ -919,11 +915,12 @@ body {
     .chatbot-page #userInput {
         padding: 0.8rem 1rem;
         font-size: 1rem;
-        margin-bottom: 0.5rem;
+        margin: 0 0.5rem;
     }
 
     .chatbot-page .search-icons {
         gap: 0.8rem;
+        margin: 0 0.5rem;
     }
 
     .chatbot-page .search-icons .icon {
@@ -1026,12 +1023,12 @@ body {
     .chatbot-page #userInput {
         padding: 0.8rem 1.2rem;
         font-size: 1.1rem;
-        margin-bottom: 0.5rem;
+        margin: 0 1rem;
     }
 
     .chatbot-page .search-icons {
         gap: 1rem;
-        margin-top: 1rem; /* Adjusted to move buttons down */
+        margin: 0 1rem;
     }
 
     .chatbot-page .search-icons .icon {
