@@ -50,10 +50,13 @@
                     <div class="search-box" id="searchBox">
                         <button class="plus-button">+</button>
                         <input type="text" id="userInput" placeholder="How can ChatGod help?">
-                        <div class="search-icons">
-                            <span class="icon"><i class="fas fa-search"></i> Deepsearch</span>
-                            <span class="icon"><i class="fas fa-lightbulb"></i> Think</span>
-                            <span class="icon"><i class="fas fa-robot"></i> ChatGod</span>
+                        <div class="mode-selector">
+                            <button class="mode-button">Normal <i class="fas fa-chevron-up"></i></button>
+                            <div class="dropup-content">
+                                <a href="#" onclick="setMode('Fun')">Fun</a>
+                                <a href="#" onclick="setMode('Normal')">Normal</a>
+                                <a href="#" onclick="setMode('Pro')">Pro</a>
+                            </div>
                         </div>
                         <button onclick="sendMessage()" class="send-button">
                             <span class="shuttle">🚀</span>
