@@ -1,16 +1,6 @@
 let chatHistory = [];
 let currentMode = 'Normal'; // Default mode
 
-// Function to set mode and update button text
-function setMode(mode) {
-    currentMode = mode;
-    const modeButton = document.querySelector('.mode-button');
-    modeButton.innerHTML = `${mode} <i class="fas fa-chevron-up"></i>`;
-    // Close dropup menu after selection
-    const dropupContent = document.querySelector('.dropup-content');
-    dropupContent.style.display = 'none';
-}
-
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
     if (!userInput.trim()) {
@@ -186,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('userInput');
     const modeButton = document.querySelector('.mode-button');
     const dropupContent = document.querySelector('.dropup-content');
+    const modeOptions = document.querySelectorAll('.mode-option');
 
     if (userInput) {
         userInput.addEventListener('keypress', function (e) {
@@ -205,6 +196,27 @@ document.addEventListener('DOMContentLoaded', () => {
             dropupContent.style.display = isVisible ? 'none' : 'block';
         });
     }
+
+    // Handle mode selection
+    modeOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedMode = option.getAttribute('data-mode');
+            currentMode = selectedMode;
+
+            // Update button text
+            modeButton.innerHTML = `${selectedMode} <i class="fas fa-chevron-up"></i>`;
+
+            // Remove highlight from all options
+            modeOptions.forEach(opt => opt.classList.remove('highlighted'));
+
+            // Highlight the selected option
+            option.classList.add('highlighted');
+
+            // Close dropup menu
+            dropupContent.style.display = 'none';
+        });
+    });
 
     // Close dropup menu when clicking outside
     document.addEventListener('click', (e) => {
