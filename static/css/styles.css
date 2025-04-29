@@ -415,6 +415,8 @@ body {
     margin-bottom: 1rem;
     margin-top: 3rem;
     transition: margin-left 0.3s ease-in-out;
+    position: relative;
+    z-index: 1; /* Ensure chat window is below search box */
 }
 
 /* Custom scrollbar styling */
@@ -458,6 +460,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.5s ease, margin-left 0.3s ease-in-out;
+    z-index: 2; /* Ensure search box is above chat window */
 }
 
 .chatbot-page .search-box-wrapper.bottom {
@@ -536,6 +539,8 @@ body {
     position: relative;
     display: inline-block;
     margin-top: 0.5rem;
+    align-self: flex-start; /* Shift to left */
+    margin-left: 0.5rem; /* Additional left shift */
 }
 
 .chatbot-page .mode-button {
@@ -629,6 +634,11 @@ body {
 .chatbot-page .message.bot {
     align-self: flex-start;
     max-width: 100%;
+}
+
+/* Ensure last message is 0.5cm above search box */
+.chatbot-page .message:last-child {
+    margin-bottom: 0.5cm; /* 0.5cm above search box */
 }
 
 .chatbot-page .message-content {
@@ -816,7 +826,7 @@ body {
     }
 
     .chatbot-page .search-box {
-        padding: 0.6rem 0.8rem; /* Reduced padding for phone */
+        padding: 0.6rem 0.8rem;
         box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5),
                     0 5px 15px 5px rgba(255, 105, 180, 0.5);
     }
@@ -830,6 +840,7 @@ body {
         flex-direction: row;
         align-items: center;
         width: 100%;
+        padding: 0 0.5rem; /* Adjusted padding to fit rocket button inside */
     }
 
     .chatbot-page .plus-button {
@@ -849,6 +860,7 @@ body {
 
     .chatbot-page .mode-selector {
         margin-top: 0.4rem;
+        margin-left: 0.5rem; /* Left shift for phone */
     }
 
     .chatbot-page .mode-button {
@@ -875,7 +887,8 @@ body {
     .chatbot-page .search-box .send-button {
         width: 35px;
         height: 35px;
-        margin-left: 0.5rem;
+        margin-left: 0.3rem; /* Reduced margin to fit inside search box */
+        margin-right: 0.5rem; /* Added margin-right to fit within padding */
         aspect-ratio: 1 / 1;
     }
 
@@ -993,6 +1006,7 @@ body {
 
     .chatbot-page .mode-selector {
         margin-top: 0.5rem;
+        margin-left: 0.5rem; /* Left shift for tablet */
     }
 
     .chatbot-page .mode-button {
@@ -1134,6 +1148,7 @@ body {
 
     .chatbot-page .mode-selector {
         margin-top: 0.5rem;
+        margin-left: 0.5rem; /* Left shift for laptop */
     }
 
     .chatbot-page .mode-button {
