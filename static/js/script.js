@@ -9,7 +9,7 @@ async function sendMessage() {
 
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.querySelector('.greeting-message');
-    const searchBox = document.getElementById('searchBox');
+    const searchBoxWrapper = document.querySelector('.search-box-wrapper');
 
     // Hide greeting message after first message
     if (greetingMessage) {
@@ -31,8 +31,8 @@ async function sendMessage() {
     `;
     chatWindow.appendChild(userMessage);
 
-    // Animate search box to bottom
-    searchBox.classList.add('bottom');
+    // Animate search box wrapper to bottom
+    searchBoxWrapper.classList.add('bottom');
 
     // Add thinking skeleton animation
     const thinkingMessage = document.createElement('div');
