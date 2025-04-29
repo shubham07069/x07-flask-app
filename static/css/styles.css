@@ -406,13 +406,32 @@ body {
     width: 100%;
     max-width: 700px;
     max-height: 40vh;
-    overflow-y: hidden;
+    overflow-y: auto; /* Make chat scrollable */
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     scroll-behavior: smooth;
     margin-bottom: 1rem;
+}
+
+/* Custom scrollbar styling */
+.chatbot-page .chat-window::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chatbot-page .chat-window::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 10px;
+}
+
+.chatbot-page .chat-window::-webkit-scrollbar-thumb {
+    background: #ff69b4;
+    border-radius: 10px;
+}
+
+.chatbot-page .chat-window::-webkit-scrollbar-thumb:hover {
+    background: #ff0066;
 }
 
 .chatbot-page .greeting-message {
@@ -502,12 +521,24 @@ body {
     outline: none;
 }
 
+.chatbot-page .search-options-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: #2a2a2a;
+    border-radius: 25px;
+    margin-top: 0.5rem;
+    box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.3),
+                0 5px 15px 5px rgba(255, 105, 180, 0.3);
+}
+
 .chatbot-page .search-icons {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-direction: row; /* Horizontal line */
+    gap: 1rem;
     align-items: center;
-    margin-top: 0.5rem;
 }
 
 .chatbot-page .search-icons .icon {
@@ -768,9 +799,13 @@ body {
         margin-right: 0.5rem;
     }
 
-    .chatbot-page .search-icons {
-        gap: 0.4rem;
+    .chatbot-page .search-options-box {
+        padding: 0.4rem 0.8rem;
         margin-top: 0.4rem;
+    }
+
+    .chatbot-page .search-icons {
+        gap: 0.5rem;
     }
 
     .chatbot-page .search-icons .icon {
@@ -891,9 +926,13 @@ body {
         margin-right: 0.8rem;
     }
 
-    .chatbot-page .search-icons {
-        gap: 0.5rem;
+    .chatbot-page .search-options-box {
+        padding: 0.5rem 1rem;
         margin-top: 0.5rem;
+    }
+
+    .chatbot-page .search-icons {
+        gap: 0.8rem;
     }
 
     .chatbot-page .search-icons .icon {
@@ -998,9 +1037,13 @@ body {
         margin-right: 1rem;
     }
 
-    .chatbot-page .search-icons {
-        gap: 0.5rem;
+    .chatbot-page .search-options-box {
+        padding: 0.5rem 1rem;
         margin-top: 0.5rem;
+    }
+
+    .chatbot-page .search-icons {
+        gap: 1rem;
     }
 
     .chatbot-page .search-icons .icon {
