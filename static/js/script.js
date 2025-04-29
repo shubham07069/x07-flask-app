@@ -1,4 +1,15 @@
 let chatHistory = [];
+let currentMode = 'Normal'; // Default mode
+
+// Function to set mode and update button text
+function setMode(mode) {
+    currentMode = mode;
+    const modeButton = document.querySelector('.mode-button');
+    modeButton.innerHTML = `${mode} <i class="fas fa-chevron-up"></i>`;
+    // Close dropup menu after selection
+    const dropupContent = document.querySelector('.dropup-content');
+    dropupContent.style.display = 'none';
+}
 
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
@@ -51,13 +62,13 @@ async function sendMessage() {
     document.getElementById('userInput').value = '';
 
     try {
-        console.log("Sending request to /ask endpoint...");
+        console.log("Sending request to /ask endpoint with mode:", currentMode);
         const response = await fetch('/ask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message: userInput }),
+            body: JSON.stringify({ message: userInput, mode: currentMode }),
         });
 
         if (!response.ok) {
@@ -169,10 +180,13 @@ function loadChat(index) {
     main.classList.remove('sidebar-active');
 }
 
-// Allow sending message with Enter key
+// Allow sending message with Enter key and rocket button, and handle dropup menu
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
     const userInput = document.getElementById('userInput');
+    const modeButton = document.querySelector('.mode-button');
+    const dropupContent = document.querySelector('.dropup-content');
+
     if (userInput) {
         userInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
@@ -184,10 +198,29 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("userInput element not found!");
     }
 
-    // Hamburger menu toggle
+    // Toggle dropup menu
+    if (modeButton) {
+        modeButton.addEventListener('click', () => {
+            const isVisible = dropupContent.style.display === 'block';
+            dropupContent.style.display = isVisible ? 'none' : 'block';
+        });
+    }
+
+    // Close dropup menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!modeButton.contains(e.target) && !dropupContent.contains(e.target)) {
+            dropupContent.style.display = 'none';
+        }
+    });
+
+    // Hamburger menu toggle and left shift for laptop
     const hamburger = document.querySelector('.hamburger');
     const sidebar = document.getElementById('sidebar');
     const main = document.querySelector('main');
+    const chatWindow = document.querySelector('.chat-window');
+    const greetingMessage = document.querySelector('.greeting-message');
+    const searchBoxWrapper = document.querySelector('.search-box-wrapper');
+
     if (hamburger && sidebar && main) {
         console.log("Hamburger, sidebar, and main elements found, setting up toggle");
         hamburger.addEventListener('click', () => {
@@ -195,6 +228,19 @@ document.addEventListener('DOMContentLoaded', () => {
             hamburger.classList.toggle('active');
             sidebar.classList.toggle('active');
             main.classList.toggle('sidebar-active');
+
+            // Left shift for laptop only
+            if (window.innerWidth >= 1025) {
+                if (main.classList.contains('sidebar-active')) {
+                    chatWindow.style.marginLeft = '300px';
+                    if (greetingMessage) greetingMessage.style.marginLeft = '300px';
+                    searchBoxWrapper.style.marginLeft = '150px';
+                } else {
+                    chatWindow.style.marginLeft = '0';
+                    if (greetingMessage) greetingMessage.style.marginLeft = '0';
+                    searchBoxWrapper.style.marginLeft = '0';
+                }
+            }
         });
     } else {
         console.error("Hamburger, sidebar, or main element not found!");
