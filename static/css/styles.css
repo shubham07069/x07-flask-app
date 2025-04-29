@@ -383,7 +383,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5rem 1rem 120px; /* Adjusted padding for search box */
+    padding: 5rem 1rem 140px; /* Adjusted padding for larger search box */
     transition: margin-left 0.3s ease-in-out;
 }
 
@@ -393,15 +393,15 @@ body {
 
 .chatbot-page .chat-container {
     width: 100%;
-    max-width: 600px; /* Same width as search box */
+    max-width: 700px; /* Increased width for larger search box */
     position: relative;
     margin-bottom: 80px;
 }
 
 .chatbot-page .chat-window {
-    width: 100%; /* Match search box width */
-    max-width: 600px; /* Same as search box */
-    height: calc(100vh - 280px); /* Adjusted height to fit screen */
+    width: 100%;
+    max-width: 700px; /* Same width as search box */
+    height: calc(100vh - 300px); /* Adjusted height to fit screen */
     overflow-y: hidden; /* Remove scrollbar */
     padding: 1.5rem;
     display: flex;
@@ -422,17 +422,17 @@ body {
 
 .chatbot-page .search-box {
     position: fixed;
-    bottom: 20px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 600px; /* Fixed width for consistency */
+    max-width: 700px; /* Increased width for larger search box */
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.8rem;
+    padding: 1rem; /* Increased padding for larger look */
     background: #2a2a2a;
-    border-radius: 30px;
+    border-radius: 35px; /* Slightly larger border-radius */
     box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5), /* Red-pink mix lighting */
               0 5px 15px 5px rgba(255, 105, 180, 0.5),
               inset 0 2px 5px rgba(255, 0, 102, 0.3),
@@ -452,12 +452,12 @@ body {
 
 .chatbot-page #userInput {
     width: 100%;
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 1.8rem; /* Increased padding for larger input */
     border: none;
-    border-radius: 20px;
+    border-radius: 25px; /* Adjusted for larger look */
     background: #3a3a3a;
     color: #e0e0e0;
-    font-size: 1rem;
+    font-size: 1.1rem; /* Slightly larger font */
     font-family: 'Inter', sans-serif;
 }
 
@@ -467,17 +467,17 @@ body {
 
 .chatbot-page .search-icons {
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.3rem;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
     align-items: center;
 }
 
 .chatbot-page .search-icons .icon {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #e0e0e0;
-    padding: 0.3rem 0.8rem;
+    padding: 0.4rem 0.9rem;
     background: #3a3a3a;
-    border-radius: 15px;
+    border-radius: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -492,8 +492,8 @@ body {
     background: linear-gradient(90deg, #ff0066, #ff69b4); /* Red-pink gradient */
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 45px; /* Slightly larger button */
+    height: 45px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -506,7 +506,7 @@ body {
 }
 
 .chatbot-page .search-box .send-button .shuttle {
-    font-size: 1.2rem;
+    font-size: 1.4rem; /* Larger shuttle icon */
     animation: shuttle 0.5s ease-in-out;
 }
 
@@ -645,7 +645,7 @@ body {
     }
 
     .chatbot-page main {
-        padding: 4rem 0.5rem 100px;
+        padding: 4rem 0.5rem 110px; /* Adjusted for larger search box */
     }
 
     .chatbot-page main.sidebar-active {
@@ -657,36 +657,45 @@ body {
     }
 
     .chatbot-page .chat-container {
-        max-width: 90vw;
+        width: 90vw; /* Adjusted for phone */
     }
 
     .chatbot-page .chat-window {
-        max-width: 90vw;
-        height: calc(100vh - 260px);
+        width: 90vw;
+        height: calc(100vh - 230px);
         padding: 1rem;
         gap: 1rem;
     }
 
     .chatbot-page .search-box {
-        max-width: 90vw;
-        padding: 0.5rem;
+        width: 90vw;
+        max-width: none;
+        padding: 0.8rem;
         bottom: 10px;
+        transform: translateX(-50%); /* Removed 3D effect for phone */
+        box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5),
+                    0 5px 15px 5px rgba(255, 105, 180, 0.5);
+    }
+
+    .chatbot-page .search-box:hover {
+        box-shadow: 0 8px 20px 8px rgba(255, 0, 102, 0.7),
+                    0 8px 20px 8px rgba(255, 105, 180, 0.7);
     }
 
     .chatbot-page #userInput {
-        padding: 0.6rem 1rem;
+        padding: 0.8rem 1.2rem;
         font-size: 0.9rem;
-        border-radius: 15px;
+        border-radius: 20px;
     }
 
     .chatbot-page .search-icons .icon {
         font-size: 0.7rem;
-        padding: 0.2rem 0.6rem;
+        padding: 0.3rem 0.7rem;
     }
 
     .chatbot-page .search-box .send-button {
-        width: 35px;
-        height: 35px;
+        width: 40px;
+        height: 40px;
     }
 
     .chatbot-page .message {
@@ -741,7 +750,7 @@ body {
     }
 
     .chatbot-page main {
-        padding: 4rem 1rem 110px;
+        padding: 4rem 1rem 120px;
     }
 
     .chatbot-page main.sidebar-active {
@@ -753,19 +762,20 @@ body {
     }
 
     .chatbot-page .chat-container {
-        max-width: 80vw;
+        width: 80vw;
     }
 
     .chatbot-page .chat-window {
-        max-width: 80vw;
-        height: calc(100vh - 270px);
+        width: 80vw;
+        height: calc(100vh - 240px);
         padding: 1.5rem;
         gap: 1.5rem;
     }
 
     .chatbot-page .search-box {
-        max-width: 80vw;
-        padding: 0.6rem;
+        width: 80vw;
+        max-width: none;
+        padding: 1rem;
         bottom: 15px;
     }
 
@@ -821,7 +831,7 @@ body {
     }
 
     .chatbot-page main {
-        padding: 5rem 1rem 120px;
+        padding: 5rem 1rem 140px;
     }
 
     .chatbot-page main.sidebar-active {
@@ -839,19 +849,19 @@ body {
     }
 
     .chatbot-page .search-box {
-        max-width: 600px;
-        padding: 0.8rem;
+        max-width: 700px;
+        padding: 1rem;
         bottom: 20px;
     }
 
     .chatbot-page #userInput {
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
+        padding: 1rem 1.8rem;
+        font-size: 1.1rem;
     }
 
     .chatbot-page .search-box .send-button {
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
     }
 
     .landing-page h1 {
