@@ -241,12 +241,13 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.toggle('active');
             main.classList.toggle('sidebar-active');
 
-            // Left shift for laptop only
+            // Left shift for laptop only, sync with search box
             if (window.innerWidth >= 1025) {
+                const shiftAmount = '150px'; // Reduced shift to sync with search box
                 if (main.classList.contains('sidebar-active')) {
-                    chatWindow.style.marginLeft = '300px';
-                    if (greetingMessage) greetingMessage.style.marginLeft = '300px';
-                    searchBoxWrapper.style.marginLeft = '150px';
+                    chatWindow.style.marginLeft = shiftAmount;
+                    if (greetingMessage) greetingMessage.style.marginLeft = shiftAmount;
+                    searchBoxWrapper.style.marginLeft = shiftAmount;
                 } else {
                     chatWindow.style.marginLeft = '0';
                     if (greetingMessage) greetingMessage.style.marginLeft = '0';
