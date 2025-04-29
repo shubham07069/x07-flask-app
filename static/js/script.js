@@ -9,6 +9,7 @@ async function sendMessage() {
 
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.querySelector('.greeting-message');
+    const searchBox = document.getElementById('searchBox');
 
     // Hide greeting message after first message
     if (greetingMessage) {
@@ -30,11 +31,17 @@ async function sendMessage() {
     `;
     chatWindow.appendChild(userMessage);
 
-    // Add thinking message
+    // Animate search box to bottom
+    searchBox.classList.add('bottom');
+
+    // Add thinking skeleton animation
     const thinkingMessage = document.createElement('div');
     thinkingMessage.className = 'message bot thinking';
-    thinkingMessage.textContent = 'Thinking..... please Wait';
     thinkingMessage.id = 'thinking-message';
+    thinkingMessage.innerHTML = `
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+    `;
     chatWindow.appendChild(thinkingMessage);
 
     // Scroll to bottom with smooth behavior
@@ -60,7 +67,7 @@ async function sendMessage() {
         const data = await response.json();
         console.log("Received response:", data);
 
-        // Remove thinking message
+        // Remove thinking skeleton
         const thinkingMsgElement = document.getElementById('thinking-message');
         if (thinkingMsgElement) {
             thinkingMsgElement.remove();
