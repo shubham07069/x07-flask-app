@@ -44,19 +44,21 @@
                     <!-- Chat messages will be populated by JavaScript -->
                 </div>
                 <div class="greeting-message">
-                    Yo, what's good, bhai? 😊 Ready to dive into some tech shit or just here to chill? Chutiye, Let's Go...! 🎉
+                    Yo, what's good, bhai? 😊 Ready to dive into some tech shit or just here to chill? Chutiye, spill the beans! 🎉
                 </div>
                 <div class="search-box" id="searchBox">
                     <button class="plus-button">+</button>
-                    <input type="text" id="userInput" placeholder="How can ChatGod help?">
+                    <div class="search-content">
+                        <input type="text" id="userInput" placeholder="How can ChatGod help?">
+                        <button onclick="sendMessage()" class="send-button">
+                            <span class="shuttle">🚀</span>
+                        </button>
+                    </div>
                     <div class="search-icons">
                         <span class="icon"><i class="fas fa-search"></i> Deepsearch</span>
                         <span class="icon"><i class="fas fa-lightbulb"></i> Think</span>
                         <span class="icon"><i class="fas fa-robot"></i> ChatGod</span>
                     </div>
-                    <button onclick="sendMessage()" class="send-button">
-                        <span class="shuttle">🚀</span>
-                    </button>
                 </div>
             </div>
         </main>
