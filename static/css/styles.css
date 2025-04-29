@@ -393,7 +393,7 @@ body {
 
 .chatbot-page .chat-container {
     width: 100%;
-    max-width: 700px; /* Increased width for larger search box */
+    max-width: 700px; /* Consistent width for chat container */
     position: relative;
     margin-bottom: 80px;
 }
@@ -426,13 +426,13 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 700px; /* Increased width for larger search box */
+    max-width: 700px; /* Consistent width with chat window */
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Align input and icons in a row */
     align-items: center;
-    padding: 1rem; /* Increased padding for larger look */
+    padding: 0.8rem 1.2rem; /* Adjusted padding for better spacing */
     background: #2a2a2a;
-    border-radius: 35px; /* Slightly larger border-radius */
+    border-radius: 35px;
     box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5), /* Red-pink mix lighting */
               0 5px 15px 5px rgba(255, 105, 180, 0.5),
               inset 0 2px 5px rgba(255, 0, 102, 0.3),
@@ -451,14 +451,15 @@ body {
 }
 
 .chatbot-page #userInput {
-    width: 100%;
-    padding: 1rem 1.8rem; /* Increased padding for larger input */
+    flex: 1; /* Take up remaining space */
+    padding: 0.8rem 1.2rem;
     border: none;
-    border-radius: 25px; /* Adjusted for larger look */
+    border-radius: 20px;
     background: #3a3a3a;
     color: #e0e0e0;
-    font-size: 1.1rem; /* Slightly larger font */
+    font-size: 1.1rem;
     font-family: 'Inter', sans-serif;
+    margin-right: 1rem; /* Space between input and icons */
 }
 
 .chatbot-page #userInput:focus {
@@ -467,21 +468,21 @@ body {
 
 .chatbot-page .search-icons {
     display: flex;
-    gap: 0.6rem;
-    margin-top: 0.4rem;
+    gap: 1rem; /* Increased gap for better spacing */
     align-items: center;
 }
 
 .chatbot-page .search-icons .icon {
     font-size: 0.9rem;
     color: #e0e0e0;
-    padding: 0.4rem 0.9rem;
+    padding: 0.4rem 1rem; /* Increased padding for better look */
     background: #3a3a3a;
     border-radius: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.4rem;
+    transition: background 0.3s ease;
 }
 
 .chatbot-page .search-icons .icon:hover {
@@ -492,7 +493,7 @@ body {
     background: linear-gradient(90deg, #ff0066, #ff69b4); /* Red-pink gradient */
     border: none;
     border-radius: 50%;
-    width: 45px; /* Slightly larger button */
+    width: 45px;
     height: 45px;
     display: flex;
     justify-content: center;
@@ -506,7 +507,7 @@ body {
 }
 
 .chatbot-page .search-box .send-button .shuttle {
-    font-size: 1.4rem; /* Larger shuttle icon */
+    font-size: 1.4rem;
     animation: shuttle 0.5s ease-in-out;
 }
 
@@ -645,7 +646,7 @@ body {
     }
 
     .chatbot-page main {
-        padding: 4rem 0.5rem 110px; /* Adjusted for larger search box */
+        padding: 4rem 0.5rem 110px;
     }
 
     .chatbot-page main.sidebar-active {
@@ -657,7 +658,7 @@ body {
     }
 
     .chatbot-page .chat-container {
-        width: 90vw; /* Adjusted for phone */
+        width: 90vw;
     }
 
     .chatbot-page .chat-window {
@@ -670,9 +671,9 @@ body {
     .chatbot-page .search-box {
         width: 90vw;
         max-width: none;
-        padding: 0.8rem;
+        padding: 0.6rem 0.8rem;
         bottom: 10px;
-        transform: translateX(-50%); /* Removed 3D effect for phone */
+        transform: translateX(-50%);
         box-shadow: 0 5px 15px 5px rgba(255, 0, 102, 0.5),
                     0 5px 15px 5px rgba(255, 105, 180, 0.5);
     }
@@ -683,14 +684,19 @@ body {
     }
 
     .chatbot-page #userInput {
-        padding: 0.8rem 1.2rem;
+        padding: 0.6rem 1rem;
         font-size: 0.9rem;
-        border-radius: 20px;
+        border-radius: 15px;
+        margin-right: 0.5rem;
+    }
+
+    .chatbot-page .search-icons {
+        gap: 0.5rem;
     }
 
     .chatbot-page .search-icons .icon {
         font-size: 0.7rem;
-        padding: 0.3rem 0.7rem;
+        padding: 0.3rem 0.6rem;
     }
 
     .chatbot-page .search-box .send-button {
@@ -775,13 +781,23 @@ body {
     .chatbot-page .search-box {
         width: 80vw;
         max-width: none;
-        padding: 1rem;
+        padding: 0.8rem 1rem;
         bottom: 15px;
     }
 
     .chatbot-page #userInput {
         padding: 0.8rem 1rem;
         font-size: 1rem;
+        margin-right: 0.8rem;
+    }
+
+    .chatbot-page .search-icons {
+        gap: 0.8rem;
+    }
+
+    .chatbot-page .search-icons .icon {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
     }
 
     .chatbot-page .search-box .send-button {
@@ -850,13 +866,23 @@ body {
 
     .chatbot-page .search-box {
         max-width: 700px;
-        padding: 1rem;
+        padding: 0.8rem 1.2rem;
         bottom: 20px;
     }
 
     .chatbot-page #userInput {
-        padding: 1rem 1.8rem;
+        padding: 0.8rem 1.2rem;
         font-size: 1.1rem;
+        margin-right: 1rem;
+    }
+
+    .chatbot-page .search-icons {
+        gap: 1rem;
+    }
+
+    .chatbot-page .search-icons .icon {
+        font-size: 0.9rem;
+        padding: 0.4rem 1rem;
     }
 
     .chatbot-page .search-box .send-button {
