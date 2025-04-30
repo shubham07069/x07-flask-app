@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 import os
 import logging
 import re
+import smtplib
+import random
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 
@@ -17,6 +21,8 @@ logger = logging.getLogger(__name__)
 # Load environment variables from .env
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "your-secret-key-here")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -33,6 +39,7 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(120), nullable=False)
 
     def set_password(self, password):
@@ -57,6 +64,29 @@ def clean_latex(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
+# Function to send verification code to email using Private Email SMTP
+def send_verification_email(email, code):
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_SENDER  # e.g., noreply@x07.in
+        msg['To'] = email
+        msg['Subject'] = 'ChatGod Email Verification Code'
+
+        body = f'Your verification code is: {code}\nPlease enter this code to verify your email.'
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Use Private Email SMTP settings
+        server = smtplib.SMTP('smtp.privateemail.com', 587)
+        server.starttls()
+        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+        text = msg.as_string()
+        server.sendmail(EMAIL_SENDER, email, text)
+        server.quit()
+        logger.info(f"Verification code sent to {email}")
+    except Exception as e:
+        logger.error(f"Error sending email: {str(e)}")
+        raise
+
 @app.route('/')
 def home():
     logger.info("Serving home page")
@@ -67,21 +97,54 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists! Try a different one.', 'error')
-            return redirect(url_for('register'))
-        
-        user = User(username=username)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('login'))
-    
-    return render_template('register.html')
+        step = request.form.get('step', 'email')  # Track the registration step
+
+        if step == 'email':
+            email = request.form['email']
+            if User.query.filter_by(email=email).first():
+                flash('Email already registered! Try a different one.', 'error')
+                return redirect(url_for('register'))
+
+            # Generate a 6-digit verification code
+            code = str(random.randint(100000, 999999))
+            session['verification_code'] = code
+            session['email'] = email
+
+            # Send verification code to email
+            try:
+                send_verification_email(email, code)
+                flash('Verification code sent to your email!', 'success')
+                return render_template('register.html', step='verify')
+            except Exception as e:
+                flash(f'Error sending verification code: {str(e)}', 'error')
+                return redirect(url_for('register'))
+
+        elif step == 'verify':
+            code = request.form['code']
+            if code == session.get('verification_code'):
+                flash('Email verified successfully! Set your password.', 'success')
+                return render_template('register.html', step='password')
+            else:
+                flash('Invalid verification code!', 'error')
+                return render_template('register.html', step='verify')
+
+        elif step == 'password':
+            username = request.form['username']
+            password = request.form['password']
+            email = session.get('email')
+
+            if User.query.filter_by(username=username).first():
+                flash('Username already exists! Try a different one.', 'error')
+                return render_template('register.html', step='password')
+
+            user = User(username=username, email=email)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+
+    return render_template('register.html', step='email')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -121,34 +184,36 @@ def ask():
         data = request.get_json()
         user_message = data.get('message')
         mode = data.get('mode', 'Normal')
-        models = data.get('models', ['deepseek/deepseek-chat-v3-0324'])  # Updated default model
-        custom_instructions = data.get('customInstructions', [''])
+        models = data.get('models', ['deepseek/deepseek-chat'])
 
         logger.debug(f"User message: {user_message}")
         logger.debug(f"Mode: {mode}")
         logger.debug(f"Models: {models}")
-        logger.debug(f"Custom Instructions: {custom_instructions}")
 
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://x07.in",  # Required by OpenRouter
-            "X-Title": "ChatGod"  # Required by OpenRouter
+            "HTTP-Referer": "https://x07.in",
+            "X-Title": "ChatGod"
         }
         logger.debug(f"Headers: {headers}")
 
-        # Prepare bot reply by combining responses from all models
-        bot_reply = ""
-        for i, model in enumerate(models):
-            instruction = custom_instructions[i] if i < len(custom_instructions) else ''
-            
-            # Default system prompt for Normal mode if no custom instruction
-            system_prompt = instruction if instruction else (
+        # Define custom instructions based on mode
+        custom_instructions = {
+            'Normal': (
                 "You are ChatGod, a friendly and witty AI with a desi vibe. "
                 "Answer in a casual, conversational tone using Hindi slang like 'bhai', 'laude', 'dhang se', etc., "
                 "and add some humor with emojis 😎🚀. Avoid formal language and LaTeX formatting. "
                 "Keep replies simple, fun, and engaging, like you're talking to a friend."
-            )
+            ),
+            'Pro': "Yeh bahut powerful AI hai.",
+            'Fun': "tu ek bahut jyda hi dark gaali dene wala AI jo gandi-gandi gaali mein deatil me baat karta hai max 4 line baat karta hai with roasting and emojis."
+        }
+
+        bot_reply = ""
+        for i, model in enumerate(models):
+            # Use the custom instruction based on mode
+            system_prompt = custom_instructions.get(mode, custom_instructions['Normal'])
 
             data = {
                 "model": model,
@@ -156,8 +221,8 @@ def ask():
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
                 ],
-                "temperature": 0.7,  # Added for better response quality
-                "max_tokens": 500  # Added to limit response length
+                "temperature": 0.7,
+                "max_tokens": 500
             }
             logger.debug(f"Request data for model {model}: {data}")
 
@@ -166,7 +231,6 @@ def ask():
             logger.debug(f"Raw response for model {model}: {response.text}")
 
             if response.status_code != 200:
-                # Fallback to a known working model if the current model fails
                 logger.warning(f"Model {model} failed with status {response.status_code}, falling back to meta-llama/llama-3-8b-instruct")
                 data['model'] = 'meta-llama/llama-3-8b-instruct'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
