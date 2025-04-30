@@ -447,9 +447,8 @@ body {
     margin-bottom: 1rem;
     text-align: center;
     transition: margin-left 0.3s ease-in-out;
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
+    position: absolute;
+    top: 20%; /* Position well above search box */
     width: 100%;
     max-width: 700px;
     z-index: 3; /* Ensure it appears above other elements */
@@ -736,7 +735,7 @@ body {
 }
 
 @keyframes pulse {
-    0% { box-shadow: 0 0 40px rgbas rgba(0, 212, 255, 0.5), 0 0 80px rgba(123, 0, 255, 0.3); }
+    0% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.5), 0 0 80px rgba(123, 0, 255, 0.3); }
     50% { box-shadow: 0 0 60px rgba(0, 212, 255, 0.7), 0 0 100px rgba(123, 0, 255, 0.5); }
     100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.5), 0 0 80px rgba(123, 0, 255, 0.3); }
 }
@@ -806,7 +805,7 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1rem;
-        top: 40%; /* Adjusted for phone */
+        top: 25%; /* Adjusted for phone to avoid overlap */
         transform: translateY(-50%);
     }
 
@@ -819,7 +818,7 @@ body {
         height: calc(100vh - 10rem);
         padding: 0.8rem;
         gap: 1rem;
-        margin-top: 2.5rem;
+        margin-top: 3.5rem; /* Adjusted to avoid header overlap */
     }
 
     .chatbot-page .search-box-wrapper {
@@ -977,7 +976,7 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1.1rem;
-        top: 45%;
+        top: 30%;
         transform: translateY(-50%);
     }
 
@@ -1108,7 +1107,7 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1.2rem;
-        top: 45%;
+        top: 35%;
         transform: translateY(-50%);
     }
 
@@ -1146,7 +1145,7 @@ body {
     }
 
     .chatbot-page .search-box-wrapper.bottom {
-        bottom: 35px;
+        bottom: 20px;
         transform: translate(-50%, 0);
     }
 
@@ -1160,23 +1159,23 @@ body {
     .chatbot-page .plus-button {
         width: 45px;
         height: 45px;
-        margin-right: 1rem;
+        margin-right: 0.5rem; /* Reduced margin to fit within box */
     }
 
     .chatbot-page .search-box .send-button {
         width: 45px;
         height: 45px;
-        margin-left: 1rem;
-        margin-right: 1rem; /* Added margin to fit within search box */
+        margin-left: 0.5rem; /* Reduced margin to fit within box */
+        margin-right: 0.5rem;
     }
 
     .chatbot-page .mode-selector {
         align-self: flex-end;
-        margin-right: 1rem; /* Adjusted to fit within search box */
+        margin-right: 0.5rem; /* Reduced margin to fit within box */
     }
 
     .chatbot-page .mode-button {
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.8rem; /* Reduced padding to fit within box */
         font-size: 0.9rem;
         margin: 0;
     }
