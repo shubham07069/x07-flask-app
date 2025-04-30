@@ -221,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeButton = document.querySelector('.mode-button');
     const dropupContent = document.querySelector('.dropup-content');
     const modeOptions = document.querySelectorAll('.mode-option');
+    const greetingMessage = document.getElementById('greetingMessage');
 
     if (userInput) {
         userInput.addEventListener('keypress', function (e) {
@@ -279,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
     const main = document.querySelector('main');
     const chatWindow = document.querySelector('.chat-window');
-    const greetingMessage = document.getElementById('greetingMessage');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
 
     if (hamburger && sidebar && main) {
