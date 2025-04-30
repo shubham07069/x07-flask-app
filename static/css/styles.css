@@ -445,14 +445,14 @@ body {
     font-weight: 400;
     color: #fff;
     line-height: 1.5;
-    margin-bottom: 1rem;
     text-align: center;
     transition: margin-left 0.3s ease-in-out;
     position: absolute;
-    top: 20%; /* Position well above search box */
+    top: 20%; /* Position above search box */
     width: 100%;
     max-width: 700px;
-    z-index: 3; /* Ensure it appears above other elements */
+    z-index: 1; /* Ensure it appears below search box */
+    margin-bottom: 2rem; /* Add spacing between greeting and search box */
 }
 
 .chatbot-page .search-box-wrapper {
@@ -466,7 +466,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.5s ease, margin-left 0.3s ease-in-out;
-    z-index: 2;
+    z-index: 2; /* Ensure it appears above greeting message */
 }
 
 .chatbot-page .search-box-wrapper.bottom {
@@ -806,8 +806,10 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1rem;
-        top: 25%; /* Adjusted for phone to avoid overlap */
+        top: 15%; /* Adjusted for phone to avoid overlap */
         transform: translateY(-50%);
+        z-index: 1; /* Below search box */
+        margin-bottom: 1.5rem; /* Add spacing */
     }
 
     .chatbot-page .chat-container {
@@ -834,7 +836,7 @@ body {
     }
 
     .chatbot-page .search-box-wrapper {
- Aki, width: 90vw;
+        width: 90vw;
         max-width: none;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -853,7 +855,7 @@ body {
 
     .chatbot-page .search-box:hover {
         box-shadow: 0 8px 20px 8px rgba(255, 0, 102, 0.7),
-                    0 8px 20px 8px rgba(255, 105 disabled: 0.7);
+                    0 8px 20px 8px rgba(255, 105, 180, 0.7);
     }
 
     .chatbot-page #userInput {
@@ -988,8 +990,10 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1.1rem;
-        top: 30%;
+        top: 25%; /* Adjusted for tablet */
         transform: translateY(-50%);
+        z-index: 1; /* Below search box */
+        margin-bottom: 2rem; /* Add spacing */
     }
 
     .chatbot-page .chat-container {
@@ -1120,8 +1124,10 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1.2rem;
-        top: 35%;
+        top: 30%; /* Adjusted for laptop */
         transform: translateY(-50%);
+        z-index: 1; /* Below search box */
+        margin-bottom: 2rem; /* Add spacing */
     }
 
     .chatbot-page .chat-container {
