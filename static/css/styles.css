@@ -821,6 +821,16 @@ body {
         margin-top: 3.5rem; /* Adjusted to avoid header overlap */
     }
 
+    /* Make scrollbar invisible on phone */
+    .chatbot-page .chat-window::-webkit-scrollbar {
+        display: none;
+    }
+
+    .chatbot-page .chat-window {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
     .chatbot-page .search-box-wrapper {
         width: 90vw;
         max-width: none;
