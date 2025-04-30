@@ -2,6 +2,7 @@ let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // Load
 let currentMode = 'Normal'; // Default mode
 let latestConversationHeight = 0; // To store height of latest conversation
 let isUserScrolling = false; // Flag to track if user is manually scrolling
+let isBotReplying = false; // Flag to track if bot is replying
 
 // Function to render Markdown-like text (bold and emojis)
 function renderMessageText(text) {
@@ -12,8 +13,16 @@ function renderMessageText(text) {
 
 async function sendMessage() {
     const userInput = document.getElementById('userInput');
-    if (!userInput) {
-        console.error("userInput element not found!");
+    const sendButton = document.querySelector('.send-button');
+
+    if (!userInput || !sendButton) {
+        console.error("userInput or sendButton element not found!");
+        return;
+    }
+
+    // Prevent sending message while bot is replying
+    if (isBotReplying) {
+        console.log("Bot is replying, message sending blocked.");
         return;
     }
 
@@ -57,6 +66,11 @@ async function sendMessage() {
     } else {
         console.error("searchBoxWrapper element not found!");
     }
+
+    // Disable input and fade out send button while bot is replying
+    isBotReplying = true;
+    userInput.disabled = true;
+    sendButton.classList.add('faded');
 
     // Add thinking skeleton animation
     const thinkingMessage = document.createElement('div');
@@ -149,6 +163,11 @@ async function sendMessage() {
 
         // Scroll to bottom (latest message)
         scrollToBottom(chatWindow, true);
+    } finally {
+        // Re-enable input and restore send button color after bot reply
+        isBotReplying = false;
+        userInput.disabled = false;
+        sendButton.classList.remove('faded');
     }
 }
 
