@@ -406,7 +406,7 @@ body {
     width: 100%;
     max-width: 700px;
     height: auto; /* Dynamic height based on content */
-    max-height: calc(100vh - 12rem); /* Max height to ensure scrollable */
+    max-height: calc(100vh - 6rem); /* Max height to ensure scrollable */
     overflow-y: auto;
     padding: 1rem;
     display: flex;
@@ -414,7 +414,7 @@ body {
     gap: 1.5rem;
     scroll-behavior: smooth;
     margin-bottom: 1rem;
-    margin-top: 3rem;
+    margin-top: 0; /* Start directly below header */
     transition: margin-left 0.3s ease-in-out;
     position: relative;
     z-index: 1;
@@ -819,10 +819,10 @@ body {
     .chatbot-page .chat-window {
         width: 90vw;
         height: auto; /* Dynamic height */
-        max-height: calc(100vh - 10rem); /* Max height for scrollable */
+        max-height: calc(100vh - 6rem); /* Max height for scrollable */
         padding: 0.8rem;
         gap: 1rem;
-        margin-top: 3.5rem; /* Adjusted to avoid header overlap */
+        margin-top: 0; /* Start directly below header */
     }
 
     /* Make scrollbar invisible on phone */
@@ -1003,10 +1003,10 @@ body {
     .chatbot-page .chat-window {
         width: 80vw;
         height: auto; /* Dynamic height */
-        max-height: calc(100vh - 11rem); /* Max height for scrollable */
+        max-height: calc(100vh - 7rem); /* Max height for scrollable */
         padding: 1.5rem;
         gap: 1.5rem;
-        margin-top: 3rem;
+        margin-top: 0; /* Start directly below header */
     }
 
     .chatbot-page .search-box-wrapper {
@@ -1141,10 +1141,10 @@ body {
 
     .chatbot-page .chat-window {
         height: auto; /* Dynamic height */
-        max-height: calc(100vh - 6rem); /* Max height for scrollable */
+        max-height: calc(100vh - 4rem); /* Max height for scrollable */
         padding: 1.5rem;
         gap: 1.5rem;
-        margin-top: 1rem;
+        margin-top: 0; /* Start directly below header */
         margin-bottom: 1rem;
     }
 
