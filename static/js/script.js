@@ -37,7 +37,7 @@ async function sendMessage() {
             <i class="fas fa-comment action-icon"></i>
         </div>
     `;
-    chatWindow.insertBefore(userMessage, chatWindow.firstChild);
+    chatWindow.appendChild(userMessage);
 
     // Animate search box wrapper to bottom
     searchBoxWrapper.classList.add('bottom');
@@ -50,10 +50,10 @@ async function sendMessage() {
         <div class="skeleton-line"></div>
         <div class="skeleton-line"></div>
     `;
-    chatWindow.insertBefore(thinkingMessage, chatWindow.firstChild);
+    chatWindow.appendChild(thinkingMessage);
 
-    // Scroll to top (latest message)
-    scrollToTop(chatWindow);
+    // Scroll to bottom (latest message)
+    scrollToBottom(chatWindow);
 
     // Clear input and reset search box height
     document.getElementById('userInput').value = '';
@@ -95,14 +95,14 @@ async function sendMessage() {
                 <i class="fas fa-comment action-icon"></i>
             </div>
         `;
-        chatWindow.insertBefore(aiMessage, chatWindow.firstChild);
+        chatWindow.appendChild(aiMessage);
 
         // Add to chat history
         chatHistory.push({ user: userInput, bot: data.reply });
         updateChatHistory();
 
-        // Scroll to top (latest message)
-        scrollToTop(chatWindow);
+        // Scroll to bottom (latest message)
+        scrollToBottom(chatWindow);
     } catch (error) {
         console.error("Error in sendMessage:", error.message);
         const thinkingMsgElement = document.getElementById('thinking-message');
@@ -121,10 +121,10 @@ async function sendMessage() {
                 <i class="fas fa-comment action-icon"></i>
             </div>
         `;
-        chatWindow.insertBefore(aiMessage, chatWindow.firstChild);
+        chatWindow.appendChild(aiMessage);
 
-        // Scroll to top (latest message)
-        scrollToTop(chatWindow);
+        // Scroll to bottom (latest message)
+        scrollToBottom(chatWindow);
     }
 }
 
@@ -162,7 +162,7 @@ function loadChat(index) {
             <i class="fas fa-comment action-icon"></i>
         </div>
     `;
-    chatWindow.insertBefore(userMessage, chatWindow.firstChild);
+    chatWindow.appendChild(userMessage);
     const botMessage = document.createElement('div');
     botMessage.className = 'message bot';
     botMessage.innerHTML = `
@@ -175,8 +175,8 @@ function loadChat(index) {
             <i class="fas fa-comment action-icon"></i>
         </div>
     `;
-    chatWindow.insertBefore(botMessage, chatWindow.firstChild);
-    scrollToTop(chatWindow);
+    chatWindow.appendChild(botMessage);
+    scrollToBottom(chatWindow);
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.remove('active');
     const hamburger = document.querySelector('.hamburger');
@@ -203,10 +203,10 @@ function adjustSearchBoxHeight() {
     searchBox.style.height = `${newHeight}px`;
 }
 
-// Function to scroll chat window to top (latest message)
-function scrollToTop(chatWindow) {
+// Function to scroll chat window to bottom (latest message)
+function scrollToBottom(chatWindow) {
     chatWindow.scrollTo({
-        top: 0,
+        top: chatWindow.scrollHeight,
         behavior: 'smooth'
     });
 }
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load chat history on page load
     if (chatHistory.length > 0) {
         chatWindow.innerHTML = '';
-        // Display all messages in reverse order (latest at top, oldest at bottom)
+        // Display all messages in chronological order (oldest at top, latest at bottom)
         for (let i = 0; i < chatHistory.length; i++) {
             const chat = chatHistory[i];
             const userMessage = document.createElement('div');
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-comment action-icon"></i>
                 </div>
             `;
-            chatWindow.insertBefore(userMessage, chatWindow.firstChild);
+            chatWindow.appendChild(userMessage);
 
             const botMessage = document.createElement('div');
             botMessage.className = 'message bot';
@@ -253,9 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-comment action-icon"></i>
                 </div>
             `;
-            chatWindow.insertBefore(botMessage, chatWindow.firstChild);
+            chatWindow.appendChild(botMessage);
         }
-        scrollToTop(chatWindow);
+        scrollToBottom(chatWindow);
     }
 
     if (userInput) {
