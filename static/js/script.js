@@ -24,6 +24,9 @@ async function sendMessage() {
         greetingMessage.style.display = 'none';
     }
 
+    // Clear previous messages
+    chatWindow.innerHTML = '';
+
     // Add user message with Markdown rendering
     const userMessage = document.createElement('div');
     userMessage.className = 'message user';
@@ -52,8 +55,8 @@ async function sendMessage() {
     `;
     chatWindow.appendChild(thinkingMessage);
 
-    // Scroll to center with smooth behavior
-    scrollToCenter(chatWindow);
+    // Scroll to top (latest message)
+    scrollToTop(chatWindow);
 
     // Clear input and reset search box height
     document.getElementById('userInput').value = '';
@@ -101,8 +104,8 @@ async function sendMessage() {
         chatHistory.push({ user: userInput, bot: data.reply });
         updateChatHistory();
 
-        // Scroll to center with smooth behavior
-        scrollToCenter(chatWindow);
+        // Scroll to top (latest message)
+        scrollToTop(chatWindow);
     } catch (error) {
         console.error("Error in sendMessage:", error.message);
         const thinkingMsgElement = document.getElementById('thinking-message');
@@ -123,8 +126,8 @@ async function sendMessage() {
         `;
         chatWindow.appendChild(aiMessage);
 
-        // Scroll to center with smooth behavior
-        scrollToCenter(chatWindow);
+        // Scroll to top (latest message)
+        scrollToTop(chatWindow);
     }
 }
 
@@ -176,7 +179,7 @@ function loadChat(index) {
         </div>
     `;
     chatWindow.appendChild(botMessage);
-    scrollToCenter(chatWindow);
+    scrollToTop(chatWindow);
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.remove('active');
     const hamburger = document.querySelector('.hamburger');
@@ -203,13 +206,10 @@ function adjustSearchBoxHeight() {
     searchBox.style.height = `${newHeight}px`;
 }
 
-// Function to scroll chat window to center
-function scrollToCenter(chatWindow) {
-    const scrollHeight = chatWindow.scrollHeight;
-    const clientHeight = chatWindow.clientHeight;
-    const scrollPosition = (scrollHeight - clientHeight) / 2;
+// Function to scroll chat window to top (latest message)
+function scrollToTop(chatWindow) {
     chatWindow.scrollTo({
-        top: scrollPosition,
+        top: 0,
         behavior: 'smooth'
     });
 }
