@@ -1,6 +1,13 @@
 let chatHistory = [];
 let currentMode = 'Normal'; // Default mode
 
+// Function to render Markdown-like text (bold and emojis)
+function renderMessageText(text) {
+    // Replace **text** with <strong>text</strong> for bold
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    return text;
+}
+
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value;
     if (!userInput.trim()) {
@@ -17,11 +24,11 @@ async function sendMessage() {
         greetingMessage.style.display = 'none';
     }
 
-    // Add user message
+    // Add user message with Markdown rendering
     const userMessage = document.createElement('div');
     userMessage.className = 'message user';
     userMessage.innerHTML = `
-        <div class="message-content">${userInput}</div>
+        <div class="message-content">${renderMessageText(userInput)}</div>
         <div class="message-actions">
             <i class="fas fa-copy action-icon"></i>
             <i class="fas fa-thumbs-up action-icon"></i>
@@ -45,8 +52,8 @@ async function sendMessage() {
     `;
     chatWindow.appendChild(thinkingMessage);
 
-    // Scroll to bottom with smooth behavior
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    // Scroll to center with smooth behavior
+    scrollToCenter(chatWindow);
 
     // Clear input and reset search box height
     document.getElementById('userInput').value = '';
@@ -75,11 +82,11 @@ async function sendMessage() {
             thinkingMsgElement.remove();
         }
 
-        // Add actual bot reply
+        // Add actual bot reply with Markdown rendering
         const aiMessage = document.createElement('div');
         aiMessage.className = 'message bot';
         aiMessage.innerHTML = `
-            <div class="message-content">${data.reply}</div>
+            <div class="message-content">${renderMessageText(data.reply)}</div>
             <div class="message-actions">
                 <i class="fas fa-copy action-icon"></i>
                 <i class="fas fa-thumbs-up action-icon"></i>
@@ -94,8 +101,8 @@ async function sendMessage() {
         chatHistory.push({ user: userInput, bot: data.reply });
         updateChatHistory();
 
-        // Scroll to bottom with smooth behavior
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        // Scroll to center with smooth behavior
+        scrollToCenter(chatWindow);
     } catch (error) {
         console.error("Error in sendMessage:", error.message);
         const thinkingMsgElement = document.getElementById('thinking-message');
@@ -116,8 +123,8 @@ async function sendMessage() {
         `;
         chatWindow.appendChild(aiMessage);
 
-        // Scroll to bottom with smooth behavior
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        // Scroll to center with smooth behavior
+        scrollToCenter(chatWindow);
     }
 }
 
@@ -139,7 +146,7 @@ function loadChat(index) {
     const userMessage = document.createElement('div');
     userMessage.className = 'message user';
     userMessage.innerHTML = `
-        <div class="message-content">${chat.user}</div>
+        <div class="message-content">${renderMessageText(chat.user)}</div>
         <div class="message-actions">
             <i class="fas fa-copy action-icon"></i>
             <i class="fas fa-thumbs-up action-icon"></i>
@@ -152,7 +159,7 @@ function loadChat(index) {
     const botMessage = document.createElement('div');
     botMessage.className = 'message bot';
     botMessage.innerHTML = `
-        <div class="message-content">${chat.bot}</div>
+        <div class="message-content">${renderMessageText(chat.bot)}</div>
         <div class="message-actions">
             <i class="fas fa-copy action-icon"></i>
             <i class="fas fa-thumbs-up action-icon"></i>
@@ -162,7 +169,7 @@ function loadChat(index) {
         </div>
     `;
     chatWindow.appendChild(botMessage);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    scrollToCenter(chatWindow);
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.remove('active');
     const hamburger = document.querySelector('.hamburger');
@@ -175,25 +182,29 @@ function loadChat(index) {
 function adjustSearchBoxHeight() {
     const userInput = document.getElementById('userInput');
     const searchBox = document.querySelector('.search-box');
-    const searchBoxRow = document.querySelector('.search-box-row');
+    const searchBoxRow = document.querySelector('.button-row');
 
-    // Reset height to auto to calculate the natural height
     userInput.style.height = 'auto';
     searchBox.style.height = 'auto';
 
-    // Calculate the new height based on scrollHeight
     const inputHeight = userInput.scrollHeight;
     userInput.style.height = `${inputHeight}px`;
 
-    // Adjust search box height to accommodate input and mode selector
-    const modeSelector = document.querySelector('.mode-selector');
-    const modeSelectorHeight = modeSelector ? modeSelector.offsetHeight : 0;
+    const modeSelectorHeight = searchBoxRow ? searchBoxRow.offsetHeight : 0;
     const padding = 24; // 2 * 12px (top and bottom padding of search-box)
     const newHeight = inputHeight + modeSelectorHeight + padding;
     searchBox.style.height = `${newHeight}px`;
+}
 
-    // Ensure search box row height matches input height
-    searchBoxRow.style.height = `${inputHeight}px`;
+// Function to scroll chat window to center
+function scrollToCenter(chatWindow) {
+    const scrollHeight = chatWindow.scrollHeight;
+    const clientHeight = chatWindow.clientHeight;
+    const scrollPosition = (scrollHeight - clientHeight) / 2;
+    chatWindow.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+    });
 }
 
 // Allow sending message with Enter key and rocket button, and handle dropup menu
@@ -274,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Left shift for laptop only, sync with search box
             if (window.innerWidth >= 1025) {
-                const shiftAmount = '150px'; // Reduced shift to sync with search box
+                const shiftAmount = '150px';
                 if (main.classList.contains('sidebar-active')) {
                     chatWindow.style.marginLeft = shiftAmount;
                     if (greetingMessage) greetingMessage.style.marginLeft = shiftAmount;
