@@ -1,5 +1,6 @@
-let chatHistory = [];
+let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // Load chat history from localStorage
 let currentMode = 'Normal'; // Default mode
+let latestConversationHeight = 0; // To store height of latest conversation
 
 // Function to render Markdown-like text (bold and emojis)
 function renderMessageText(text) {
@@ -67,7 +68,7 @@ async function sendMessage() {
     chatWindow.appendChild(thinkingMessage);
 
     // Scroll to bottom (latest message)
-    scrollToBottom(chatWindow);
+    scrollToBottom(chatWindow, true);
 
     // Clear input and reset search box height
     userInput.value = '';
@@ -115,10 +116,11 @@ async function sendMessage() {
 
         // Add to chat history
         chatHistory.push({ user: inputValue, bot: data.reply });
+        localStorage.setItem('chatHistory', JSON.stringify(chatHistory)); // Save to localStorage
         updateChatHistory();
 
         // Scroll to bottom (latest message)
-        scrollToBottom(chatWindow);
+        scrollToBottom(chatWindow, true);
     } catch (error) {
         console.error("Error in sendMessage:", error.message);
         const thinkingMsgElement = document.getElementById('thinking-message');
@@ -139,8 +141,13 @@ async function sendMessage() {
         `;
         chatWindow.appendChild(aiMessage);
 
+        // Add to chat history even if there's an error
+        chatHistory.push({ user: inputValue, bot: `Bhosdike, kuch galat ho gaya! 😅 Error: ${error.message}` });
+        localStorage.setItem('chatHistory', JSON.stringify(chatHistory)); // Save to localStorage
+        updateChatHistory();
+
         // Scroll to bottom (latest message)
-        scrollToBottom(chatWindow);
+        scrollToBottom(chatWindow, true);
     }
 }
 
@@ -199,7 +206,7 @@ function loadChat(index) {
         </div>
     `;
     chatWindow.appendChild(botMessage);
-    scrollToBottom(chatWindow);
+    scrollToBottom(chatWindow, true);
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
         sidebar.classList.remove('active');
@@ -238,11 +245,39 @@ function adjustSearchBoxHeight() {
 }
 
 // Function to scroll chat window to bottom (latest message)
-function scrollToBottom(chatWindow) {
-    chatWindow.scrollTo({
-        top: chatWindow.scrollHeight,
-        behavior: 'smooth'
-    });
+function scrollToBottom(chatWindow, adjustForLatest = false) {
+    if (adjustForLatest) {
+        // Get the last two messages (user + bot reply)
+        const messages = chatWindow.getElementsByClassName('message');
+        if (messages.length >= 2) {
+            const latestUserMessage = messages[messages.length - 2];
+            const latestBotMessage = messages[messages.length - 1];
+            const latestConversationHeight = latestUserMessage.offsetHeight + latestBotMessage.offsetHeight + 48; // 1.5rem gap between messages + padding
+
+            // Scroll to the position where the latest conversation starts
+            chatWindow.scrollTo({
+                top: chatWindow.scrollHeight - latestConversationHeight,
+                behavior: 'smooth'
+            });
+
+            // Update the chat window height to fit the latest conversation
+            chatWindow.style.height = `${Math.min(latestConversationHeight, chatWindow.scrollHeight)}px`;
+        } else {
+            // If less than 2 messages, scroll to bottom normally
+            chatWindow.scrollTo({
+                top: chatWindow.scrollHeight,
+                behavior: 'smooth'
+            });
+            chatWindow.style.height = 'auto';
+        }
+    } else {
+        // Normal scroll to bottom (used in loadChat)
+        chatWindow.scrollTo({
+            top: chatWindow.scrollHeight,
+            behavior: 'smooth'
+        });
+        chatWindow.style.height = 'auto';
+    }
 }
 
 // Allow sending message with Enter key and rocket button, and handle dropup menu
@@ -296,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             chatWindow.appendChild(botMessage);
         }
-        scrollToBottom(chatWindow);
+        scrollToBottom(chatWindow, true);
     }
 
     // User input event listeners
@@ -387,8 +422,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("searchBoxWrapper:", searchBoxWrapper);
     }
 
-    // Ensure greeting message is visible on page load
-    if (greetingMessage && chatHistory.length === 0) {
-        greetingMessage.style.display = 'block';
+    // Ensure greeting message is visible on page load only if chat history is empty
+    if (greetingMessage) {
+        if (chatHistory.length === 0) {
+            greetingMessage.style.display = 'block';
+        } else {
+            greetingMessage.style.display = 'none';
+        }
     }
 });
