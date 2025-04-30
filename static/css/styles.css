@@ -1146,7 +1146,7 @@ body {
     }
 
     .chatbot-page .search-box-wrapper.bottom {
-        bottom: 20px;
+        bottom: 25px;
         transform: translate(-50%, 0);
     }
 
