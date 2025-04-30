@@ -418,7 +418,7 @@ body {
     justify-content: flex-start; /* Start messages from top */
     gap: 1.5rem;
     scroll-behavior: smooth;
-    margin-bottom: 1cm; /* 1 cm above search box */
+    margin-bottom: 4cm; /* 4 cm above search box */
     margin-top: 0; /* Start directly below header */
     transition: margin-left 0.3s ease-in-out;
     position: relative;
@@ -560,13 +560,18 @@ body {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
     margin-left: 1rem;
     aspect-ratio: 1 / 1;
 }
 
 .chatbot-page .search-box .send-button:hover {
     transform: scale(1.1);
+}
+
+.chatbot-page .search-box .send-button.faded {
+    background: linear-gradient(90deg, #ff006680, #ff69b480); /* Faded color */
+    cursor: not-allowed;
 }
 
 .chatbot-page .search-box .send-button .shuttle {
@@ -648,9 +653,9 @@ body {
     max-width: 100%;
 }
 
-/* Ensure last message is 1cm above search box */
+/* Ensure last message is 4cm above search box */
 .chatbot-page .message:last-child {
-    margin-bottom: 1cm;
+    margin-bottom: 4cm;
 }
 
 .chatbot-page .message-content {
@@ -829,7 +834,7 @@ body {
         padding: 0.8rem;
         gap: 1rem;
         margin-top: 0; /* Start directly below header */
-        margin-bottom: 1cm; /* 1 cm above search box */
+        margin-bottom: 4cm; /* 4 cm above search box */
         justify-content: flex-start; /* Start messages from top */
     }
 
@@ -1016,7 +1021,7 @@ body {
         padding: 1.5rem;
         gap: 1.5rem;
         margin-top: 0; /* Start directly below header */
-        margin-bottom: 1cm; /* 1 cm above search box */
+        margin-bottom: 4cm; /* 4 cm above search box */
         justify-content: flex-start; /* Start messages from top */
     }
 
@@ -1157,7 +1162,7 @@ body {
         padding: 1.5rem;
         gap: 1.5rem;
         margin-top: 0; /* Start directly below header */
-        margin-bottom: 1cm; /* 1 cm above search box */
+        margin-bottom: 4cm; /* 4 cm above search box */
         justify-content: flex-start; /* Start messages from top */
     }
 
@@ -1192,19 +1197,19 @@ body {
     .chatbot-page .plus-button {
         width: 45px;
         height: 45px;
-        margin-right: 0.5rem; /* Reduced margin to fit within box */
+        margin-right: 0.3rem; /* Reduced margin to fit within box */
     }
 
     .chatbot-page .search-box .send-button {
         width: 45px;
         height: 45px;
-        margin-left: 0.5rem; /* Reduced margin to fit within box */
-        margin-right: 0.5rem;
+        margin-left: 0.3rem; /* Reduced margin to fit within box */
+        margin-right: 0.3rem;
     }
 
     .chatbot-page .mode-selector {
         align-self: flex-end;
-        margin-right: 0.5rem; /* Reduced margin to fit within box */
+        margin-right: 0.3rem; /* Reduced margin to fit within box */
     }
 
     .chatbot-page .mode-button {
