@@ -16,7 +16,7 @@ async function sendMessage() {
     }
 
     const chatWindow = document.getElementById('chatWindow');
-    const greetingMessage = document.querySelector('.greeting-message');
+    const greetingMessage = document.getElementById('greetingMessage');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
 
     // Hide greeting message after first message
@@ -141,6 +141,13 @@ function updateChatHistory() {
 
 function loadChat(index) {
     const chatWindow = document.getElementById('chatWindow');
+    const greetingMessage = document.getElementById('greetingMessage');
+    
+    // Hide greeting message when loading a chat
+    if (greetingMessage) {
+        greetingMessage.style.display = 'none';
+    }
+
     chatWindow.innerHTML = '';
     const chat = chatHistory[index];
     const userMessage = document.createElement('div');
@@ -182,7 +189,7 @@ function loadChat(index) {
 function adjustSearchBoxHeight() {
     const userInput = document.getElementById('userInput');
     const searchBox = document.querySelector('.search-box');
-    const searchBoxRow = document.querySelector('.button-row');
+    const buttonRow = document.querySelector('.button-row');
 
     userInput.style.height = 'auto';
     searchBox.style.height = 'auto';
@@ -190,9 +197,9 @@ function adjustSearchBoxHeight() {
     const inputHeight = userInput.scrollHeight;
     userInput.style.height = `${inputHeight}px`;
 
-    const modeSelectorHeight = searchBoxRow ? searchBoxRow.offsetHeight : 0;
+    const buttonRowHeight = buttonRow ? buttonRow.offsetHeight : 0;
     const padding = 24; // 2 * 12px (top and bottom padding of search-box)
-    const newHeight = inputHeight + modeSelectorHeight + padding;
+    const newHeight = inputHeight + buttonRowHeight + padding;
     searchBox.style.height = `${newHeight}px`;
 }
 
@@ -272,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
     const main = document.querySelector('main');
     const chatWindow = document.querySelector('.chat-window');
-    const greetingMessage = document.querySelector('.greeting-message');
+    const greetingMessage = document.getElementById('greetingMessage');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
 
     if (hamburger && sidebar && main) {
@@ -302,5 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("hamburger:", hamburger);
         console.log("sidebar:", sidebar);
         console.log("main:", main);
+    }
+
+    // Ensure greeting message is visible on page load
+    if (greetingMessage && chatHistory.length === 0) {
+        greetingMessage.style.display = 'block';
     }
 });
