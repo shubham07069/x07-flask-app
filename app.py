@@ -118,8 +118,16 @@ def chat():
 def ask():
     try:
         logger.info("Received request at /ask endpoint")
-        user_message = request.json['message']
+        data = request.get_json()
+        user_message = data.get('message')
+        mode = data.get('mode', 'Normal')
+        models = data.get('models', ['deepseek/deepseek-chat-v3-0324'])
+        custom_instructions = data.get('customInstructions', [''])
+
         logger.debug(f"User message: {user_message}")
+        logger.debug(f"Mode: {mode}")
+        logger.debug(f"Models: {models}")
+        logger.debug(f"Custom Instructions: {custom_instructions}")
 
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -127,33 +135,41 @@ def ask():
         }
         logger.debug(f"Headers: {headers}")
 
-        system_prompt = (
-            "You are ChatGod, a friendly and witty AI with a desi vibe. "
-            "Answer in a casual, conversational tone using Hindi slang like 'bhai', 'laude', 'dhang se', etc., "
-            "and add some humor with emojis 😎🚀. Avoid formal language and LaTeX formatting. "
-            "Keep replies simple, fun, and engaging, like you're talking to a friend."
-        )
+        # Prepare bot reply by combining responses from all models
+        bot_reply = ""
+        for i, model in enumerate(models):
+            instruction = custom_instructions[i] if i < len(custom_instructions) else ''
+            
+            # Default system prompt for Normal mode if no custom instruction
+            system_prompt = instruction if instruction else (
+                "You are ChatGod, a friendly and witty AI with a desi vibe. "
+                "Answer in a casual, conversational tone using Hindi slang like 'bhai', 'laude', 'dhang se', etc., "
+                "and add some humor with emojis 😎🚀. Avoid formal language and LaTeX formatting. "
+                "Keep replies simple, fun, and engaging, like you're talking to a friend."
+            )
 
-        data = {
-            "model": "deepseek/deepseek-chat-v3-0324",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ]
-        }
-        logger.debug(f"Request data: {data}")
+            data = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_message}
+                ]
+            }
+            logger.debug(f"Request data for model {model}: {data}")
 
-        logger.debug("Sending request to OpenRouter API")
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-        logger.debug(f"Raw response: {response.text}")
-        response.raise_for_status()
-        result = response.json()
-        logger.debug(f"OpenRouter API response: {result}")
+            logger.debug(f"Sending request to OpenRouter API for model {model}")
+            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+            logger.debug(f"Raw response for model {model}: {response.text}")
+            response.raise_for_status()
+            result = response.json()
+            logger.debug(f"OpenRouter API response for model {model}: {result}")
 
-        bot_reply = result['choices'][0]['message']['content']
-        bot_reply = clean_latex(bot_reply)
+            model_reply = result['choices'][0]['message']['content']
+            model_reply = clean_latex(model_reply)
+            bot_reply += model_reply + "\n"
+
         logger.info("Successfully got bot reply")
-        return jsonify({'reply': bot_reply})
+        return jsonify({'reply': bot_reply.strip()})
     except Exception as e:
         logger.error(f"Error in /ask endpoint: {str(e)}")
         return jsonify({'reply': f"Bhosdike, kuch galat ho gaya! 😅 Error: {str(e)}"}), 500
