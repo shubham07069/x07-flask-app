@@ -1,5 +1,6 @@
 let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // Load chat history from localStorage
 let currentMode = 'Normal'; // Default mode
+let currentModel = 'default'; // Default model
 let latestConversationHeight = 0; // To store height of latest conversation
 let isUserScrolling = false; // Flag to track if user is manually scrolling
 let isBotReplying = false; // Flag to track if bot is replying
@@ -9,6 +10,17 @@ function renderMessageText(text) {
     // Replace **text** with <strong>text</strong> for bold
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     return text;
+}
+
+// Function to add model switch notification to chat
+function addModelSwitchNotification(chatWindow, model) {
+    const notificationMessage = document.createElement('div');
+    notificationMessage.className = 'message notification';
+    notificationMessage.innerHTML = `
+        <div class="message-content">Model switched to ${model}</div>
+    `;
+    chatWindow.appendChild(notificationMessage);
+    scrollToBottom(chatWindow, true);
 }
 
 async function sendMessage() {
@@ -89,14 +101,33 @@ async function sendMessage() {
     userInput.value = '';
     adjustSearchBoxHeight();
 
+    // Prepare models and custom instructions based on mode
+    let models = [];
+    let customInstructions = [];
+    if (currentMode === 'Normal') {
+        models = ['default'];
+        customInstructions = [''];
+    } else if (currentMode === 'Pro') {
+        models = ['meta-llama/llama-4-scout:free'];
+        customInstructions = ['Yeh bahut powerful AI hai'];
+    } else if (currentMode === 'Fun') {
+        models = ['google/gemini-2.5-flash-preview'];
+        customInstructions = ['Yeh bahut gaali dene wala AI jo gaali mein baat karta hai with roasting'];
+    }
+
     try {
-        console.log("Sending request to /ask endpoint with mode:", currentMode);
+        console.log("Sending request to /ask endpoint with mode:", currentMode, "models:", models);
         const response = await fetch('/ask', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message: inputValue, mode: currentMode }),
+            body: JSON.stringify({
+                message: inputValue,
+                mode: currentMode,
+                models: models,
+                customInstructions: customInstructions
+            }),
         });
 
         console.log("Response status:", response.status);
@@ -406,6 +437,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const selectedMode = option.getAttribute('data-mode');
                 currentMode = selectedMode;
+
+                // Update current model based on mode
+                if (currentMode === 'Normal') {
+                    currentModel = 'default';
+                } else if (currentMode === 'Pro') {
+                    currentModel = 'meta-llama/llama-4-scout:free';
+                } else if (currentMode === 'Fun') {
+                    currentModel = 'google/gemini-2.5-flash-preview';
+                }
+
+                // Add model switch notification to chat
+                addModelSwitchNotification(chatWindow, currentModel);
 
                 // Update button text
                 modeButton.innerHTML = `${selectedMode} <i class="fas fa-chevron-up"></i>`;
