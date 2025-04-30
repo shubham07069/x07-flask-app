@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load chat history on page load
     if (chatHistory.length > 0) {
         chatWindow.innerHTML = '';
-        // Display all messages in reverse order (latest at top)
+        // Display all messages in reverse order (latest at top, oldest at bottom)
         for (let i = 0; i < chatHistory.length; i++) {
             const chat = chatHistory[i];
             const userMessage = document.createElement('div');
