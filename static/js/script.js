@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatHistory.length > 0) {
         chatWindow.innerHTML = '';
         // Display all messages in reverse order (latest at top)
-        for (let i = chatHistory.length - 1; i >= 0; i--) {
+        for (let i = 0; i < chatHistory.length; i++) {
             const chat = chatHistory[i];
             const userMessage = document.createElement('div');
             userMessage.className = 'message user';
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-comment action-icon"></i>
                 </div>
             `;
-            chatWindow.appendChild(userMessage);
+            chatWindow.insertBefore(userMessage, chatWindow.firstChild);
 
             const botMessage = document.createElement('div');
             botMessage.className = 'message bot';
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-comment action-icon"></i>
                 </div>
             `;
-            chatWindow.appendChild(botMessage);
+            chatWindow.insertBefore(botMessage, chatWindow.firstChild);
         }
         scrollToTop(chatWindow);
     }
