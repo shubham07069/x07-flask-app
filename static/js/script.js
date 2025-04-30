@@ -1,6 +1,7 @@
 let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // Load chat history from localStorage
 let currentMode = 'Normal'; // Default mode
 let latestConversationHeight = 0; // To store height of latest conversation
+let isUserScrolling = false; // Flag to track if user is manually scrolling
 
 // Function to render Markdown-like text (bold and emojis)
 function renderMessageText(text) {
@@ -246,7 +247,7 @@ function adjustSearchBoxHeight() {
 
 // Function to scroll chat window to bottom (latest message)
 function scrollToBottom(chatWindow, adjustForLatest = false) {
-    if (adjustForLatest) {
+    if (adjustForLatest && !isUserScrolling) {
         // Get the last two messages (user + bot reply)
         const messages = chatWindow.getElementsByClassName('message');
         if (messages.length >= 2) {
@@ -332,6 +333,27 @@ document.addEventListener('DOMContentLoaded', () => {
             chatWindow.appendChild(botMessage);
         }
         scrollToBottom(chatWindow, true);
+    }
+
+    // Add scroll event listener to detect manual scrolling
+    if (chatWindow) {
+        chatWindow.addEventListener('scroll', () => {
+            // Check if user is scrolling up
+            const isAtBottom = chatWindow.scrollHeight - chatWindow.scrollTop <= chatWindow.clientHeight + 1;
+            isUserScrolling = !isAtBottom; // Set flag to true if user is not at the bottom
+        });
+
+        // Add mutation observer to auto-scroll when new messages are added
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(() => {
+                if (!isUserScrolling) {
+                    scrollToBottom(chatWindow, true);
+                }
+            });
+        });
+
+        // Observe changes to the chat window (new messages)
+        observer.observe(chatWindow, { childList: true, subtree: true });
     }
 
     // User input event listeners
