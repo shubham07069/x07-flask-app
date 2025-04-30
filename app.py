@@ -121,7 +121,7 @@ def ask():
         data = request.get_json()
         user_message = data.get('message')
         mode = data.get('mode', 'Normal')
-        models = data.get('models', ['deepseek/deepseek-chat-v3-0324'])
+        models = data.get('models', ['deepseek/deepseek-chat-v3-0324'])  # Updated default model
         custom_instructions = data.get('customInstructions', [''])
 
         logger.debug(f"User message: {user_message}")
@@ -131,7 +131,9 @@ def ask():
 
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://x07.in",  # Required by OpenRouter
+            "X-Title": "ChatGod"  # Required by OpenRouter
         }
         logger.debug(f"Headers: {headers}")
 
@@ -153,14 +155,24 @@ def ask():
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
-                ]
+                ],
+                "temperature": 0.7,  # Added for better response quality
+                "max_tokens": 500  # Added to limit response length
             }
             logger.debug(f"Request data for model {model}: {data}")
 
             logger.debug(f"Sending request to OpenRouter API for model {model}")
             response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
             logger.debug(f"Raw response for model {model}: {response.text}")
-            response.raise_for_status()
+
+            if response.status_code != 200:
+                # Fallback to a known working model if the current model fails
+                logger.warning(f"Model {model} failed with status {response.status_code}, falling back to meta-llama/llama-3-8b-instruct")
+                data['model'] = 'meta-llama/llama-3-8b-instruct'
+                response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+                logger.debug(f"Fallback raw response: {response.text}")
+                response.raise_for_status()
+
             result = response.json()
             logger.debug(f"OpenRouter API response for model {model}: {result}")
 
