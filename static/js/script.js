@@ -101,18 +101,14 @@ async function sendMessage() {
     userInput.value = '';
     adjustSearchBoxHeight();
 
-    // Prepare models and custom instructions based on mode
+    // Prepare models based on mode
     let models = [];
-    let customInstructions = [];
     if (currentMode === 'Normal') {
-        models = ['deepseek/deepseek-chat-v3-0324:free'];
-        customInstructions = [''];
+        models = ['default'];
     } else if (currentMode === 'Pro') {
         models = ['meta-llama/llama-4-scout:free'];
-        customInstructions = ['Yeh bahut powerful AI hai'];
     } else if (currentMode === 'Fun') {
         models = ['google/gemini-2.5-flash-preview'];
-        customInstructions = ['Use quick and clever humor when appropriate. and also use gali like madharchod behanchod, bhosdike, betichod, laude in conversation and emojis '];
     }
 
     try {
@@ -125,8 +121,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 message: inputValue,
                 mode: currentMode,
-                models: models,
-                customInstructions: customInstructions
+                models: models
             }),
         });
 
@@ -440,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Update current model based on mode
                 if (currentMode === 'Normal') {
-                    currentModel = 'default';
+                    currentModel = 'deepseek/deepseek-chat-v3-0324:free';
                 } else if (currentMode === 'Pro') {
                     currentModel = 'meta-llama/llama-4-scout:free';
                 } else if (currentMode === 'Fun') {
