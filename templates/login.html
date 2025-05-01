@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGod - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Login - ChatGod</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
-    <section class="auth-page">
-        <div class="background-image"></div>
+    <div class="auth-page">
+        <div class="background-image">
+            <video autoplay loop muted playsinline>
+                <source src="https://cdn.pixabay.com/video/2017/08/20/11490-230853032_tiny.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
         <div class="overlay"></div>
         <div class="auth-container">
-            <h1>Login</h1>
+            <h1>Login to ChatGod</h1>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <p class="flash-{{ category }}">{{ message }}</p>
+                        <div class="flash-{{ category }}">{{ message }}</div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            <form method="POST">
+            <form method="POST" action="{{ url_for('login') }}">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" required>
@@ -31,8 +37,8 @@
                 </div>
                 <button type="submit" class="auth-button">Login</button>
             </form>
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
         </div>
-    </section>
+    </div>
 </body>
 </html>
