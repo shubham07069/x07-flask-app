@@ -64,25 +64,23 @@ def clean_latex(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-# Function to send verification code to email using Private Email SMTP
-def send_verification_email(email, code):
+# Function to send email (used for verification code, username, and password reset)
+def send_email(to_email, subject, body):
     try:
         msg = MIMEMultipart()
-        msg['From'] = EMAIL_SENDER  # e.g., noreply@x07.in
-        msg['To'] = email
-        msg['Subject'] = 'ChatGod Email Verification Code'
+        msg['From'] = EMAIL_SENDER
+        msg['To'] = to_email
+        msg['Subject'] = subject
 
-        body = f'Your verification code is: {code}\nPlease enter this code to verify your email.'
         msg.attach(MIMEText(body, 'plain'))
 
-        # Use Private Email SMTP settings
         server = smtplib.SMTP('smtp.privateemail.com', 587)
         server.starttls()
         server.login(EMAIL_SENDER, EMAIL_PASSWORD)
         text = msg.as_string()
-        server.sendmail(EMAIL_SENDER, email, text)
+        server.sendmail(EMAIL_SENDER, to_email, text)
         server.quit()
-        logger.info(f"Verification code sent to {email}")
+        logger.info(f"Email sent to {to_email}")
     except Exception as e:
         logger.error(f"Error sending email: {str(e)}")
         raise
@@ -97,7 +95,7 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        step = request.form.get('step', 'email')  # Track the registration step
+        step = request.form.get('step', 'email')
 
         if step == 'email':
             email = request.form['email']
@@ -105,14 +103,13 @@ def register():
                 flash('Email already registered! Try a different one.', 'error')
                 return redirect(url_for('register'))
 
-            # Generate a 6-digit verification code
             code = str(random.randint(100000, 999999))
             session['verification_code'] = code
             session['email'] = email
 
-            # Send verification code to email
             try:
-                send_verification_email(email, code)
+                send_email(email, 'ChatGod Email Verification Code', 
+                           f'Your verification code is: {code}\nPlease enter this code to verify your email.')
                 flash('Verification code sent to your email!', 'success')
                 return render_template('register.html', step='verify')
             except Exception as e:
@@ -149,19 +146,78 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        step = request.form.get('step', 'login')
+
+        if step == 'login':
+            username = request.form['username']
+            password = request.form['password']
+            user = User.query.filter_by(username=username).first()
+            
+            if user and user.check_password(password):
+                login_user(user)
+                flash('Logged in successfully!', 'success')
+                return redirect(url_for('chat'))
+            else:
+                flash('Invalid username or password.', 'error')
+                return redirect(url_for('login'))
         
-        if user and user.check_password(password):
-            login_user(user)
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('chat'))
-        else:
-            flash('Invalid username or password.', 'error')
+        elif step == 'forgot_username':
+            email = request.form['email']
+            user = User.query.filter_by(email=email).first()
+            
+            if user:
+                try:
+                    send_email(email, 'ChatGod - Your Username', 
+                               f'Your username is: {user.username}\nYou can now log in with this username.')
+                    flash('Username sent to your email!', 'success')
+                except Exception as e:
+                    flash(f'Error sending username: {str(e)}', 'error')
+            else:
+                flash('Email not found. Please register first.', 'error')
             return redirect(url_for('login'))
-    
-    return render_template('login.html')
+        
+        elif step == 'forgot_password':
+            username = request.form['username']
+            email = request.form['email']
+            user = User.query.filter_by(username=username, email=email).first()
+            
+            if user:
+                code = str(random.randint(100000, 999999))
+                session['reset_code'] = code
+                session['reset_user_id'] = user.id
+                
+                try:
+                    send_email(email, 'ChatGod - Password Reset Verification Code', 
+                               f'Your password reset verification code is: {code}\nPlease enter this code to reset your password.')
+                    flash('Verification code sent to your email!', 'success')
+                    return render_template('login.html', step='reset_password')
+                except Exception as e:
+                    flash(f'Error sending verification code: {str(e)}', 'error')
+            else:
+                flash('Username or email not found.', 'error')
+            return redirect(url_for('login'))
+        
+        elif step == 'reset_password':
+            code = request.form['code']
+            new_password = request.form['new_password']
+            
+            if code == session.get('reset_code'):
+                user = User.query.get(session.get('reset_user_id'))
+                if user:
+                    user.set_password(new_password)
+                    db.session.commit()
+                    session.pop('reset_code', None)
+                    session.pop('reset_user_id', None)
+                    flash('Password reset successfully! Please log in.', 'success')
+                else:
+                    flash('User not found.', 'error')
+            else:
+                flash('Invalid verification code!', 'error')
+                return render_template('login.html', step='reset_password')
+            return redirect(url_for('login'))
+
+    step = request.args.get('step', 'login')
+    return render_template('login.html', step=step)
 
 @app.route('/logout')
 @login_required
@@ -198,7 +254,6 @@ def ask():
         }
         logger.debug(f"Headers: {headers}")
 
-        # Define custom instructions based on mode
         custom_instructions = {
             'Normal': (
                 "You are ChatGod, a friendly and witty AI with a desi vibe. "
@@ -212,7 +267,6 @@ def ask():
 
         bot_reply = ""
         for i, model in enumerate(models):
-            # Use the custom instruction based on mode
             system_prompt = custom_instructions.get(mode, custom_instructions['Normal'])
 
             data = {
@@ -235,7 +289,7 @@ def ask():
                 data['model'] = 'meta-llama/llama-3-8b-instruct'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
                 logger.debug(f"Fallback raw response: {response.text}")
-                response.raise_for_status()
+                response.raise.ConcurrentFutureTimeoutError()
 
             result = response.json()
             logger.debug(f"OpenRouter API response for model {model}: {result}")
