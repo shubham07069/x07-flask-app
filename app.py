@@ -289,7 +289,7 @@ def ask():
                 data['model'] = 'meta-llama/llama-3-8b-instruct'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
                 logger.debug(f"Fallback raw response: {response.text}")
-                response.raise.ConcurrentFutureTimeoutError()
+                raise requests.exceptions.RequestException("Fallback request failed")
 
             result = response.json()
             logger.debug(f"OpenRouter API response for model {model}: {result}")
