@@ -11,6 +11,7 @@ import smtplib
 import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import datetime
 
 app = Flask(__name__)
 
@@ -47,6 +48,15 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+# ChatHistory model for storing user-specific chat history
+class ChatHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    chat_name = db.Column(db.String(100), nullable=False)
+    user_message = db.Column(db.Text, nullable=False)
+    bot_reply = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 # Create database tables
 with app.app_context():
@@ -108,7 +118,7 @@ def register():
             session['email'] = email
 
             try:
-                send_email(email, 'X07 Email Verification Code', 
+                send_email(email, 'ChatGod Email Verification Code', 
                            f'Your verification code is: {code}\nPlease enter this code to verify your email.')
                 flash('Verification code sent to your email!', 'success')
                 return render_template('register.html', step='verify')
@@ -167,7 +177,7 @@ def login():
             
             if user:
                 try:
-                    send_email(email, 'X07 - Your Username', 
+                    send_email(email, 'ChatGod - Your Username', 
                                f'Your username is: {user.username}\nYou can now log in with this username.')
                     flash('Username sent to your email!', 'success')
                 except Exception as e:
@@ -187,7 +197,7 @@ def login():
                 session['reset_user_id'] = user.id
                 
                 try:
-                    send_email(email, 'X07 - Password Reset Verification Code', 
+                    send_email(email, 'ChatGod - Password Reset Verification Code', 
                                f'Your password reset verification code is: {code}\nPlease enter this code to reset your password.')
                     flash('Verification code sent to your email!', 'success')
                     return render_template('login.html', step='reset_password')
@@ -230,7 +240,50 @@ def logout():
 @login_required
 def chat():
     logger.info("Serving chat page")
-    return render_template('chat.html')
+    # Generate a new chat name if not already in session
+    if 'current_chat_name' not in session:
+        session['current_chat_name'] = f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    return render_template('chat.html', chat_name=session['current_chat_name'])
+
+@app.route('/delete_history', methods=['POST'])
+@login_required
+def delete_history():
+    try:
+        # Delete all chat history for the current user
+        ChatHistory.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
+        # Clear session chat name to start a new chat
+        session.pop('current_chat_name', None)
+        flash('Chat history deleted successfully!', 'success')
+    except Exception as e:
+        logger.error(f"Error deleting chat history: {str(e)}")
+        flash('Error deleting chat history!', 'error')
+    return redirect(url_for('chat'))
+
+@app.route('/get_chat_history', methods=['GET'])
+@login_required
+def get_chat_history():
+    try:
+        # Group chat history by chat_name
+        chats = db.session.query(ChatHistory.chat_name).filter_by(user_id=current_user.id).distinct().all()
+        chat_names = [chat[0] for chat in chats]
+        return jsonify({'chat_names': chat_names})
+    except Exception as e:
+        logger.error(f"Error fetching chat history: {str(e)}")
+        return jsonify({'error': 'Error fetching chat history'}), 500
+
+@app.route('/load_chat/<chat_name>', methods=['GET'])
+@login_required
+def load_chat(chat_name):
+    try:
+        # Load chat history for the given chat_name
+        chat_history = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=chat_name).order_by(ChatHistory.timestamp.asc()).all()
+        history = [{'user': chat.user_message, 'bot': chat.bot_reply} for chat in chat_history]
+        session['current_chat_name'] = chat_name  # Update current chat name
+        return jsonify({'history': history})
+    except Exception as e:
+        logger.error(f"Error loading chat: {str(e)}")
+        return jsonify({'error': 'Error loading chat'}), 500
 
 @app.route('/ask', methods=['POST'])
 @login_required
@@ -254,15 +307,28 @@ def ask():
         }
         logger.debug(f"Headers: {headers}")
 
+        # Load user-specific chat history to provide context
+        chat_history = ChatHistory.query.filter_by(user_id=current_user.id).order_by(ChatHistory.timestamp.asc()).all()
+        history_context = ""
+        for chat in chat_history:
+            history_context += f"User: {chat.user_message}\nBot: {chat.bot_reply}\n"
+
         custom_instructions = {
             'Normal': (
                 "You are ChatGod, a friendly and witty AI with a desi vibe. "
                 "Answer in a casual, conversational tone using Hindi slang like 'bhai', 'laude', 'dhang se', etc., "
                 "and add some humor with emojis 😎🚀. Avoid formal language and LaTeX formatting. "
-                "Keep replies simple, fun, and engaging, like you're talking to a friend."
+                "Keep replies simple, fun, and engaging, like you're talking to a friend. "
+                "Here is the user's chat history to provide context:\n" + history_context
             ),
-            'Pro': "Yeh bahut powerful AI hai.",
-            'Fun': "tu ek bahut jyda hi dark gaali dene wala AI jo gandi-gandi gaali mein deatil me baat karta hai max 4 line baat karta hai with roasting and emojis."
+            'Pro': (
+                "Yeh bahut powerful AI hai. Provide detailed and accurate answers. "
+                "Here is the user's chat history to provide context:\n" + history_context
+            ),
+            'Fun': (
+                "tu ek bahut jyda hi dark gaali dene wala AI jo gandi-gandi gaali mein deatil me baat karta hai max 4 line baat karta hai with roasting and emojis. "
+                "Here is the user's chat history to provide context:\n" + history_context
+            )
         }
 
         bot_reply = ""
@@ -297,6 +363,16 @@ def ask():
             model_reply = result['choices'][0]['message']['content']
             model_reply = clean_latex(model_reply)
             bot_reply += model_reply + "\n"
+
+        # Save chat to history
+        chat_entry = ChatHistory(
+            user_id=current_user.id,
+            chat_name=session.get('current_chat_name', f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"),
+            user_message=user_message,
+            bot_reply=bot_reply.strip()
+        )
+        db.session.add(chat_entry)
+        db.session.commit()
 
         logger.info("Successfully got bot reply")
         return jsonify({'reply': bot_reply.strip()})
