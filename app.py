@@ -108,7 +108,7 @@ def register():
             session['email'] = email
 
             try:
-                send_email(email, 'ChatGod Email Verification Code', 
+                send_email(email, 'X07 Email Verification Code', 
                            f'Your verification code is: {code}\nPlease enter this code to verify your email.')
                 flash('Verification code sent to your email!', 'success')
                 return render_template('register.html', step='verify')
@@ -167,7 +167,7 @@ def login():
             
             if user:
                 try:
-                    send_email(email, 'ChatGod - Your Username', 
+                    send_email(email, 'X07 - Your Username', 
                                f'Your username is: {user.username}\nYou can now log in with this username.')
                     flash('Username sent to your email!', 'success')
                 except Exception as e:
@@ -187,7 +187,7 @@ def login():
                 session['reset_user_id'] = user.id
                 
                 try:
-                    send_email(email, 'ChatGod - Password Reset Verification Code', 
+                    send_email(email, 'X07 - Password Reset Verification Code', 
                                f'Your password reset verification code is: {code}\nPlease enter this code to reset your password.')
                     flash('Verification code sent to your email!', 'success')
                     return render_template('login.html', step='reset_password')
