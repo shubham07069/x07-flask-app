@@ -37,9 +37,9 @@ body {
 .background-image video {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures video covers the entire area without distortion */
-    filter: brightness(0.6); /* Match the brightness of the previous image */
-    animation: fadeInVideo 2s ease-in forwards, zoomOut 5s ease-in-out forwards; /* Combined animations */
+    object-fit: cover;
+    filter: brightness(0.6);
+    animation: fadeInVideo 2s ease-in forwards, zoomOut 5s ease-in-out forwards;
 }
 
 .landing-page .overlay {
@@ -95,8 +95,8 @@ body {
     animation: slideIn 1s ease-in-out forwards;
     cursor: pointer;
     opacity: 0;
-    text-decoration: none; /* Ensure no underline for <a> tag */
-    color: inherit; /* Inherit text color */
+    text-decoration: none;
+    color: inherit;
 }
 
 .feature-card.ai-chat {
@@ -406,13 +406,13 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Start from top */
+    justify-content: flex-start;
     align-items: center;
-    padding-top: 4rem; /* Space for fixed header */
+    padding-top: 4rem;
     padding-bottom: 1rem;
     transition: margin-left 0.3s ease-in-out;
     position: relative;
-    height: 100vh; /* Ensure it takes full viewport height */
+    height: 100vh;
 }
 
 .chatbot-page main.sidebar-active {
@@ -426,24 +426,24 @@ body {
     flex-direction: column;
     align-items: center;
     position: relative;
-    flex-grow: 1; /* Allow chat container to grow and fill space */
-    height: 100%; /* Ensure it takes full height */
+    flex-grow: 1;
+    height: 100%;
 }
 
 .chatbot-page .chat-window {
     width: 100%;
     max-width: 700px;
-    height: 100%; /* Extend to bottom */
-    min-height: calc(100vh - 5rem); /* Ensure it fills the space */
+    height: 100%;
+    min-height: calc(100vh - 5rem);
     overflow-y: auto;
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Start messages from top */
+    justify-content: flex-start;
     gap: 1.5rem;
     scroll-behavior: smooth;
-    margin-bottom: 4cm; /* 4 cm above search box */
-    margin-top: 0; /* Start directly below header */
+    margin-bottom: 4cm;
+    margin-top: 0;
     transition: margin-left 0.3s ease-in-out;
     position: relative;
     z-index: 1;
@@ -477,11 +477,11 @@ body {
     text-align: center;
     transition: margin-left 0.3s ease-in-out;
     position: absolute;
-    top: 20%; /* Position above search box */
+    top: 20%;
     width: 100%;
     max-width: 700px;
-    z-index: 1; /* Ensure it appears below search box */
-    margin-bottom: 2rem; /* Add spacing between greeting and search box */
+    z-index: 1;
+    margin-bottom: 2rem;
 }
 
 .chatbot-page .search-box-wrapper {
@@ -495,7 +495,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     transition: all 0.5s ease, margin-left 0.3s ease-in-out;
-    z-index: 2; /* Ensure it appears above greeting message */
+    z-index: 2;
 }
 
 .chatbot-page .search-box-wrapper.bottom {
@@ -594,7 +594,7 @@ body {
 }
 
 .chatbot-page .search-box .send-button.faded {
-    background: linear-gradient(90deg, #ff006680, #ff69b480); /* Faded color */
+    background: linear-gradient(90deg, #ff006680, #ff69b480);
     cursor: not-allowed;
 }
 
@@ -677,7 +677,6 @@ body {
     max-width: 100%;
 }
 
-/* Ensure last message is 4cm above search box */
 .chatbot-page .message:last-child {
     margin-bottom: 4cm;
 }
@@ -689,7 +688,7 @@ body {
 }
 
 .chatbot-page .message.user .message-content {
-    background: rgba(42, 42, 42, 0.8); /* Grok-like dark grayish transparent background */
+    background: rgba(42, 42, 42, 0.8);
     padding: 1rem;
     border-radius: 15px;
 }
@@ -721,7 +720,6 @@ body {
     color: #00d4ff;
 }
 
-/* Skeleton Animation for Thinking */
 .chatbot-page .message.thinking {
     background: none;
     border: none;
@@ -840,7 +838,7 @@ body {
     }
 
     .chatbot-page main {
-        padding-top: 3rem; /* Adjust for smaller header */
+        padding-top: 3rem;
         padding-bottom: 1rem;
     }
 
@@ -850,10 +848,10 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1rem;
-        top: 15%; /* Adjusted for phone to avoid overlap */
+        top: 15%;
         transform: translateY(-50%);
-        z-index: 1; /* Below search box */
-        margin-bottom: 1.5rem; /* Add spacing */
+        z-index: 1;
+        margin-bottom: 1.5rem;
     }
 
     .chatbot-page .chat-container {
@@ -862,16 +860,15 @@ body {
 
     .chatbot-page .chat-window {
         width: 90vw;
-        height: 100%; /* Extend to bottom */
-        min-height: calc(100vh - 4rem); /* Ensure it fills the space */
+        height: 100%;
+        min-height: calc(100vh - 4rem);
         padding: 0.8rem;
         gap: 1rem;
-        margin-top: 0; /* Start directly below header */
-        margin-bottom: 4cm; /* 4 cm above search box */
-        justify-content: flex-start; /* Start messages from top */
+        margin-top: 0;
+        margin-bottom: 4cm;
+        justify-content: flex-start;
     }
 
-    /* Make scrollbar invisible on phone */
     .chatbot-page .chat-window::-webkit-scrollbar {
         display: none;
     }
@@ -1050,7 +1047,7 @@ body {
     }
 
     .chatbot-page main {
-        padding-top: 3.5rem; /* Adjust for header */
+        padding-top: 3.5rem;
         padding-bottom: 1rem;
     }
 
@@ -1060,10 +1057,10 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1.1rem;
-        top: 25%; /* Adjusted for tablet */
+        top: 25%;
         transform: translateY(-50%);
-        z-index: 1; /* Below search box */
-        margin-bottom: 2rem; /* Add spacing */
+        z-index: 1;
+        margin-bottom: 2rem;
     }
 
     .chatbot-page .chat-container {
@@ -1072,13 +1069,13 @@ body {
 
     .chatbot-page .chat-window {
         width: 80vw;
-        height: 100%; /* Extend to bottom */
-        min-height: calc(100vh - 5rem); /* Ensure it fills the space */
+        height: 100%;
+        min-height: calc(100vh - 5rem);
         padding: 1.5rem;
         gap: 1.5rem;
-        margin-top: 0; /* Start directly below header */
-        margin-bottom: 4cm; /* 4 cm above search box */
-        justify-content: flex-start; /* Start messages from top */
+        margin-top: 0;
+        margin-bottom: 4cm;
+        justify-content: flex-start;
     }
 
     .chatbot-page .search-box-wrapper {
@@ -1195,7 +1192,7 @@ body {
     }
 
     .chatbot-page main {
-        padding-top: 4rem; /* Adjust for header */
+        padding-top: 4rem;
         padding-bottom: 1rem;
     }
 
@@ -1205,10 +1202,10 @@ body {
 
     .chatbot-page .greeting-message {
         font-size: 1.2rem;
-        top: 30%; /* Adjusted for laptop */
+        top: 30%;
         transform: translateY(-50%);
-        z-index: 1; /* Below search box */
-        margin-bottom: 2rem; /* Add spacing */
+        z-index: 1;
+        margin-bottom: 2rem;
     }
 
     .chatbot-page .chat-container {
@@ -1221,16 +1218,15 @@ body {
     }
 
     .chatbot-page .chat-window {
-        height: 100%; /* Extend to bottom */
-        min-height: calc(100vh - 4rem); /* Ensure it fills the space */
+        height: 100%;
+        min-height: calc(100vh - 4rem);
         padding: 1.5rem;
         gap: 1.5rem;
-        margin-top: 0; /* Start directly below header */
-        margin-bottom: 4cm; /* 4 cm above search box */
-        justify-content: flex-start; /* Start messages from top */
+        margin-top: 0;
+        margin-bottom: 4cm;
+        justify-content: flex-start;
     }
 
-    /* Make scrollbar invisible on laptop */
     .chatbot-page .chat-window::-webkit-scrollbar {
         display: none;
     }
@@ -1261,23 +1257,23 @@ body {
     .chatbot-page .plus-button {
         width: 45px;
         height: 45px;
-        margin-right: 0.3rem; /* Reduced margin to fit within box */
+        margin-right: 0.3rem;
     }
 
     .chatbot-page .search-box .send-button {
         width: 45px;
         height: 45px;
-        margin-left: 0.3rem; /* Reduced margin to fit within box */
+        margin-left: 0.3rem;
         margin-right: 0.3rem;
     }
 
     .chatbot-page .mode-selector {
         align-self: flex-end;
-        margin-right: 0.3rem; /* Reduced margin to fit within box */
+        margin-right: 0.3rem;
     }
 
     .chatbot-page .mode-button {
-        padding: 0.5rem 0.8rem; /* Reduced padding to fit within box */
+        padding: 0.5rem 0.8rem;
         font-size: 0.9rem;
         margin: 0;
     }
