@@ -1,13 +1,12 @@
-let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // Load chat history from localStorage
 let currentMode = 'Normal'; // Default mode
 let currentModel = 'default'; // Default model
 let latestConversationHeight = 0; // To store height of latest conversation
 let isUserScrolling = false; // Flag to track if user is manually scrolling
 let isBotReplying = false; // Flag to track if bot is replying
+let currentChatName = null; // Current chat name
 
 // Function to render Markdown-like text (bold and emojis)
 function renderMessageText(text) {
-    // Replace **text** with <strong>text</strong> for bold
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     return text;
 }
@@ -103,8 +102,8 @@ async function sendMessage() {
 
     // Prepare models based on mode
     let models = [];
-    if (currentMode === 'deepseek/deepseek-chat-v3-0324:free') {
-        models = ['default'];
+    if (currentMode === 'Normal') {
+        models = ['deepseek/deepseek-chat-v3-0324:free'];
     } else if (currentMode === 'Pro') {
         models = ['meta-llama/llama-4-scout:free'];
     } else if (currentMode === 'Fun') {
@@ -155,13 +154,11 @@ async function sendMessage() {
         `;
         chatWindow.appendChild(aiMessage);
 
-        // Add to chat history
-        chatHistory.push({ user: inputValue, bot: data.reply });
-        localStorage.setItem('chatHistory', JSON.stringify(chatHistory)); // Save to localStorage
-        updateChatHistory();
-
         // Scroll to bottom (latest message)
         scrollToBottom(chatWindow, true);
+
+        // Fetch updated chat history
+        updateChatHistory();
     } catch (error) {
         console.error("Error in sendMessage:", error.message);
         const thinkingMsgElement = document.getElementById('thinking-message');
@@ -182,13 +179,11 @@ async function sendMessage() {
         `;
         chatWindow.appendChild(aiMessage);
 
-        // Add to chat history even if there's an error
-        chatHistory.push({ user: inputValue, bot: `Bhosdike, kuch galat ho gaya! 😅 Error: ${error.message}` });
-        localStorage.setItem('chatHistory', JSON.stringify(chatHistory)); // Save to localStorage
-        updateChatHistory();
-
         // Scroll to bottom (latest message)
         scrollToBottom(chatWindow, true);
+
+        // Fetch updated chat history
+        updateChatHistory();
     } finally {
         // Re-enable input and restore send button color after bot reply
         isBotReplying = false;
@@ -197,22 +192,30 @@ async function sendMessage() {
     }
 }
 
-function updateChatHistory() {
+async function updateChatHistory() {
     const chatHistoryList = document.getElementById('chatHistoryList');
     if (chatHistoryList) {
-        chatHistoryList.innerHTML = '';
-        chatHistory.forEach((chat, index) => {
-            const li = document.createElement('li');
-            li.textContent = `Chat ${index + 1}: ${chat.user.substring(0, 20)}...`;
-            li.onclick = () => loadChat(index);
-            chatHistoryList.appendChild(li);
-        });
+        try {
+            const response = await fetch('/get_chat_history');
+            const data = await response.json();
+            if (data.chat_names) {
+                chatHistoryList.innerHTML = '';
+                data.chat_names.forEach(chatName => {
+                    const li = document.createElement('li');
+                    li.textContent = chatName;
+                    li.onclick = () => loadChat(chatName);
+                    chatHistoryList.appendChild(li);
+                });
+            }
+        } catch (error) {
+            console.error("Error updating chat history:", error);
+        }
     } else {
         console.error("chatHistoryList element not found!");
     }
 }
 
-function loadChat(index) {
+async function loadChat(chatName) {
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.getElementById('greetingMessage');
     
@@ -224,46 +227,57 @@ function loadChat(index) {
         console.error("greetingMessage element not found in loadChat!");
     }
 
-    chatWindow.innerHTML = '';
-    const chat = chatHistory[index];
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user';
-    userMessage.innerHTML = `
-        <div class="message-content">${renderMessageText(chat.user)}</div>
-        <div class="message-actions">
-            <i class="fas fa-copy action-icon"></i>
-            <i class="fas fa-thumbs-up action-icon"></i>
-            <i class="fas fa-thumbs-down action-icon"></i>
-            <i class="fas fa-share action-icon"></i>
-            <i class="fas fa-comment action-icon"></i>
-        </div>
-    `;
-    chatWindow.appendChild(userMessage);
-    const botMessage = document.createElement('div');
-    botMessage.className = 'message bot';
-    botMessage.innerHTML = `
-        <div class="message-content">${renderMessageText(chat.bot)}</div>
-        <div class="message-actions">
-            <i class="fas fa-copy action-icon"></i>
-            <i class="fas fa-thumbs-up action-icon"></i>
-            <i class="fas fa-thumbs-down action-icon"></i>
-            <i class="fas fa-share action-icon"></i>
-            <i class="fas fa-comment action-icon"></i>
-        </div>
-    `;
-    chatWindow.appendChild(botMessage);
-    scrollToBottom(chatWindow, true);
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.classList.remove('active');
-    }
-    const hamburger = document.querySelector('.hamburger');
-    if (hamburger) {
-        hamburger.classList.remove('active');
-    }
-    const main = document.querySelector('main');
-    if (main) {
-        main.classList.remove('sidebar-active');
+    try {
+        const response = await fetch(`/load_chat/${chatName}`);
+        const data = await response.json();
+        if (data.history) {
+            chatWindow.innerHTML = '';
+            data.history.forEach(chat => {
+                const userMessage = document.createElement('div');
+                userMessage.className = 'message user';
+                userMessage.innerHTML = `
+                    <div class="message-content">${renderMessageText(chat.user)}</div>
+                    <div class="message-actions">
+                        <i class="fas fa-copy action-icon"></i>
+                        <i class="fas fa-thumbs-up action-icon"></i>
+                        <i class="fas fa-thumbs-down action-icon"></i>
+                        <i class="fas fa-share action-icon"></i>
+                        <i class="fas fa-comment action-icon"></i>
+                    </div>
+                `;
+                chatWindow.appendChild(userMessage);
+
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot';
+                botMessage.innerHTML = `
+                    <div class="message-content">${renderMessageText(chat.bot)}</div>
+                    <div class="message-actions">
+                        <i class="fas fa-copy action-icon"></i>
+                        <i class="fas fa-thumbs-up action-icon"></i>
+                        <i class="fas fa-thumbs-down action-icon"></i>
+                        <i class="fas fa-share action-icon"></i>
+                        <i class="fas fa-comment action-icon"></i>
+                    </div>
+                `;
+                chatWindow.appendChild(botMessage);
+            });
+            scrollToBottom(chatWindow, true);
+
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+            }
+            const hamburger = document.querySelector('.hamburger');
+            if (hamburger) {
+                hamburger.classList.remove('active');
+            }
+            const main = document.querySelector('main');
+            if (main) {
+                main.classList.remove('sidebar-active');
+            }
+        }
+    } catch (error) {
+        console.error("Error loading chat:", error);
     }
 }
 
@@ -293,23 +307,19 @@ function adjustSearchBoxHeight() {
 // Function to scroll chat window to bottom (latest message)
 function scrollToBottom(chatWindow, adjustForLatest = false) {
     if (adjustForLatest && !isUserScrolling) {
-        // Get the last two messages (user + bot reply)
         const messages = chatWindow.getElementsByClassName('message');
         if (messages.length >= 2) {
             const latestUserMessage = messages[messages.length - 2];
             const latestBotMessage = messages[messages.length - 1];
-            const latestConversationHeight = latestUserMessage.offsetHeight + latestBotMessage.offsetHeight + 48; // 1.5rem gap between messages + padding
+            const latestConversationHeight = latestUserMessage.offsetHeight + latestBotMessage.offsetHeight + 48;
 
-            // Scroll to the position where the latest conversation starts
             chatWindow.scrollTo({
                 top: chatWindow.scrollHeight - latestConversationHeight,
                 behavior: 'smooth'
             });
 
-            // Update the chat window height to fit the latest conversation
             chatWindow.style.height = `${Math.min(latestConversationHeight, chatWindow.scrollHeight)}px`;
         } else {
-            // If less than 2 messages, scroll to bottom normally
             chatWindow.scrollTo({
                 top: chatWindow.scrollHeight,
                 behavior: 'smooth'
@@ -317,7 +327,6 @@ function scrollToBottom(chatWindow, adjustForLatest = false) {
             chatWindow.style.height = 'auto';
         }
     } else {
-        // Normal scroll to bottom (used in loadChat)
         chatWindow.scrollTo({
             top: chatWindow.scrollHeight,
             behavior: 'smooth'
@@ -343,52 +352,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatWindowElement = document.querySelector('.chat-window');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
 
-    // Load chat history on page load
-    if (chatHistory.length > 0) {
-        chatWindow.innerHTML = '';
-        // Display all messages in chronological order (oldest at top, latest at bottom)
-        for (let i = 0; i < chatHistory.length; i++) {
-            const chat = chatHistory[i];
-            const userMessage = document.createElement('div');
-            userMessage.className = 'message user';
-            userMessage.innerHTML = `
-                <div class="message-content">${renderMessageText(chat.user)}</div>
-                <div class="message-actions">
-                    <i class="fas fa-copy action-icon"></i>
-                    <i class="fas fa-thumbs-up action-icon"></i>
-                    <i class="fas fa-thumbs-down action-icon"></i>
-                    <i class="fas fa-share action-icon"></i>
-                    <i class="fas fa-comment action-icon"></i>
-                </div>
-            `;
-            chatWindow.appendChild(userMessage);
+    // Set current chat name from server
+    currentChatName = "{{ chat_name }}";
 
-            const botMessage = document.createElement('div');
-            botMessage.className = 'message bot';
-            botMessage.innerHTML = `
-                <div class="message-content">${renderMessageText(chat.bot)}</div>
-                <div class="message-actions">
-                    <i class="fas fa-copy action-icon"></i>
-                    <i class="fas fa-thumbs-up action-icon"></i>
-                    <i class="fas fa-thumbs-down action-icon"></i>
-                    <i class="fas fa-share action-icon"></i>
-                    <i class="fas fa-comment action-icon"></i>
-                </div>
-            `;
-            chatWindow.appendChild(botMessage);
-        }
-        scrollToBottom(chatWindow, true);
-    }
+    // Load chat history on page load
+    updateChatHistory();
 
     // Add scroll event listener to detect manual scrolling
     if (chatWindow) {
         chatWindow.addEventListener('scroll', () => {
-            // Check if user is scrolling up
             const isAtBottom = chatWindow.scrollHeight - chatWindow.scrollTop <= chatWindow.clientHeight + 1;
-            isUserScrolling = !isAtBottom; // Set flag to true if user is not at the bottom
+            isUserScrolling = !isAtBottom;
         });
 
-        // Add mutation observer to auto-scroll when new messages are added
         const observer = new MutationObserver((mutations) => {
             mutations.forEach(() => {
                 if (!isUserScrolling) {
@@ -397,7 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Observe changes to the chat window (new messages)
         observer.observe(chatWindow, { childList: true, subtree: true });
     }
 
@@ -410,9 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Auto-expand search box on input
         userInput.addEventListener('input', adjustSearchBoxHeight);
-        // Initial adjustment
         adjustSearchBoxHeight();
     } else {
         console.error("userInput element not found!");
@@ -478,7 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebar.classList.toggle('active');
             main.classList.toggle('sidebar-active');
 
-            // Left shift for laptop only, sync with search box
             if (window.innerWidth >= 1025) {
                 const shiftAmount = '150px';
                 if (main.classList.contains('sidebar-active')) {
@@ -494,19 +466,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error("Hamburger, sidebar, main, chatWindowElement, or searchBoxWrapper element not found!");
-        console.log("hamburger:", hamburger);
-        console.log("sidebar:", sidebar);
-        console.log("main:", main);
-        console.log("chatWindowElement:", chatWindowElement);
-        console.log("searchBoxWrapper:", searchBoxWrapper);
     }
 
-    // Ensure greeting message is visible on page load only if chat history is empty
+    // Ensure greeting message is visible on page load only if no chat history
     if (greetingMessage) {
-        if (chatHistory.length === 0) {
-            greetingMessage.style.display = 'block';
-        } else {
-            greetingMessage.style.display = 'none';
-        }
+        greetingMessage.style.display = 'block';
     }
+});
+
+// Handle page refresh to start a new chat
+window.addEventListener('beforeunload', () => {
+    // Clear current chat name to start a new chat on refresh
+    sessionStorage.removeItem('currentChatName');
 });
