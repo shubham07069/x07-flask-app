@@ -103,7 +103,7 @@ async function sendMessage() {
 
     // Prepare models based on mode
     let models = [];
-    if (currentMode === 'Normal') {
+    if (currentMode === 'deepseek/deepseek-chat-v3-0324:free') {
         models = ['default'];
     } else if (currentMode === 'Pro') {
         models = ['meta-llama/llama-4-scout:free'];
