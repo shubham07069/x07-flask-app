@@ -218,6 +218,7 @@ async function updateChatHistory() {
 async function loadChat(chatName) {
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.getElementById('greetingMessage');
+    const searchBoxWrapper = document.querySelector('.search-box-wrapper');
     
     // Hide greeting message when loading a chat
     if (greetingMessage) {
@@ -225,6 +226,14 @@ async function loadChat(chatName) {
         greetingMessage.style.display = 'none';
     } else {
         console.error("greetingMessage element not found in loadChat!");
+    }
+
+    // Move search box to bottom
+    if (searchBoxWrapper) {
+        console.log("Moving search box to bottom");
+        searchBoxWrapper.classList.add('bottom');
+    } else {
+        console.error("searchBoxWrapper element not found!");
     }
 
     try {
