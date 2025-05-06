@@ -103,7 +103,7 @@ async function sendMessage() {
     // Prepare models based on mode
     let models = [];
     if (currentMode === 'Normal') {
-        models = ['deepseek/deepseek-chat-v3-0324:free'];
+        models = ['default'];
     } else if (currentMode === 'Pro') {
         models = ['meta-llama/llama-4-scout:free'];
     } else if (currentMode === 'Fun') {
@@ -341,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Elements
     const userInput = document.getElementById('userInput');
+    const sendButton = document.querySelector('.send-button');
     const modeButton = document.querySelector('.mode-button');
     const dropupContent = document.querySelector('.dropup-content');
     const modeOptions = document.querySelectorAll('.mode-option');
@@ -389,6 +390,16 @@ document.addEventListener('DOMContentLoaded', () => {
         adjustSearchBoxHeight();
     } else {
         console.error("userInput element not found!");
+    }
+
+    // Send button event listener
+    if (sendButton) {
+        sendButton.addEventListener('click', () => {
+            console.log("Send button clicked, calling sendMessage...");
+            sendMessage();
+        });
+    } else {
+        console.error("sendButton element not found!");
     }
 
     // Toggle dropup menu for mode button
