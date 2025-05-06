@@ -273,7 +273,7 @@ body {
 
 /* Chatbot Page Section */
 .chatbot-page {
-    background: #1a1a1a;
+    background: linear-gradient(135deg, #0a0a0a, #1a0033); /* Solid gradient background */
     position: relative;
     display: flex;
     min-height: 100vh;
@@ -529,7 +529,7 @@ body {
 
 .chatbot-page #userInput {
     width: 100%;
-    padding: 1rem 1.5rem; /* Increased padding for better appearance */
+    padding: 1rem 1.5rem;
     border: none;
     border-radius: 20px;
     background: #3a3a3a;
@@ -902,7 +902,7 @@ body {
     }
 
     .chatbot-page #userInput {
-        padding: 0.6rem 1rem; /* Adjusted padding for smaller screens */
+        padding: 0.6rem 1rem;
         font-size: 0.9rem;
         border-radius: 15px;
         margin-bottom: 0.4rem;
