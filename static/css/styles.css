@@ -529,7 +529,7 @@ body {
 
 .chatbot-page #userInput {
     width: 100%;
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 1.5rem; /* Increased padding for better appearance */
     border: none;
     border-radius: 20px;
     background: #3a3a3a;
@@ -902,8 +902,8 @@ body {
     }
 
     .chatbot-page #userInput {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
+        padding: 0.6rem 1rem; /* Adjusted padding for smaller screens */
+        font-size: 0.9rem;
         border-radius: 15px;
         margin-bottom: 0.4rem;
         line-height: 1.2;
@@ -1091,7 +1091,7 @@ body {
     }
 
     .chatbot-page #userInput {
-        padding: 0.8rem 1rem;
+        padding: 0.8rem 1.2rem;
         font-size: 1rem;
         margin-bottom: 0.5rem;
         line-height: 1.2;
@@ -1248,7 +1248,7 @@ body {
     }
 
     .chatbot-page #userInput {
-        padding: 0.8rem 1.2rem;
+        padding: 1rem 1.5rem;
         font-size: 1.1rem;
         margin-bottom: 0.5rem;
         line-height: 1.2;
