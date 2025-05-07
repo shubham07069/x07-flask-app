@@ -100,15 +100,8 @@ async function sendMessage() {
     userInput.value = '';
     adjustSearchBoxHeight();
 
-    // Prepare models based on mode and selected model
-    let models = [];
-    if (currentMode === 'Normal') {
-        models = [mapModelToOpenRouter(currentModel)];
-    } else if (currentMode === 'Pro') {
-        models = [mapModelToOpenRouter(currentModel)];
-    } else if (currentMode === 'Fun') {
-        models = [mapModelToOpenRouter(currentModel)];
-    }
+    // Use the selected model directly (mapping will be handled in app.py)
+    let models = [currentModel];
 
     try {
         console.log("Sending request to /ask endpoint with mode:", currentMode, "models:", models);
@@ -477,19 +470,6 @@ function scrollToBottom(chatWindow, adjustForLatest = false) {
         });
         chatWindow.style.height = 'auto';
     }
-}
-
-// Function to map selected model to OpenRouter model
-function mapModelToOpenRouter(model) {
-    const modelMap = {
-        'ChatGPT': 'openai/gpt-4.1-nano',
-        'Grok': 'x-ai/grok-3-mini-beta',
-        'DeepSeek': 'deepseek/deepseek-chat',
-        'Claude': 'anthropic/claude-3.5-sonnet',
-        'MetaAI': 'meta-llama/llama-3-8b-instruct',
-        'Gemini': 'meta-llama/llama-4-maverick:free'
-    };
-    return modelMap[model] || 'xai/grok'; // Default to Grok if model not found
 }
 
 // Allow sending message with Enter key and rocket button, and handle dropup menus
