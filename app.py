@@ -74,6 +74,18 @@ def clean_latex(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
+# Function to map model name to OpenRouter model
+def map_model_to_openrouter(model_name):
+    model_map = {
+        'ChatGPT': 'openai/gpt-4.1-nano',
+        'Grok': 'x-ai/grok-3-mini-beta',
+        'DeepSeek': 'deepseek/deepseek-chat',
+        'Claude': 'anthropic/claude-3.5-sonnet',
+        'MetaAI': 'meta-llama/llama-3-8b-instruct',
+        'Gemini': 'google/gemini-2.5-flash-preview'
+    }
+    return model_map.get(model_name, 'xai/grok')  # Default to Grok if model not found
+
 # Function to send email (used for verification code, username, and password reset)
 def send_email(to_email, subject, body):
     try:
@@ -307,7 +319,7 @@ def ask():
         data = request.get_json()
         user_message = data.get('message')
         mode = data.get('mode', 'Normal')
-        models = data.get('models', ['xai/grok'])
+        models = data.get('models', ['Grok'])
 
         logger.debug(f"User message: {user_message}")
         logger.debug(f"Mode: {mode}")
@@ -347,10 +359,12 @@ def ask():
 
         bot_reply = ""
         for i, model in enumerate(models):
+            # Map the model name to OpenRouter model
+            mapped_model = map_model_to_openrouter(model)
             system_prompt = custom_instructions.get(mode, custom_instructions['Normal'])
 
             data = {
-                "model": model,
+                "model": mapped_model,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
@@ -358,22 +372,22 @@ def ask():
                 "temperature": 0.7,
                 "max_tokens": 500
             }
-            logger.debug(f"Request data for model {model}: {data}")
+            logger.debug(f"Request data for model {mapped_model}: {data}")
 
-            logger.debug(f"Sending request to OpenRouter API for model {model}")
+            logger.debug(f"Sending request to OpenRouter API for model {mapped_model}")
             response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-            logger.debug(f"Raw response for model {model}: {response.text}")
+            logger.debug(f"Raw response for model {mapped_model}: {response.text}")
 
             if response.status_code != 200:
-                logger.warning(f"Model {model} failed with status {response.status_code}, falling back to xai/grok")
-                data['model'] = 'x-ai/grok-3-mini-beta'
+                logger.warning(f"Model {mapped_model} failed with status {response.status_code}, falling back to xai/grok")
+                data['model'] = 'xai/grok'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
                 logger.debug(f"Fallback raw response: {response.text}")
                 if response.status_code != 200:
                     raise requests.exceptions.RequestException("Fallback request failed")
 
             result = response.json()
-            logger.debug(f"OpenRouter API response for model {model}: {result}")
+            logger.debug(f"OpenRouter API response for model {mapped_model}: {result}")
 
             model_reply = result['choices'][0]['message']['content']
             model_reply = clean_latex(model_reply)
