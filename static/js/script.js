@@ -482,11 +482,12 @@ function scrollToBottom(chatWindow, adjustForLatest = false) {
 // Function to map selected model to OpenRouter model
 function mapModelToOpenRouter(model) {
     const modelMap = {
-        'ChatGPT': 'openai/gpt-3.5-turbo',
-        'Grok': 'xai/grok',
+        'ChatGPT': 'openai/gpt-4.1-nano',
+        'Grok': 'x-ai/grok-3-mini-beta',
         'DeepSeek': 'deepseek/deepseek-chat',
         'Claude': 'anthropic/claude-3.5-sonnet',
-        'MetaAI': 'meta-llama/llama-3-8b-instruct'
+        'MetaAI': 'meta-llama/llama-3-8b-instruct',
+        'Gemini': 'google/gemini-2.5-flash-preview'
     };
     return modelMap[model] || 'xai/grok'; // Default to Grok if model not found
 }
