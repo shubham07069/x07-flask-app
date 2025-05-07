@@ -311,7 +311,19 @@ async function startNewChat() {
         searchBoxWrapper.classList.remove('bottom');
     }
 
-    // Generate new chat name and notify backend
+    // Clear existing chat history on the backend
+    try {
+        await fetch('/delete_history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    } catch (error) {
+        console.error("Error clearing chat history:", error);
+    }
+
+    // Generate new chat name
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
     currentChatName = `Chat_${timestamp}`;
 
