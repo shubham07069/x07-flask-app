@@ -487,7 +487,7 @@ function mapModelToOpenRouter(model) {
         'DeepSeek': 'deepseek/deepseek-chat',
         'Claude': 'anthropic/claude-3.5-sonnet',
         'MetaAI': 'meta-llama/llama-3-8b-instruct',
-        'Gemini': 'google/gemini-2.5-flash-preview'
+        'Gemini': 'meta-llama/llama-4-maverick:free'
     };
     return modelMap[model] || 'xai/grok'; // Default to Grok if model not found
 }
