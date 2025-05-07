@@ -84,7 +84,19 @@ def map_model_to_openrouter(model_name):
         'MetaAI': 'meta-llama/llama-4-maverick:free',
         'Gemini': 'google/gemini-2.5-flash-preview'
     }
-    return model_map.get(model_name, 'x-ai/grok-3-beta') # Default to Grok if model not found
+    return model_map.get(model_name, 'x-ai/grok-3-mini-beta')  # Default to Grok if model not found
+
+# Function to generate chat name based on user's first message
+def generate_chat_name(message):
+    # Take the first 5 words of the message (or less if message is shorter)
+    words = message.split()[:5]
+    chat_name = ' '.join(words).capitalize()
+    # Remove any special characters and keep it clean
+    chat_name = re.sub(r'[^a-zA-Z0-9\s]', '', chat_name)
+    # If chat name is empty, use a default name
+    if not chat_name.strip():
+        chat_name = "Untitled Chat"
+    return chat_name
 
 # Function to send email (used for verification code, username, and password reset)
 def send_email(to_email, subject, body):
@@ -130,7 +142,7 @@ def register():
             session['email'] = email
 
             try:
-                send_email(email, 'X07 Email Verification Code', 
+                send_email(email, 'ChatGod Email Verification Code', 
                            f'Your verification code is: {code}\nPlease enter this code to verify your email.')
                 flash('Verification code sent to your email!', 'success')
                 return render_template('register.html', step='verify')
@@ -351,6 +363,23 @@ def ask():
         for chat in chat_history:
             history_context += f"User: {chat.user_message}\nBot: {chat.bot_reply}\n"
 
+        # Check if this is the first message in the current chat
+        current_chat_name = session.get('current_chat_name', f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
+        chat_exists = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=current_chat_name).first()
+
+        # If no messages exist for this chat, update the chat name based on the user's message
+        if not chat_exists and current_chat_name.startswith("Chat_"):
+            new_chat_name = generate_chat_name(user_message)
+            # Ensure the new chat name is unique
+            existing_chat = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=new_chat_name).first()
+            if existing_chat:
+                # If the chat name already exists, append a timestamp to make it unique
+                timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+                new_chat_name = f"{new_chat_name}_{timestamp}"
+            session['current_chat_name'] = new_chat_name
+            current_chat_name = new_chat_name
+            logger.info(f"Updated chat name to: {current_chat_name}")
+
         # Define base styling instructions for all modes and models
         base_instructions = (
             "Answer in a casual, conversational tone using simple language and Hindi slang like 'bhai', 'laude', 'dhang se', etc. "
@@ -443,7 +472,7 @@ def ask():
         # Save chat to history
         chat_entry = ChatHistory(
             user_id=current_user.id,
-            chat_name=session.get('current_chat_name', f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"),
+            chat_name=current_chat_name,
             user_message=user_message,
             bot_reply=bot_reply.strip()
         )
