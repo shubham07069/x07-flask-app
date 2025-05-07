@@ -243,35 +243,42 @@ def chat():
     # Generate a new chat name if not already in session
     if 'current_chat_name' not in session:
         # Clear existing chat history for the user
+        logger.info(f"Clearing chat history for user {current_user.id}")
         ChatHistory.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
         
         # Set new chat name
         session['current_chat_name'] = f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        logger.info(f"New chat name set: {session['current_chat_name']}")
     return render_template('chat.html', chat_name=session['current_chat_name'])
 
 @app.route('/delete_history', methods=['POST'])
 @login_required
 def delete_history():
     try:
+        logger.info(f"Deleting chat history for user {current_user.id}")
         # Delete all chat history for the current user
         ChatHistory.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
         # Clear session chat name to start a new chat
         session.pop('current_chat_name', None)
+        logger.info("Chat history deleted successfully")
         flash('Chat history deleted successfully!', 'success')
+        return jsonify({'status': 'success'}), 200
     except Exception as e:
         logger.error(f"Error deleting chat history: {str(e)}")
         flash('Error deleting chat history!', 'error')
-    return redirect(url_for('chat'))
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/get_chat_history', methods=['GET'])
 @login_required
 def get_chat_history():
     try:
+        logger.info(f"Fetching chat history for user {current_user.id}")
         # Group chat history by chat_name
         chats = db.session.query(ChatHistory.chat_name).filter_by(user_id=current_user.id).distinct().all()
         chat_names = [chat[0] for chat in chats]
+        logger.info(f"Chat names fetched: {chat_names}")
         return jsonify({'chat_names': chat_names})
     except Exception as e:
         logger.error(f"Error fetching chat history: {str(e)}")
@@ -281,10 +288,12 @@ def get_chat_history():
 @login_required
 def load_chat(chat_name):
     try:
+        logger.info(f"Loading chat {chat_name} for user {current_user.id}")
         # Load chat history for the given chat_name
         chat_history = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=chat_name).order_by(ChatHistory.timestamp.asc()).all()
         history = [{'user': chat.user_message, 'bot': chat.bot_reply} for chat in chat_history]
         session['current_chat_name'] = chat_name  # Update current chat name
+        logger.info(f"Chat history loaded: {history}")
         return jsonify({'history': history})
     except Exception as e:
         logger.error(f"Error loading chat: {str(e)}")
