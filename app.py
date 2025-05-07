@@ -242,6 +242,11 @@ def chat():
     logger.info("Serving chat page")
     # Generate a new chat name if not already in session
     if 'current_chat_name' not in session:
+        # Clear existing chat history for the user
+        ChatHistory.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
+        
+        # Set new chat name
         session['current_chat_name'] = f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
     return render_template('chat.html', chat_name=session['current_chat_name'])
 
