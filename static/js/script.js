@@ -284,6 +284,18 @@ async function loadChat(chatName) {
             if (main) {
                 main.classList.remove('sidebar-active');
             }
+
+            // Reset alignment when loading a chat
+            const chatWindowElement = document.querySelector('.chat-window');
+            if (chatWindowElement) {
+                chatWindowElement.style.marginLeft = '0';
+            }
+            if (greetingMessage) {
+                greetingMessage.style.marginLeft = '0';
+            }
+            if (searchBoxWrapper) {
+                searchBoxWrapper.style.marginLeft = '0';
+            }
         }
     } catch (error) {
         console.error("Error loading chat:", error);
@@ -296,6 +308,9 @@ async function startNewChat(event) {
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.getElementById('greetingMessage');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.querySelector('.hamburger');
+    const main = document.querySelector('main');
 
     // Clear chat window
     if (chatWindow) {
@@ -314,12 +329,15 @@ async function startNewChat(event) {
 
     // Clear existing chat history on the backend
     try {
-        await fetch('/delete_history', {
+        const response = await fetch('/delete_history', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
+        if (!response.ok) {
+            throw new Error('Failed to clear chat history');
+        }
     } catch (error) {
         console.error("Error clearing chat history:", error);
     }
@@ -330,18 +348,44 @@ async function startNewChat(event) {
 
     // Notify backend to create a new chat history entry
     try {
-        await fetch('/chat', {
+        const response = await fetch('/chat', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
         });
+        if (!response.ok) {
+            throw new Error('Failed to start new chat');
+        }
     } catch (error) {
         console.error("Error notifying backend for new chat:", error);
     }
 
     // Update chat history
     updateChatHistory();
+
+    // Close sidebar
+    if (sidebar) {
+        sidebar.classList.remove('active');
+    }
+    if (hamburger) {
+        hamburger.classList.remove('active');
+    }
+    if (main) {
+        main.classList.remove('sidebar-active');
+    }
+
+    // Reset alignment
+    const chatWindowElement = document.querySelector('.chat-window');
+    if (chatWindowElement) {
+        chatWindowElement.style.marginLeft = '0';
+    }
+    if (greetingMessage) {
+        greetingMessage.style.marginLeft = '0';
+    }
+    if (searchBoxWrapper) {
+        searchBoxWrapper.style.marginLeft = '0';
+    }
 }
 
 // Function to auto-expand search box based on input content
@@ -537,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
             main.classList.toggle('sidebar-active');
 
             if (window.innerWidth >= 1025) {
-                const shiftAmount = '150px';
+                const shiftAmount = '300px'; // Match sidebar width
                 if (main.classList.contains('sidebar-active')) {
                     chatWindowElement.style.marginLeft = shiftAmount;
                     if (greetingMessage) greetingMessage.style.marginLeft = shiftAmount;
