@@ -10,16 +10,18 @@
 </head>
 <body>
     <div class="chatbot-page">
-        <header>
-            <h1 class="logo">ChatGod</h1>
-            <button id="new-chat-button" class="new-chat-button mr-4 text-white font-orbitron text-lg">
-                <i class="fas fa-plus mr-2"></i> New Chat
-            </button>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
+        <header class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <button id="new-chat-button" class="new-chat-button ml-4 py-2 px-4 bg-gradient-to-r from-cyan-400 to-purple-500 text-white font-orbitron text-lg rounded-lg hover:scale-105 hover:shadow-[0_0_15px_rgba(0,212,255,0.7)] transition-all duration-300">
+                    <i class="fas fa-plus mr-2"></i> New Chat
+                </button>
             </div>
+            <h1 class="logo">ChatGod</h1>
         </header>
         <div id="sidebar" class="sidebar">
             <nav class="nav-menu">
