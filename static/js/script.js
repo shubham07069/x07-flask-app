@@ -366,10 +366,10 @@ async function startNewChat(event) {
         console.error("searchBoxWrapper element not found!");
     }
 
-    // Generate new chat name
+    // Generate new chat name (will be updated by first message)
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
     currentChatName = `Chat_${timestamp}`;
-    console.log("Generated new chat name:", currentChatName);
+    console.log("Generated temporary chat name:", currentChatName);
 
     // Notify backend to start a new chat without deleting history
     try {
@@ -589,6 +589,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (searchBoxWrapper) {
                         searchBoxWrapper.classList.remove('bottom');
                     }
+                    // Generate a new chat name after deletion
+                    const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
+                    currentChatName = `Chat_${timestamp}`;
+                    console.log("Generated new chat name after deletion:", currentChatName);
+                    // Notify backend to set the new chat name
+                    await fetch(`/start_new_chat/${currentChatName}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
                 } else {
                     console.error("Failed to delete history:", data.message);
                     showPopup('Failed to Delete History! 😓');
