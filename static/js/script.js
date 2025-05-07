@@ -1,5 +1,5 @@
 let currentMode = 'Normal'; // Default mode
-let currentModel = 'default'; // Default model
+let currentModel = 'Grok'; // Default model
 let latestConversationHeight = 0; // To store height of latest conversation
 let isUserScrolling = false; // Flag to track if user is manually scrolling
 let isBotReplying = false; // Flag to track if bot is replying
@@ -100,14 +100,14 @@ async function sendMessage() {
     userInput.value = '';
     adjustSearchBoxHeight();
 
-    // Prepare models based on mode
+    // Prepare models based on mode and selected model
     let models = [];
     if (currentMode === 'Normal') {
-        models = ['default'];
+        models = [mapModelToOpenRouter(currentModel)];
     } else if (currentMode === 'Pro') {
-        models = ['meta-llama/llama-4-scout:free'];
+        models = [mapModelToOpenRouter(currentModel)];
     } else if (currentMode === 'Fun') {
-        models = ['google/gemini-2.5-flash-preview'];
+        models = [mapModelToOpenRouter(currentModel)];
     }
 
     try {
@@ -479,7 +479,19 @@ function scrollToBottom(chatWindow, adjustForLatest = false) {
     }
 }
 
-// Allow sending message with Enter key and rocket button, and handle dropup menu
+// Function to map selected model to OpenRouter model
+function mapModelToOpenRouter(model) {
+    const modelMap = {
+        'ChatGPT': 'openai/gpt-3.5-turbo',
+        'Grok': 'xai/grok',
+        'DeepSeek': 'deepseek/deepseek-chat',
+        'Claude': 'anthropic/claude-3.5-sonnet',
+        'MetaAI': 'meta-llama/llama-3-8b-instruct'
+    };
+    return modelMap[model] || 'xai/grok'; // Default to Grok if model not found
+}
+
+// Allow sending message with Enter key and rocket button, and handle dropup menus
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
 
@@ -488,8 +500,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.querySelector('.send-button');
     const newChatLink = document.getElementById('new-chat-link');
     const modeButton = document.querySelector('.mode-button');
-    const dropupContent = document.querySelector('.dropup-content');
+    const modelButton = document.querySelector('.model-button');
+    const modeDropupContent = document.querySelector('.mode-selector .dropup-content');
+    const modelDropupContent = document.querySelector('.model-selector .dropup-content');
     const modeOptions = document.querySelectorAll('.mode-option');
+    const modelOptions = document.querySelectorAll('.model-option');
     const greetingMessage = document.getElementById('greetingMessage');
     const chatWindow = document.getElementById('chatWindow');
     const hamburger = document.querySelector('.hamburger');
@@ -558,11 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Toggle dropup menu for mode button
-    if (modeButton && dropupContent) {
+    if (modeButton && modeDropupContent) {
         modeButton.addEventListener('click', () => {
             console.log("Mode button clicked");
-            const isVisible = dropupContent.style.display === 'block';
-            dropupContent.style.display = isVisible ? 'none' : 'block';
+            const isVisible = modeDropupContent.style.display === 'block';
+            modeDropupContent.style.display = isVisible ? 'none' : 'block';
         });
 
         // Handle mode selection
@@ -571,18 +586,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const selectedMode = option.getAttribute('data-mode');
                 currentMode = selectedMode;
-
-                // Update current model based on mode
-                if (currentMode === 'Normal') {
-                    currentModel = 'deepseek/deepseek-chat-v3-0324:free';
-                } else if (currentMode === 'Pro') {
-                    currentModel = 'meta-llama/llama-4-scout:free';
-                } else if (currentMode === 'Fun') {
-                    currentModel = 'google/gemini-2.5-flash-preview';
-                }
-
-                // Add model switch notification to chat
-                addModelSwitchNotification(chatWindow, currentModel);
 
                 // Update button text
                 modeButton.innerHTML = `${selectedMode} <i class="fas fa-chevron-up"></i>`;
@@ -594,18 +597,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.classList.add('highlighted');
 
                 // Close dropup menu
-                dropupContent.style.display = 'none';
+                modeDropupContent.style.display = 'none';
             });
         });
 
-        // Close dropup menu when clicking outside
+        // Close mode dropup menu when clicking outside
         document.addEventListener('click', (e) => {
-            if (!modeButton.contains(e.target) && !dropupContent.contains(e.target)) {
-                dropupContent.style.display = 'none';
+            if (!modeButton.contains(e.target) && !modeDropupContent.contains(e.target)) {
+                modeDropupContent.style.display = 'none';
             }
         });
     } else {
-        console.error("modeButton or dropupContent element not found!");
+        console.error("modeButton or modeDropupContent element not found!");
+    }
+
+    // Toggle dropup menu for model button
+    if (modelButton && modelDropupContent) {
+        modelButton.addEventListener('click', () => {
+            console.log("Model button clicked");
+            const isVisible = modelDropupContent.style.display === 'block';
+            modelDropupContent.style.display = isVisible ? 'none' : 'block';
+        });
+
+        // Handle model selection
+        modelOptions.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.preventDefault();
+                const selectedModel = option.getAttribute('data-model');
+                currentModel = selectedModel;
+
+                // Add model switch notification to chat
+                addModelSwitchNotification(chatWindow, currentModel);
+
+                // Update button text
+                modelButton.innerHTML = `${selectedModel} <i class="fas fa-chevron-up"></i>`;
+
+                // Remove highlight from all options
+                modelOptions.forEach(opt => opt.classList.remove('highlighted'));
+
+                // Highlight the selected option
+                option.classList.add('highlighted');
+
+                // Close dropup menu
+                modelDropupContent.style.display = 'none';
+            });
+        });
+
+        // Close model dropup menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!modelButton.contains(e.target) && !modelDropupContent.contains(e.target)) {
+                modelDropupContent.style.display = 'none';
+            }
+        });
+    } else {
+        console.error("modelButton or modelDropupContent element not found!");
     }
 
     // Hamburger menu toggle and left shift for laptop
