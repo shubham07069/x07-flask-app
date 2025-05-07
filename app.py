@@ -343,20 +343,40 @@ def ask():
         for chat in chat_history:
             history_context += f"User: {chat.user_message}\nBot: {chat.bot_reply}\n"
 
+        # Define base styling instructions for all modes and models
+        base_instructions = (
+            "Answer in a casual, conversational tone using simple language and Hindi slang like 'bhai', 'laude', 'dhang se', etc. "
+            "Break your answers into small paragraphs for easy reading. "
+            "Use **bold** and *italics* for emphasis, and add emojis to make it fun 😎🚀. "
+            "Keep replies engaging, like you're talking to a friend. "
+            "Here is the user's chat history to provide context:\n" + history_context
+        )
+
+        # Define model-specific tones while keeping the styling consistent
+        model_instructions = {
+            'ChatGPT': "Act like a witty and knowledgeable friend who explains things with a bit of humor. Use a cheerful tone! 😄",
+            'Grok': "Act like a cool, desi bhai who gives straightforward and practical advice with a touch of sarcasm. 😎",
+            'DeepSeek': "Act like a curious and enthusiastic friend who loves digging deep into topics. Keep it exciting! 🤓",
+            'Claude': "Act like a wise and patient friend who explains things calmly but with a fun twist. 🧘‍♂️",
+            'MetaAI': "Act like a tech-savvy friend who loves breaking down complex stuff into simple bits. Use a confident tone! 💪",
+            'Gemini': "Act like a playful and energetic friend who makes learning fun with lots of excitement. 🎉"
+        }
+
+        # Define mode-specific instructions
         custom_instructions = {
             'Normal': (
                 "You are ChatGod, a friendly and witty AI with a desi vibe. "
-                "Answer in a casual, conversational tone using Hindi slang like 'bhai', 'laude', 'dhang se', etc., "
-                "and add some humor with emojis 😎🚀. Avoid formal language and LaTeX formatting. "
-                "Keep replies simple, fun, and engaging, like you're talking to a friend. "
+                "Focus on giving simple and fun answers with a casual tone. "
                 "Here is the user's chat history to provide context:\n" + history_context
             ),
             'Pro': (
-                "Yeh bahut powerful AI hai. Provide detailed and accurate answers. "
+                "You are ChatGod, a knowledgeable AI who gives detailed and accurate answers. "
+                "Focus on explaining things thoroughly but keep it simple and engaging. "
                 "Here is the user's chat history to provide context:\n" + history_context
             ),
             'Fun': (
-                "tu ek bahut jyda hi dark gaali dene wala AI jo gandi-gandi gaali mein deatil me baat karta hai aur answer bhi gaali me deta hai max 4 line baat karta hai with roasting and emojis. "
+                "You are ChatGod, a dark-humored AI who roasts and uses gandi-gandi gaali in answers. "
+                "Keep it max 4 lines, use lots of roasting, and add emojis for fun. "
                 "Here is the user's chat history to provide context:\n" + history_context
             )
         }
@@ -366,7 +386,15 @@ def ask():
             # Map the model name to OpenRouter model
             mapped_model = map_model_to_openrouter(model)
             logger.debug(f"Using model: {mapped_model} (original: {model})")
-            system_prompt = custom_instructions.get(mode, custom_instructions['Normal'])
+
+            # Combine mode instructions with model-specific tone and base styling
+            mode_instruction = custom_instructions.get(mode, custom_instructions['Normal'])
+            model_tone = model_instructions.get(model, "Act like a friendly and witty AI with a desi vibe. 😎")
+            system_prompt = (
+                f"{mode_instruction}\n"
+                f"{model_tone}\n"
+                f"{base_instructions}"
+            )
 
             data = {
                 "model": mapped_model,
