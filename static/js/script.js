@@ -196,7 +196,15 @@ async function updateChatHistory() {
     const chatHistoryList = document.getElementById('chatHistoryList');
     if (chatHistoryList) {
         try {
-            const response = await fetch('/get_chat_history');
+            const response = await fetch('/get_chat_history', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch chat history');
+            }
             const data = await response.json();
             if (data.chat_names) {
                 chatHistoryList.innerHTML = '';
@@ -237,7 +245,15 @@ async function loadChat(chatName) {
     }
 
     try {
-        const response = await fetch(`/load_chat/${chatName}`);
+        const response = await fetch(`/load_chat/${chatName}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error('Failed to load chat');
+        }
         const data = await response.json();
         if (data.history) {
             chatWindow.innerHTML = '';
@@ -315,20 +331,30 @@ async function startNewChat(event) {
     // Clear chat window
     if (chatWindow) {
         chatWindow.innerHTML = '';
+    } else {
+        console.error("chatWindow element not found!");
+        return;
     }
 
     // Show greeting message
     if (greetingMessage) {
+        console.log("Showing greeting message");
         greetingMessage.style.display = 'block';
+    } else {
+        console.error("greetingMessage element not found!");
     }
 
     // Move search box to center
     if (searchBoxWrapper) {
+        console.log("Moving search box to center");
         searchBoxWrapper.classList.remove('bottom');
+    } else {
+        console.error("searchBoxWrapper element not found!");
     }
 
     // Clear existing chat history on the backend
     try {
+        console.log("Clearing chat history on backend...");
         const response = await fetch('/delete_history', {
             method: 'POST',
             headers: {
@@ -338,6 +364,7 @@ async function startNewChat(event) {
         if (!response.ok) {
             throw new Error('Failed to clear chat history');
         }
+        console.log("Chat history cleared successfully");
     } catch (error) {
         console.error("Error clearing chat history:", error);
     }
@@ -345,9 +372,11 @@ async function startNewChat(event) {
     // Generate new chat name
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
     currentChatName = `Chat_${timestamp}`;
+    console.log("Generated new chat name:", currentChatName);
 
     // Notify backend to create a new chat history entry
     try {
+        console.log("Notifying backend to start new chat...");
         const response = await fetch('/chat', {
             method: 'GET',
             headers: {
@@ -357,22 +386,30 @@ async function startNewChat(event) {
         if (!response.ok) {
             throw new Error('Failed to start new chat');
         }
+        console.log("New chat started successfully");
     } catch (error) {
         console.error("Error notifying backend for new chat:", error);
     }
 
     // Update chat history
-    updateChatHistory();
+    console.log("Updating chat history...");
+    await updateChatHistory();
 
     // Close sidebar
     if (sidebar) {
         sidebar.classList.remove('active');
+    } else {
+        console.error("sidebar element not found!");
     }
     if (hamburger) {
         hamburger.classList.remove('active');
+    } else {
+        console.error("hamburger element not found!");
     }
     if (main) {
         main.classList.remove('sidebar-active');
+    } else {
+        console.error("main element not found!");
     }
 
     // Reset alignment
