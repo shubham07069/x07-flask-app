@@ -307,7 +307,7 @@ def ask():
         data = request.get_json()
         user_message = data.get('message')
         mode = data.get('mode', 'Normal')
-        models = data.get('models', ['deepseek/deepseek-chat'])
+        models = data.get('models', ['xai/grok'])
 
         logger.debug(f"User message: {user_message}")
         logger.debug(f"Mode: {mode}")
@@ -365,11 +365,12 @@ def ask():
             logger.debug(f"Raw response for model {model}: {response.text}")
 
             if response.status_code != 200:
-                logger.warning(f"Model {model} failed with status {response.status_code}, falling back to meta-llama/llama-3-8b-instruct")
-                data['model'] = 'meta-llama/llama-3-8b-instruct'
+                logger.warning(f"Model {model} failed with status {response.status_code}, falling back to xai/grok")
+                data['model'] = 'xai/grok'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
                 logger.debug(f"Fallback raw response: {response.text}")
-                raise requests.exceptions.RequestException("Fallback request failed")
+                if response.status_code != 200:
+                    raise requests.exceptions.RequestException("Fallback request failed")
 
             result = response.json()
             logger.debug(f"OpenRouter API response for model {model}: {result}")
