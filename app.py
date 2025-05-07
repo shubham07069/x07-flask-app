@@ -77,14 +77,14 @@ def clean_latex(text):
 # Function to map model name to OpenRouter model
 def map_model_to_openrouter(model_name):
     model_map = {
-        'ChatGPT': 'openai/gpt-3.5-turbo',
-        'Grok': 'xai/grok',
-        'DeepSeek': 'deepseek/deepseek-chat',
-        'Claude': 'anthropic/claude-3.5-sonnet',
-        'MetaAI': 'meta-llama/llama-3-8b-instruct',
+        'ChatGPT': 'openai/gpt-4.1-nano',
+        'Grok': 'x-ai/grok-3-mini-beta',
+        'DeepSeek': 'deepseek/deepseek-chat-v3-0324:free',
+        'Claude': 'anthropic/claude-3.5-haiku',
+        'MetaAI': 'meta-llama/llama-4-maverick:free',
         'Gemini': 'google/gemini-2.5-flash-preview'
     }
-    return model_map.get(model_name, 'xai/grok')  # Default to Grok if model not found
+    return model_map.get(model_name, 'x-ai/grok-3-mini-beta') # Default to Grok if model not found
 
 # Function to send email (used for verification code, username, and password reset)
 def send_email(to_email, subject, body):
