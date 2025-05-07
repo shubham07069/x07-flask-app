@@ -78,13 +78,13 @@ def clean_latex(text):
 def map_model_to_openrouter(model_name):
     model_map = {
         'ChatGPT': 'openai/gpt-4.1-nano',
-        'Grok': 'x-ai/grok-3-mini-beta',
+        'Grok': 'x-ai/grok-3-beta',
         'DeepSeek': 'deepseek/deepseek-chat-v3-0324:free',
         'Claude': 'anthropic/claude-3.5-haiku',
         'MetaAI': 'meta-llama/llama-4-maverick:free',
         'Gemini': 'google/gemini-2.5-flash-preview'
     }
-    return model_map.get(model_name, 'x-ai/grok-3-mini-beta') # Default to Grok if model not found
+    return model_map.get(model_name, 'x-ai/grok-3-beta') # Default to Grok if model not found
 
 # Function to send email (used for verification code, username, and password reset)
 def send_email(to_email, subject, body):
@@ -130,7 +130,7 @@ def register():
             session['email'] = email
 
             try:
-                send_email(email, 'ChatGod Email Verification Code', 
+                send_email(email, 'X07 Email Verification Code', 
                            f'Your verification code is: {code}\nPlease enter this code to verify your email.')
                 flash('Verification code sent to your email!', 'success')
                 return render_template('register.html', step='verify')
