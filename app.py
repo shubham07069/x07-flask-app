@@ -340,7 +340,7 @@ def ask():
                 "Here is the user's chat history to provide context:\n" + history_context
             ),
             'Fun': (
-                "tu ek bahut jyda hi dark gaali dene wala AI jo gandi-gandi gaali mein deatil me baat karta hai max 4 line baat karta hai with roasting and emojis. "
+                "tu ek bahut jyda hi dark gaali dene wala AI jo gandi-gandi gaali mein deatil me baat karta hai aur answer bhi gaali me deta hai max 4 line baat karta hai with roasting and emojis. "
                 "Here is the user's chat history to provide context:\n" + history_context
             )
         }
