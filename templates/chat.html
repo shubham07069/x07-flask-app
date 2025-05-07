@@ -17,9 +17,6 @@
                     <span></span>
                     <span></span>
                 </div>
-                <button id="new-chat-button" class="new-chat-button ml-4 text-white hover:text-cyan-400 transition-all duration-300">
-                    <i class="fas fa-pencil-alt text-2xl"></i>New Chat
-                </button>
             </div>
             <h1 class="logo">ChatGod</h1>
         </header>
@@ -34,7 +31,7 @@
                 </div>
                 <ul>
                     <li><a href="{{ url_for('home') }}">Home</a></li>
-                    <li><a href="{{ url_for('chat') }}">Chat</a></li>
+                    <li><a id="new-chat-link" href="#">New Chat</a></li>
                     <li><a href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
             </nav>
