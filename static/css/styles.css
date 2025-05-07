@@ -273,7 +273,7 @@ body {
 
 /* Chatbot Page Section */
 .chatbot-page {
-    background: linear-gradient(135deg, #0a0a0a, #1a0033); /* Solid gradient background */
+    background: linear-gradient(135deg, #111111, #333333); /* Updated to grey gradient */
     position: relative;
     display: flex;
     min-height: 100vh;
