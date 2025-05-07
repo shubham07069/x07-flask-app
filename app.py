@@ -77,12 +77,12 @@ def clean_latex(text):
 # Function to map model name to OpenRouter model
 def map_model_to_openrouter(model_name):
     model_map = {
-        'ChatGPT': 'openai/gpt-4.1-nano',
-        'Grok': 'x-ai/grok-3-mini-beta',
+        'ChatGPT': 'openai/gpt-3.5-turbo',
+        'Grok': 'xai/grok',
         'DeepSeek': 'deepseek/deepseek-chat',
         'Claude': 'anthropic/claude-3.5-sonnet',
         'MetaAI': 'meta-llama/llama-3-8b-instruct',
-        'Gemini': 'google/gemini-2.5-flash-preview'
+        'Gemini': 'google/gemini-flash-1.5'
     }
     return model_map.get(model_name, 'xai/grok')  # Default to Grok if model not found
 
@@ -323,7 +323,11 @@ def ask():
 
         logger.debug(f"User message: {user_message}")
         logger.debug(f"Mode: {mode}")
-        logger.debug(f"Models: {models}")
+        logger.debug(f"Models received: {models}")
+
+        # Validate models list
+        if not models or not isinstance(models, list):
+            raise ValueError("Models must be a non-empty list")
 
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -361,6 +365,7 @@ def ask():
         for i, model in enumerate(models):
             # Map the model name to OpenRouter model
             mapped_model = map_model_to_openrouter(model)
+            logger.debug(f"Using model: {mapped_model} (original: {model})")
             system_prompt = custom_instructions.get(mode, custom_instructions['Normal'])
 
             data = {
@@ -374,20 +379,26 @@ def ask():
             }
             logger.debug(f"Request data for model {mapped_model}: {data}")
 
+            # Make the API call
             logger.debug(f"Sending request to OpenRouter API for model {mapped_model}")
             response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+            logger.debug(f"Response status for model {mapped_model}: {response.status_code}")
             logger.debug(f"Raw response for model {mapped_model}: {response.text}")
 
             if response.status_code != 200:
                 logger.warning(f"Model {mapped_model} failed with status {response.status_code}, falling back to xai/grok")
                 data['model'] = 'xai/grok'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+                logger.debug(f"Fallback response status: {response.status_code}")
                 logger.debug(f"Fallback raw response: {response.text}")
                 if response.status_code != 200:
-                    raise requests.exceptions.RequestException("Fallback request failed")
+                    raise requests.exceptions.RequestException(f"Fallback request failed with status {response.status_code}: {response.text}")
 
             result = response.json()
             logger.debug(f"OpenRouter API response for model {mapped_model}: {result}")
+
+            if 'choices' not in result or not result['choices']:
+                raise ValueError("No choices in API response")
 
             model_reply = result['choices'][0]['message']['content']
             model_reply = clean_latex(model_reply)
