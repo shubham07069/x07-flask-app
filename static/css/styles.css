@@ -528,6 +528,25 @@ body {
                 inset 0 -3px 8px rgba(255, 0, 102, 0.4);
 }
 
+.chatbot-page #userInput {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 20px;
+    background: #3a3a3a;
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 0.5rem;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.chatbot-page #userInput:focus {
+    outline: none;
+}
+
 .chatbot-page .button-row {
     display: flex;
     flex-direction: row;
@@ -883,6 +902,14 @@ body {
                     0 8px 20px 8px rgba(255, 105, 180, 0.7);
     }
 
+    .chatbot-page #userInput {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 15px;
+        margin-bottom: 0.4rem;
+        line-height: 1.2;
+    }
+
     .chatbot-page .button-row {
         justify-content: space-between;
     }
@@ -1010,276 +1037,4 @@ body {
     }
 }
 
-/* Tablets (601px to 1024px) */
-@media (min-width: 601px) and (max-width: 1024px) {
-    .chatbot-page header {
-        padding: 1rem 1.5rem;
-    }
-
-    .chatbot-page .logo {
-        font-size: 2rem;
-    }
-
-    .chatbot-page main {
-        padding-top: 3.5rem;
-        padding-bottom: 1rem;
-    }
-
-    .chatbot-page main.sidebar-active {
-        margin-left: 0; /* Remove margin-left shift */
-    }
-
-    .chatbot-page .greeting-message {
-        font-size: 1.1rem;
-        top: 25%;
-        transform: translateY(-50%);
-        z-index: 1;
-        margin-bottom: 2rem;
-    }
-
-    .chatbot-page .chat-container {
-        width: 80vw;
-    }
-
-    .chatbot-page .chat-window {
-        width: 80vw;
-        height: 100%;
-        min-height: calc(100vh - 5rem);
-        padding: 1.5rem;
-        gap: 1.5rem;
-        margin-top: 0;
-        margin-bottom: 4cm;
-        justify-content: flex-start;
-    }
-
-    .chatbot-page .search-box-wrapper {
-        width: 80vw;
-        max-width: none;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .chatbot-page .search-box-wrapper.bottom {
-        bottom: 15px;
-        transform: translate(-50%, 0);
-    }
-
-    .chatbot-page .plus-button {
-        width: 40px;
-        height: 40px;
-        margin-right: 0.8rem;
-    }
-
-    .chatbot-page .search-box .send-button {
-        width: 40px;
-        height: 40px;
-        margin-left: 0.8rem;
-    }
-
-    .chatbot-page .mode-selector {
-        align-self: flex-end;
-        margin-right: 0.5rem;
-    }
-
-    .chatbot-page .mode-button {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-        margin: 0;
-    }
-
-    .chatbot-page .mode-button i {
-        font-size: 0.8rem;
-    }
-
-    .chatbot-page .dropup-content a {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-    }
-
-    .chatbot-page .message {
-        max-width: 75%;
-        font-size: 1.1rem;
-    }
-
-    .chatbot-page .message-content {
-        padding: 1rem;
-        border-radius: 10px;
-    }
-
-    .chatbot-page .message.bot .message-content {
-        padding: 0;
-    }
-
-    .chatbot-page .message.thinking .skeleton-line {
-        width: 180px;
-        height: 14px;
-    }
-
-    .chatbot-page .message.thinking .skeleton-line:nth-child(2) {
-        width: 120px;
-    }
-
-    .landing-page h1 {
-        font-size: 4rem;
-    }
-
-    .landing-page .tagline {
-        font-size: 1.3rem;
-    }
-
-    .feature-card {
-        width: 280px;
-    }
-
-    .feature-card img {
-        height: 180px;
-    }
-
-    .auth-container {
-        max-width: 380px;
-    }
-
-    .auth-container h1 {
-        font-size: 2.8rem;
-    }
-}
-
-/* Laptops and Larger Screens (1025px and above) */
-@media (min-width: 1025px) {
-    .chatbot-page header {
-        padding: 1rem 2rem;
-    }
-
-    .chatbot-page .logo {
-        font-size: 2.5rem;
-    }
-
-    .chatbot-page .hamburger {
-        display: flex !important;
-    }
-
-    .chatbot-page main {
-        padding-top: 4rem;
-        padding-bottom: 1rem;
-    }
-
-    .chatbot-page main.sidebar-active {
-        margin-left: 0; /* Remove margin-left shift */
-    }
-
-    .chatbot-page .greeting-message {
-        font-size: 1.2rem;
-        top: 30%;
-        transform: translateY(-50%);
-        z-index: 1;
-        margin-bottom: 2rem;
-    }
-
-    .chatbot-page .chat-container {
-        width: 100%;
-        max-width: 700px;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .chatbot-page .chat-window {
-        height: 100%;
-        min-height: calc(100vh - 4rem);
-        padding: 1.5rem;
-        gap: 1.5rem;
-        margin-top: 0;
-        margin-bottom: 4cm;
-        justify-content: flex-start;
-    }
-
-    .chatbot-page .chat-window::-webkit-scrollbar {
-        display: none;
-    }
-
-    .chatbot-page .chat-window {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    .chatbot-page .search-box-wrapper {
-        max-width: 700px;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .chatbot-page .search-box-wrapper.bottom {
-        bottom: 20px;
-        transform: translate(-50%, 0);
-    }
-
-    .chatbot-page .plus-button {
-        width: 45px;
-        height: 45px;
-        margin-right: 0.3rem;
-    }
-
-    .chatbot-page .search-box .send-button {
-        width: 45px;
-        height: 45px;
-        margin-left: 0.3rem;
-        margin-right: 0.3rem;
-    }
-
-    .chatbot-page .mode-selector {
-        align-self: flex-end;
-        margin-right: 0.3rem;
-    }
-
-    .chatbot-page .mode-button {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.9rem;
-        margin: 0;
-    }
-
-    .chatbot-page .mode-button i {
-        font-size: 0.8rem;
-    }
-
-    .chatbot-page .dropup-content a {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-    }
-
-    .chatbot-page .message {
-        max-width: 70%;
-        font-size: 1.2rem;
-    }
-
-    .chatbot-page .message-content {
-        padding: 1rem;
-        border-radius: 15px;
-    }
-
-    .chatbot-page .message.bot .message-content {
-        padding: 0;
-    }
-
-    .chatbot-page .message.thinking .skeleton-line {
-        width: 200px;
-        height: 15px;
-    }
-
-    .chatbot-page .message.thinking .skeleton-line:nth-child(2) {
-        width: 150px;
-    }
-
-    .landing-page h1 {
-        font-size: 5rem;
-    }
-
-    .landing-page .tagline {
-        font-size: 1.5rem;
-    }
-
-    .auth-button {
-        padding: 1rem 2rem;
-        font-size: 1.2rem;
-    }
-}
+/* Tablets (
