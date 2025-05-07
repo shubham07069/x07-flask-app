@@ -21,14 +21,7 @@
             <h1 class="logo">ChatGod</h1>
         </header>
         <div id="sidebar" class="sidebar">
-            <nav class="nav-menu flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
+            <nav class="nav-menu">
                 <ul>
                     <li><a href="{{ url_for('home') }}">Home</a></li>
                     <li><a id="new-chat-link" href="#">New Chat</a></li>
@@ -54,7 +47,7 @@
                 </div>
                 <div class="search-box-wrapper">
                     <div class="search-box">
-                        <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
+                        <textarea id="userInput" placeholder="Kuchh bhi bol de..." rows="1"></textarea>
                         <div class="button-row">
                             <button class="plus-button">+</button>
                             <div class="mode-selector">
