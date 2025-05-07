@@ -291,7 +291,8 @@ async function loadChat(chatName) {
 }
 
 // Function to start a new chat
-async function startNewChat() {
+async function startNewChat(event) {
+    event.preventDefault(); // Prevent default link behavior
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.getElementById('greetingMessage');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
@@ -404,8 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const userInput = document.getElementById('userInput');
     const sendButton = document.querySelector('.send-button');
-    const newChatButton = document.getElementById('new-chat-button');
-    const sidebarNewChatButton = document.getElementById('sidebar-new-chat-button');
+    const newChatLink = document.getElementById('new-chat-link');
     const modeButton = document.querySelector('.mode-button');
     const dropupContent = document.querySelector('.dropup-content');
     const modeOptions = document.querySelectorAll('.mode-option');
@@ -466,24 +466,14 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("sendButton element not found!");
     }
 
-    // New chat button event listener (header)
-    if (newChatButton) {
-        newChatButton.addEventListener('click', () => {
-            console.log("New Chat button (header) clicked, starting new chat...");
-            startNewChat();
+    // New chat link event listener (sidebar)
+    if (newChatLink) {
+        newChatLink.addEventListener('click', (event) => {
+            console.log("New Chat link (sidebar) clicked, starting new chat...");
+            startNewChat(event);
         });
     } else {
-        console.error("newChatButton element not found!");
-    }
-
-    // New chat button event listener (sidebar)
-    if (sidebarNewChatButton) {
-        sidebarNewChatButton.addEventListener('click', () => {
-            console.log("New Chat button (sidebar) clicked, starting new chat...");
-            startNewChat();
-        });
-    } else {
-        console.error("sidebarNewChatButton element not found!");
+        console.error("newChatLink element not found!");
     }
 
     // Toggle dropup menu for mode button
