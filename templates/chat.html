@@ -24,7 +24,15 @@
             <h1 class="logo">ChatGod</h1>
         </header>
         <div id="sidebar" class="sidebar">
-            <nav class="nav-menu">
+            <nav class="nav-menu flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    </button>
+                </div>
                 <ul>
                     <li><a href="{{ url_for('home') }}">Home</a></li>
                     <li><a href="{{ url_for('chat') }}">Chat</a></li>
