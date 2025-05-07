@@ -77,11 +77,11 @@ def clean_latex(text):
 # Function to map model name to OpenRouter model
 def map_model_to_openrouter(model_name):
     model_map = {
-        'ChatGPT': 'openai/gpt-4.1-nano',
-        'Grok': 'x-ai/grok-3-mini-beta',
-        'DeepSeek': 'deepseek/deepseek-chat-v3-0324:free',
-        'Claude': 'anthropic/claude-3.5-haiku',
-        'MetaAI': 'meta-llama/llama-4-maverick:free',
+        'ChatGPT': 'openai/gpt-3.5-turbo',
+        'Grok': 'xai/grok',
+        'DeepSeek': 'deepseek/deepseek-chat',
+        'Claude': 'anthropic/claude-3.5-sonnet',
+        'MetaAI': 'meta-llama/llama-3-8b-instruct',
         'Gemini': 'google/gemini-2.5-flash-preview'
     }
     return model_map.get(model_name, 'xai/grok')  # Default to Grok if model not found
@@ -254,15 +254,23 @@ def chat():
     logger.info("Serving chat page")
     # Generate a new chat name if not already in session
     if 'current_chat_name' not in session:
-        # Clear existing chat history for the user
-        logger.info(f"Clearing chat history for user {current_user.id}")
-        ChatHistory.query.filter_by(user_id=current_user.id).delete()
-        db.session.commit()
-        
         # Set new chat name
         session['current_chat_name'] = f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
         logger.info(f"New chat name set: {session['current_chat_name']}")
     return render_template('chat.html', chat_name=session['current_chat_name'])
+
+@app.route('/start_new_chat/<chat_name>', methods=['GET'])
+@login_required
+def start_new_chat(chat_name):
+    try:
+        logger.info(f"Starting new chat for user {current_user.id} with chat name {chat_name}")
+        # Simply set the new chat name in the session, do not delete history
+        session['current_chat_name'] = chat_name
+        logger.info("New chat started successfully")
+        return jsonify({'status': 'success'}), 200
+    except Exception as e:
+        logger.error(f"Error starting new chat: {str(e)}")
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/delete_history', methods=['POST'])
 @login_required
