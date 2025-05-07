@@ -1,5 +1,5 @@
 let currentMode = 'Normal'; // Default mode
-let currentModel = 'Grok'; // Default model
+let currentModel = 'DeepSeek'; // Default model
 let latestConversationHeight = 0; // To store height of latest conversation
 let isUserScrolling = false; // Flag to track if user is manually scrolling
 let isBotReplying = false; // Flag to track if bot is replying
