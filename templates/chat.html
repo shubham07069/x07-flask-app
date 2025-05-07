@@ -34,7 +34,7 @@
                 <ul id="chatHistoryList" class="flex-1 overflow-y-auto"></ul>
                 <form id="delete-history-form" method="POST" action="{{ url_for('delete_history') }}" class="mt-4">
                     <button type="submit" class="w-full py-2 bg-gradient-to-r from-red-500 to-red-700 text-white font-orbitron text-lg rounded-lg hover:scale-105 hover:shadow-[0_0_15px_rgba(255,0,0,0.7)] transition-all duration-300">
-                        <i class="fas fa-trash-alt mr-2"></i> Delete All
+                        <i class="fas fa-trash-can mr-2"></i> Delete All
                     </button>
                 </form>
             </div>
@@ -59,11 +59,11 @@
                                 </div>
                             </div>
                             <div class="model-selector">
-                                <button class="model-button">Grok <i class="fas fa-chevron-up"></i></button>
+                                <button class="model-button">DeepSeek <i class="fas fa-chevron-up"></i></button>
                                 <div class="dropup-content">
                                     <a href="#" class="model-option" data-model="ChatGPT">ChatGPT</a>
-                                    <a href="#" class="model-option highlighted" data-model="Grok">Grok(beta)</a>
-                                    <a href="#" class="model-option" data-model="DeepSeek">DeepSeek</a>
+                                    <a href="#" class="model-option" data-model="Grok">Grok</a>
+                                    <a href="#" class="model-option highlighted" data-model="DeepSeek">DeepSeek</a>
                                     <a href="#" class="model-option" data-model="Claude">Claude</a>
                                     <a href="#" class="model-option" data-model="MetaAI">MetaAI</a>
                                     <a href="#" class="model-option" data-model="Gemini">Gemini</a>
