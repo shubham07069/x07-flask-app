@@ -1,5 +1,5 @@
 let currentMode = 'Normal'; // Default mode
-let currentModel = 'DeepSeek'; // Default model
+let currentModel = 'DeepSeek'; // Default model changed to DeepSeek
 let latestConversationHeight = 0; // To store height of latest conversation
 let isUserScrolling = false; // Flag to track if user is manually scrolling
 let isBotReplying = false; // Flag to track if bot is replying
@@ -20,6 +20,27 @@ function addModelSwitchNotification(chatWindow, model) {
     `;
     chatWindow.appendChild(notificationMessage);
     scrollToBottom(chatWindow, true);
+}
+
+// Function to show a pop-up message
+function showPopup(message) {
+    const popup = document.createElement('div');
+    popup.className = 'popup-message';
+    popup.innerHTML = message;
+    document.body.appendChild(popup);
+
+    // Show the pop-up
+    setTimeout(() => {
+        popup.style.opacity = '1';
+    }, 10);
+
+    // Hide the pop-up after 3 seconds
+    setTimeout(() => {
+        popup.style.opacity = '0';
+        setTimeout(() => {
+            popup.remove();
+        }, 300);
+    }, 3000);
 }
 
 async function sendMessage() {
@@ -476,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const main = document.querySelector('main');
     const chatWindowElement = document.querySelector('.chat-window');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
+    const deleteHistoryForm = document.getElementById('delete-history-form');
 
     // Set current chat name from server
     currentChatName = "{{ chat_name }}";
@@ -536,6 +558,50 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("newChatLink element not found!");
     }
 
+    // Delete history form submission listener
+    if (deleteHistoryForm) {
+        deleteHistoryForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            try {
+                const response = await fetch('/delete_history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    // Show pop-up message
+                    showPopup('Chat History Deleted! 🗑️');
+                    // Update chat history (should be empty now)
+                    updateChatHistory();
+                    // Clear current chat window
+                    if (chatWindow) {
+                        chatWindow.innerHTML = '';
+                    }
+                    // Show greeting message
+                    if (greetingMessage) {
+                        greetingMessage.style.display = 'block';
+                    }
+                    // Move search box to center
+                    if (searchBoxWrapper) {
+                        searchBoxWrapper.classList.remove('bottom');
+                    }
+                } else {
+                    console.error("Failed to delete history:", data.message);
+                    showPopup('Failed to Delete History! 😓');
+                }
+            } catch (error) {
+                console.error("Error deleting history:", error);
+                showPopup('Bhosdike, kuch galat ho gaya! 😅');
+            }
+        });
+    } else {
+        console.error("deleteHistoryForm element not found!");
+    }
+
     // Toggle dropup menu for mode button
     if (modeButton && modeDropupContent) {
         modeButton.addEventListener('click', () => {
@@ -575,8 +641,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("modeButton or modeDropupContent element not found!");
     }
 
-    // Toggle dropup menu for model button
+    // Toggle dropup menu for model button and set default to DeepSeek
     if (modelButton && modelDropupContent) {
+        // Set the default model text on the button
+        modelButton.innerHTML = `${currentModel} <i class="fas fa-chevron-up"></i>`;
+
+        // Highlight the default model (DeepSeek) in the dropup menu
+        modelOptions.forEach(option => {
+            if (option.getAttribute('data-model') === currentModel) {
+                option.classList.add('highlighted');
+            } else {
+                option.classList.remove('highlighted');
+            }
+        });
+
         modelButton.addEventListener('click', () => {
             console.log("Model button clicked");
             const isVisible = modelDropupContent.style.display === 'block';
