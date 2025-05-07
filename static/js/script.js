@@ -290,6 +290,35 @@ async function loadChat(chatName) {
     }
 }
 
+// Function to start a new chat
+function startNewChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    const greetingMessage = document.getElementById('greetingMessage');
+    const searchBoxWrapper = document.querySelector('.search-box-wrapper');
+
+    // Clear chat window
+    if (chatWindow) {
+        chatWindow.innerHTML = '';
+    }
+
+    // Show greeting message
+    if (greetingMessage) {
+        greetingMessage.style.display = 'block';
+    }
+
+    // Move search box to center
+    if (searchBoxWrapper) {
+        searchBoxWrapper.classList.remove('bottom');
+    }
+
+    // Generate new chat name
+    const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
+    currentChatName = `Chat_${timestamp}`;
+
+    // Update chat history
+    updateChatHistory();
+}
+
 // Function to auto-expand search box based on input content
 function adjustSearchBoxHeight() {
     const userInput = document.getElementById('userInput');
@@ -351,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Elements
     const userInput = document.getElementById('userInput');
     const sendButton = document.querySelector('.send-button');
+    const newChatButton = document.getElementById('new-chat-button');
     const modeButton = document.querySelector('.mode-button');
     const dropupContent = document.querySelector('.dropup-content');
     const modeOptions = document.querySelectorAll('.mode-option');
@@ -409,6 +439,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error("sendButton element not found!");
+    }
+
+    // New chat button event listener
+    if (newChatButton) {
+        newChatButton.addEventListener('click', () => {
+            console.log("New Chat button clicked, starting new chat...");
+            startNewChat();
+        });
+    } else {
+        console.error("newChatButton element not found!");
     }
 
     // Toggle dropup menu for mode button
