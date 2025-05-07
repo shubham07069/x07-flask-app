@@ -78,7 +78,7 @@ def clean_latex(text):
 def map_model_to_openrouter(model_name):
     model_map = {
         'ChatGPT': 'openai/gpt-4.1-nano',
-        'Grok': 'rekaai/reka-flash-3:free',
+        'Grok': 'x-ai/grok-3-mini-beta',
         'DeepSeek': 'deepseek/deepseek-chat-v3-0324:free',
         'Claude': 'anthropic/claude-3.5-haiku',
         'MetaAI': 'meta-llama/llama-4-maverick:free',
