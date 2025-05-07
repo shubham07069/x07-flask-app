@@ -291,7 +291,7 @@ async function loadChat(chatName) {
 }
 
 // Function to start a new chat
-function startNewChat() {
+async function startNewChat() {
     const chatWindow = document.getElementById('chatWindow');
     const greetingMessage = document.getElementById('greetingMessage');
     const searchBoxWrapper = document.querySelector('.search-box-wrapper');
@@ -311,12 +311,31 @@ function startNewChat() {
         searchBoxWrapper.classList.remove('bottom');
     }
 
-    // Generate new chat name
+    // Generate new chat name and save to session
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
     currentChatName = `Chat_${timestamp}`;
+    
+    // Update session on server
+    try {
+        const response = await fetch('/update_chat_session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                chat_name: currentChatName
+            }),
+        });
 
-    // Update chat history
-    updateChatHistory();
+        if (!response.ok) {
+            throw new Error('Failed to update chat session');
+        }
+
+        // Update chat history
+        updateChatHistory();
+    } catch (error) {
+        console.error("Error starting new chat:", error);
+    }
 }
 
 // Function to auto-expand search box based on input content
@@ -381,6 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('userInput');
     const sendButton = document.querySelector('.send-button');
     const newChatButton = document.getElementById('new-chat-button');
+    const newChatSidebarButton = document.getElementById('new-chat-sidebar-button');
     const modeButton = document.querySelector('.mode-button');
     const dropupContent = document.querySelector('.dropup-content');
     const modeOptions = document.querySelectorAll('.mode-option');
@@ -441,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("sendButton element not found!");
     }
 
-    // New chat button event listener
+    // New chat button event listener (header)
     if (newChatButton) {
         newChatButton.addEventListener('click', () => {
             console.log("New Chat button clicked, starting new chat...");
@@ -449,6 +469,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     } else {
         console.error("newChatButton element not found!");
+    }
+
+    // New chat sidebar button event listener (hamburger menu)
+    if (newChatSidebarButton) {
+        newChatSidebarButton.addEventListener('click', () => {
+            console.log("New Chat sidebar button clicked, starting new chat...");
+            startNewChat();
+        });
+    } else {
+        console.error("newChatSidebarButton element not found!");
     }
 
     // Toggle dropup menu for mode button
