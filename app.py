@@ -366,7 +366,7 @@ def ask():
 
             if response.status_code != 200:
                 logger.warning(f"Model {model} failed with status {response.status_code}, falling back to xai/grok")
-                data['model'] = 'xai/grok'
+                data['model'] = 'x-ai/grok-3-mini-beta'
                 response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
                 logger.debug(f"Fallback raw response: {response.text}")
                 if response.status_code != 200:
