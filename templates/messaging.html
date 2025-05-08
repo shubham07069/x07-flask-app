@@ -1,1 +1,74 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messaging - ChatGod</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="chatbot-page">
+        <header class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <h1 class="logo">Messaging</h1>
+            <a href="{{ url_for('index') }}" class="auth-button">Home</a>
+        </header>
+        <div id="sidebar" class="sidebar">
+            <div class="chat-history flex flex-col h-[calc(100%-8rem)]">
+                <h3>Users</h3>
+                <ul id="chatHistoryList" class="flex-1 overflow-y-auto">
+                    {% for user in users %}
+                        <li onclick="selectUser({{ user.id }})" class="{% if selected_user and selected_user.id == user.id %}highlighted{% endif %}">
+                            {{ user.username }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <main>
+            <div class="chat-container">
+                <div id="chatWindow" class="chat-window">
+                    {% if selected_user %}
+                        {% for message in messages %}
+                            <div class="message {% if message.sender_id == current_user.id %}user{% else %}bot{% endif %}">
+                                <div class="message-content">
+                                    <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                                    <br><small>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="greeting-message">
+                            Select a user to start chatting!
+                        </div>
+                    {% endif %}
+                </div>
+                {% if selected_user %}
+                    <div class="search-box-wrapper">
+                        <div class="search-box">
+                            <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
+                            <div class="button-row">
+                                <button class="send-button">
+                                    <i class="fas fa-rocket"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/msg_script.js') }}"></script>
+    <script>
+        const selectedUserId = {{ selected_user.id if selected_user else 'null' }};
+    </script>
+</body>
+</html>
