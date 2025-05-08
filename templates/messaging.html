@@ -18,15 +18,50 @@
                 </div>
             </div>
             <h1 class="logo">Messaging</h1>
-            <a href="{{ url_for('index') }}" class="auth-button">Home</a>
+            <a href="{{ url_for('index') }}" class="auth-button small">Home</a>
         </header>
         <div id="sidebar" class="sidebar">
+            <div class="user-profile">
+                <a href="{{ url_for('profile') }}">
+                    {% if current_user.profile_pic %}
+                        <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture">
+                    {% else %}
+                        <div class="default-pic">{{ current_user.username[0] | upper }}</div>
+                    {% endif %}
+                    <span>{{ current_user.username }}</span>
+                </a>
+                <a href="{{ url_for('create_group') }}" class="create-group-btn">+ New Group</a>
+            </div>
+            <div class="divider"></div>
             <div class="chat-history flex flex-col h-[calc(100%-8rem)]">
-                <h3>Users</h3>
+                <h3>Chats</h3>
                 <ul id="chatHistoryList" class="flex-1 overflow-y-auto">
                     {% for user in users %}
                         <li onclick="selectUser({{ user.id }})" class="{% if selected_user and selected_user.id == user.id %}highlighted{% endif %}">
-                            {{ user.username }}
+                            {% if user.profile_pic %}
+                                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="{{ user.username }}" class="chat-pic">
+                            {% else %}
+                                <div class="default-pic">{{ user.username[0] | upper }}</div>
+                            {% endif %}
+                            <div class="chat-info">
+                                <span>{{ user.username }}</span>
+                                <small id="status-{{ user.id }}">
+                                    {% if user.is_online %}
+                                        Online
+                                    {% else %}
+                                        Last seen: {{ user.last_seen.strftime('%Y-%m-%d %H:%M:%S') if user.last_seen else 'Unknown' }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    {% for group in groups %}
+                        <li onclick="selectGroup({{ group.id }})" class="{% if selected_group and selected_group.id == group.id %}highlighted{% endif %}">
+                            <div class="default-pic">{{ group.name[0] | upper }}</div>
+                            <div class="chat-info">
+                                <span>{{ group.name }}</span>
+                                <small>Group Chat</small>
+                            </div>
                         </li>
                     {% endfor %}
                 </ul>
@@ -34,27 +69,78 @@
         </div>
         <main>
             <div class="chat-container">
+                {% if selected_user or selected_group %}
+                    <div class="chat-header">
+                        {% if selected_user %}
+                            {% if selected_user.profile_pic %}
+                                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + selected_user.profile_pic) }}" alt="{{ selected_user.username }}" class="chat-pic">
+                            {% else %}
+                                <div class="default-pic">{{ selected_user.username[0] | upper }}</div>
+                            {% endif %}
+                            <div class="chat-info">
+                                <span>{{ selected_user.username }}</span>
+                                <small id="status-header-{{ selected_user.id }}">
+                                    {% if selected_user.is_online %}
+                                        Online
+                                    {% else %}
+                                        Last seen: {{ selected_user.last_seen.strftime('%Y-%m-%d %H:%M:%S') if selected_user.last_seen else 'Unknown' }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                        {% else %}
+                            <div class="default-pic">{{ selected_group.name[0] | upper }}</div>
+                            <div class="chat-info">
+                                <span>{{ selected_group.name }}</span>
+                                <small>Group Chat</small>
+                            </div>
+                        {% endif %}
+                        <div id="typing-indicator"></div>
+                    </div>
+                {% endif %}
                 <div id="chatWindow" class="chat-window">
-                    {% if selected_user %}
+                    {% if selected_user or selected_group %}
                         {% for message in messages %}
-                            <div class="message {% if message.sender_id == current_user.id %}user{% else %}bot{% endif %}">
+                            <div class="message {% if message.sender_id == current_user.id %}user{% else %}bot{% endif %}" data-message-id="{{ message.id }}">
                                 <div class="message-content">
-                                    <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+                                    <strong>{{ message.sender.username }}:</strong>
+                                    {% if message.content_type == 'text' %}
+                                        {{ message.content | decrypt_message }}
+                                    {% elif message.content_type == 'image' %}
+                                        <img src="{{ url_for('uploaded_file', filename=message.file_path) }}" alt="Image" style="max-width: 200px;">
+                                    {% elif message.content_type == 'video' %}
+                                        <video controls style="max-width: 200px;">
+                                            <source src="{{ url_for('uploaded_file', filename=message.file_path) }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% else %}
+                                        <a href="{{ url_for('uploaded_file', filename=message.file_path) }}" target="_blank">Download File</a>
+                                    {% endif %}
                                     <br><small>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                    {% if message.sender_id == current_user.id %}
+                                        <span class="read-status">
+                                            {% if message.is_read %}
+                                                <i class="fas fa-check-double" style="color: #34b7f1;"></i> Seen
+                                            {% else %}
+                                                <i class="fas fa-check" style="color: #ccc;"></i> Delivered
+                                            {% endif %}
+                                        </span>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
                     {% else %}
                         <div class="greeting-message">
-                            Select a user to start chatting!
+                            Select a user or group to start chatting!
                         </div>
                     {% endif %}
                 </div>
-                {% if selected_user %}
+                {% if selected_user or selected_group %}
                     <div class="search-box-wrapper">
                         <div class="search-box">
                             <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
                             <div class="button-row">
+                                <label for="fileInput" class="plus-button">+</label>
+                                <input type="file" id="fileInput" style="display: none;">
                                 <button class="send-button">
                                     <i class="fas fa-rocket"></i>
                                 </button>
@@ -69,6 +155,9 @@
     <script src="{{ url_for('static', filename='js/msg_script.js') }}"></script>
     <script>
         const selectedUserId = {{ selected_user.id if selected_user else 'null' }};
+        const selectedGroupId = {{ selected_group.id if selected_group else 'null' }};
+        const chatType = '{{ chat_type }}';
+        const currentUserId = {{ current_user.id }};
     </script>
 </body>
 </html>
