@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit
 from werkzeug.security import generate_password_hash, check_password_hash
-import requests
 from dotenv import load_dotenv
+import requests
 import os
 import logging
 import re
@@ -31,6 +32,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize Flask-SQLAlchemy
 db = SQLAlchemy(app)
 
+# Initialize Flask-SocketIO
+socketio = SocketIO(app)
+
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -40,7 +44,7 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=True)  # Optional for messaging app
     password_hash = db.Column(db.String(120), nullable=False)
 
     def set_password(self, password):
@@ -49,13 +53,21 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# ChatHistory model for storing user-specific chat history
+# ChatHistory model for AI chat history
 class ChatHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     chat_name = db.Column(db.String(100), nullable=False)
     user_message = db.Column(db.Text, nullable=False)
     bot_reply = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+# Message model for messaging app
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 # Create database tables
@@ -88,12 +100,9 @@ def map_model_to_openrouter(model_name):
 
 # Function to generate chat name based on user's first message
 def generate_chat_name(message):
-    # Take the first 5 words of the message (or less if message is shorter)
     words = message.split()[:5]
     chat_name = ' '.join(words).capitalize()
-    # Remove any special characters and keep it clean
     chat_name = re.sub(r'[^a-zA-Z0-9\s]', '', chat_name)
-    # If chat name is empty, use a default name
     if not chat_name.strip():
         chat_name = "Untitled Chat"
     return chat_name
@@ -120,11 +129,10 @@ def send_email(to_email, subject, body):
         raise
 
 @app.route('/')
-def home():
-    logger.info("Serving home page")
+def index():
     if current_user.is_authenticated:
-        return redirect(url_for('chat'))
-    return render_template('index.html')
+        return render_template('index.html')
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -190,7 +198,7 @@ def login():
             if user and user.check_password(password):
                 login_user(user)
                 flash('Logged in successfully!', 'success')
-                return redirect(url_for('chat'))
+                return redirect(url_for('index'))
             else:
                 flash('Invalid username or password.', 'error')
                 return redirect(url_for('login'))
@@ -258,29 +266,26 @@ def login():
 def logout():
     logout_user()
     flash('Logged out successfully!', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('index'))
 
-@app.route('/chat')
+# AI Chat Routes
+@app.route('/ai_chat')
 @login_required
-def chat():
-    logger.info("Serving chat page")
-    # Generate a new chat name if not already in session
+def ai_chat():
+    logger.info("Serving AI chat page")
     if 'current_chat_name' not in session:
-        # Set new chat name
         session['current_chat_name'] = f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        session['reset_history'] = True  # Reset history for new chat
-        session['current_model'] = 'DeepSeek'  # Default model
+        session['reset_history'] = True
+        session['current_model'] = 'DeepSeek'
         logger.info(f"New chat name set: {session['current_chat_name']}")
-    return render_template('chat.html', chat_name=session['current_chat_name'])
+    return render_template('ai_chat.html', chat_name=session['current_chat_name'])
 
 @app.route('/start_new_chat/<chat_name>', methods=['GET'])
 @login_required
 def start_new_chat(chat_name):
     try:
         logger.info(f"Starting new chat for user {current_user.id} with chat name {chat_name}")
-        # Set the new chat name in the session
         session['current_chat_name'] = chat_name
-        # Reset history for new chat
         session['reset_history'] = True
         logger.info("New chat started successfully with history reset")
         return jsonify({'status': 'success'}), 200
@@ -293,10 +298,8 @@ def start_new_chat(chat_name):
 def delete_history():
     try:
         logger.info(f"Deleting chat history for user {current_user.id}")
-        # Delete all chat history for the current user
         ChatHistory.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
-        # Clear session chat name to start a new chat
         session.pop('current_chat_name', None)
         session.pop('reset_history', None)
         session.pop('current_model', None)
@@ -313,7 +316,6 @@ def delete_history():
 def get_chat_history():
     try:
         logger.info(f"Fetching chat history for user {current_user.id}")
-        # Group chat history by chat_name
         chats = db.session.query(ChatHistory.chat_name).filter_by(user_id=current_user.id).distinct().all()
         chat_names = [chat[0] for chat in chats]
         logger.info(f"Chat names fetched: {chat_names}")
@@ -327,11 +329,10 @@ def get_chat_history():
 def load_chat(chat_name):
     try:
         logger.info(f"Loading chat {chat_name} for user {current_user.id}")
-        # Load chat history for the given chat_name
         chat_history = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=chat_name).order_by(ChatHistory.timestamp.asc()).all()
         history = [{'user': chat.user_message, 'bot': chat.bot_reply} for chat in chat_history]
-        session['current_chat_name'] = chat_name  # Update current chat name
-        session['reset_history'] = False  # Do not reset history when loading a chat
+        session['current_chat_name'] = chat_name
+        session['reset_history'] = False
         logger.info(f"Chat history loaded: {history}")
         return jsonify({'history': history})
     except Exception as e:
@@ -352,16 +353,14 @@ def ask():
         logger.debug(f"Mode: {mode}")
         logger.debug(f"Models received: {models}")
 
-        # Validate models list
         if not models or not isinstance(models, list):
             raise ValueError("Models must be a non-empty list")
 
-        # Check if the model has changed
         current_model = session.get('current_model', 'DeepSeek')
-        new_model = models[0]  # Assuming single model for now
+        new_model = models[0]
         if current_model != new_model:
             session['current_model'] = new_model
-            session['reset_history'] = True  # Reset history on model switch
+            session['reset_history'] = True
             logger.info(f"Model switched to {new_model}, resetting history")
 
         headers = {
@@ -372,10 +371,8 @@ def ask():
         }
         logger.debug(f"Headers: {headers}")
 
-        # Load user-specific chat history to provide context
         history_context = ""
         if not session.get('reset_history', False):
-            # Only include history from the current chat session
             current_chat_name = session.get('current_chat_name')
             if current_chat_name:
                 chat_history = ChatHistory.query.filter_by(
@@ -385,28 +382,22 @@ def ask():
                 for chat in chat_history:
                     history_context += f"User: {chat.user_message}\nBot: {chat.bot_reply}\n"
         else:
-            # Reset the flag after using it
             session['reset_history'] = False
             logger.info("History reset for new chat or model switch")
 
-        # Check if this is the first message in the current chat
         current_chat_name = session.get('current_chat_name', f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
         chat_exists = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=current_chat_name).first()
 
-        # If no messages exist for this chat, update the chat name based on the user's message
         if not chat_exists and current_chat_name.startswith("Chat_"):
             new_chat_name = generate_chat_name(user_message)
-            # Ensure the new chat name is unique
             existing_chat = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=new_chat_name).first()
             if existing_chat:
-                # If the chat name already exists, append a timestamp to make it unique
                 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
                 new_chat_name = f"{new_chat_name}_{timestamp}"
             session['current_chat_name'] = new_chat_name
             current_chat_name = new_chat_name
             logger.info(f"Updated chat name to: {current_chat_name}")
 
-        # Define base styling instructions for all modes and models
         base_instructions = (
             "Answer in a casual, conversational tone using simple language and Hindi slang like 'bhai', 'laude', 'dhang se', etc. "
             "Break your answers into small paragraphs for easy reading. "
@@ -415,7 +406,6 @@ def ask():
             "Here is the user's chat history to provide context:\n" + history_context
         )
 
-        # Define model-specific tones while keeping the styling consistent
         model_instructions = {
             'ChatGPT': "Act like a witty and knowledgeable friend who explains things with a bit of humor. Use a cheerful tone! 😄",
             'Grok': "Act like a cool, desi bhai who gives straightforward and practical advice with a touch of sarcasm. 😎",
@@ -425,7 +415,6 @@ def ask():
             'Gemini': "Act like a playful and energetic friend who makes learning fun with lots of excitement. 🎉"
         }
 
-        # Define mode-specific instructions
         custom_instructions = {
             'Normal': (
                 "You are ChatGod, a friendly and witty AI with a desi vibe. "
@@ -446,11 +435,9 @@ def ask():
 
         bot_reply = ""
         for i, model in enumerate(models):
-            # Map the model name to OpenRouter model
             mapped_model = map_model_to_openrouter(model)
             logger.debug(f"Using model: {mapped_model} (original: {model})")
 
-            # Combine mode instructions with model-specific tone and base styling
             mode_instruction = custom_instructions.get(mode, custom_instructions['Normal'])
             model_tone = model_instructions.get(model, "Act like a friendly and witty AI with a desi vibe. 😎")
             system_prompt = (
@@ -470,7 +457,6 @@ def ask():
             }
             logger.debug(f"Request data for model {mapped_model}: {data}")
 
-            # Make the API call
             logger.debug(f"Sending request to OpenRouter API for model {mapped_model}")
             response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
             logger.debug(f"Response status for model {mapped_model}: {response.status_code}")
@@ -495,7 +481,6 @@ def ask():
             model_reply = clean_latex(model_reply)
             bot_reply += model_reply + "\n"
 
-        # Save chat to history
         chat_entry = ChatHistory(
             user_id=current_user.id,
             chat_name=current_chat_name,
@@ -511,5 +496,45 @@ def ask():
         logger.error(f"Error in /ask endpoint: {str(e)}")
         return jsonify({'reply': f"Bhosdike, kuch galat ho gaya! 😅 Error: {str(e)}"}), 500
 
+# Messaging App Routes
+@app.route('/messaging', methods=['GET', 'POST'])
+@login_required
+def messaging():
+    users = User.query.filter(User.id != current_user.id).all()
+    selected_user_id = request.args.get('user_id')
+    messages = []
+    selected_user = None
+    
+    if selected_user_id:
+        selected_user = User.query.get(selected_user_id)
+        if selected_user:
+            messages = Message.query.filter(
+                ((Message.sender_id == current_user.id) & (Message.receiver_id == selected_user.id)) |
+                ((Message.sender_id == selected_user.id) & (Message.receiver_id == current_user.id))
+            ).order_by(Message.timestamp.asc()).all()
+
+    return render_template('messaging.html', users=users, messages=messages, selected_user=selected_user)
+
+# SocketIO event for sending messages
+@socketio.on('send_message')
+def handle_send_message(data):
+    receiver_id = data['receiver_id']
+    content = data['content']
+    
+    message = Message(
+        sender_id=current_user.id,
+        receiver_id=receiver_id,
+        content=content
+    )
+    db.session.add(message)
+    db.session.commit()
+    
+    emit('receive_message', {
+        'sender_id': current_user.id,
+        'sender_username': current_user.username,
+        'content': content,
+        'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    }, broadcast=True)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
