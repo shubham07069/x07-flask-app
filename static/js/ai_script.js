@@ -18,52 +18,58 @@ function hexToRgb(hex) {
 function applyTheme() {
     const themes = {
         default: {
-            primaryGradientStart: '#00d4ff',
-            primaryGradientEnd: '#7b00ff',
-            secondaryGradientStart: '#ff0066',
-            secondaryGradientEnd: '#ff69b4',
+            primaryColor: '#00d4ff', // Main color for buttons, borders, etc.
+            secondaryColor: '#ff0066', // Secondary color for search box lighting, etc.
             backgroundGradientStart: '#0a0a0a',
             backgroundGradientEnd: '#1a0033'
         },
         pink: {
-            primaryGradientStart: '#ff69b4',
-            primaryGradientEnd: '#ff0066',
-            secondaryGradientStart: '#00d4ff',
-            secondaryGradientEnd: '#7b00ff',
+            primaryColor: '#ff69b4',
+            secondaryColor: '#00d4ff',
             backgroundGradientStart: '#1a0033',
             backgroundGradientEnd: '#0a0a0a'
         },
         green: {
-            primaryGradientStart: '#00ff85',
-            primaryGradientEnd: '#00b7eb',
-            secondaryGradientStart: '#ff0066',
-            secondaryGradientEnd: '#ff69b4',
+            primaryColor: '#00ff85',
+            secondaryColor: '#ff0066',
             backgroundGradientStart: '#0a0a0a',
             backgroundGradientEnd: '#1a0033'
         },
         orange: {
-            primaryGradientStart: '#ff9500',
-            primaryGradientEnd: '#ffcc00',
-            secondaryGradientStart: '#00d4ff',
-            secondaryGradientEnd: '#7b00ff',
+            primaryColor: '#ff9500',
+            secondaryColor: '#00d4ff',
             backgroundGradientStart: '#1a0033',
             backgroundGradientEnd: '#0a0a0a'
+        },
+        white: {
+            primaryColor: '#ffffff',
+            secondaryColor: '#00d4ff',
+            backgroundGradientStart: '#f0f0f0',
+            backgroundGradientEnd: '#d0d0d0'
+        },
+        purple: {
+            primaryColor: '#a855f7',
+            secondaryColor: '#ff9500',
+            backgroundGradientStart: '#1a0033',
+            backgroundGradientEnd: '#0a0a0a'
+        },
+        blue: {
+            primaryColor: '#3b82f6',
+            secondaryColor: '#ff69b4',
+            backgroundGradientStart: '#0a0a0a',
+            backgroundGradientEnd: '#1a0033'
         }
     };
 
     const theme = themes[selectedTheme];
-    document.documentElement.style.setProperty('--primary-gradient-start', theme.primaryGradientStart);
-    document.documentElement.style.setProperty('--primary-gradient-end', theme.primaryGradientEnd);
-    document.documentElement.style.setProperty('--secondary-gradient-start', theme.secondaryGradientStart);
-    document.documentElement.style.setProperty('--secondary-gradient-end', theme.secondaryGradientEnd);
+    document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
+    document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor);
     document.documentElement.style.setProperty('--background-gradient-start', theme.backgroundGradientStart);
     document.documentElement.style.setProperty('--background-gradient-end', theme.backgroundGradientEnd);
 
     // Convert hex to RGB for box-shadow
-    document.documentElement.style.setProperty('--primary-gradient-start-rgb', hexToRgb(theme.primaryGradientStart));
-    document.documentElement.style.setProperty('--primary-gradient-end-rgb', hexToRgb(theme.primaryGradientEnd));
-    document.documentElement.style.setProperty('--secondary-gradient-start-rgb', hexToRgb(theme.secondaryGradientStart));
-    document.documentElement.style.setProperty('--secondary-gradient-end-rgb', hexToRgb(theme.secondaryGradientEnd));
+    document.documentElement.style.setProperty('--primary-color-rgb', hexToRgb(theme.primaryColor));
+    document.documentElement.style.setProperty('--secondary-color-rgb', hexToRgb(theme.secondaryColor));
 
     // Save theme to localStorage
     localStorage.setItem('chatTheme', selectedTheme);
