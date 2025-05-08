@@ -3,43 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGod</title>
+    <title>ChatGod - Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="landing-page">
-        <div class="background-image">
-            <video autoplay loop muted playsinline>
-                <source src="https://cdn.pixabay.com/video/2017/08/20/11490-230853032_tiny.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-        <div class="overlay"></div>
         <div class="content">
-            <h1>ChatGod</h1>
-            <p class="tagline">Your Friendly AI Companion</p>
-            <div class="feature-container">
-                <a href="{{ url_for('chat') }}" class="feature-card ai-chat">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGpqvos-VlvuaV_2gj-Q76vCjHJC8VkDh-kQ&s" alt="AI Chat">
-                    <h3>AI Chat</h3>
-                    <p>Chat with our witty AI anytime, anywhere.</p>
-                </a>
-                <div class="feature-card forex-trading">
-                    <img src="https://img.freepik.com/premium-vector/forex-trading-wallpaper_23-2148590593.jpg" alt="Forex Trading">
-                    <h3>Forex Trading</h3>
-                    <p>Get real-time forex trading insights.</p>
-                </div>
-                <div class="feature-card messaging-app">
-                    <img src="https://www.sender.net/assets/compressed-images/text-messaging.jpg" alt="Messaging App">
-                    <h3>Messaging App</h3>
-                    <p>Secure and fast messaging for everyone.</p>
-                </div>
-            </div>
+            <h1>Welcome, {{ current_user.username }}!</h1>
+            <p class="tagline">Choose an app to get started!</p>
             <div class="auth-buttons">
-                <a href="{{ url_for('login') }}" class="auth-button">Login</a>
-                <a href="{{ url_for('register') }}" class="auth-button">Register</a>
+                <a href="{{ url_for('ai_chat') }}" class="auth-button">AI Chat</a>
+                <a href="{{ url_for('messaging') }}" class="auth-button">Messaging</a>
+                <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
             </div>
         </div>
     </div>
