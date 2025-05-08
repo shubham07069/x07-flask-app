@@ -1,8 +1,6 @@
 :root {
-    --primary-gradient-start: #00d4ff;
-    --primary-gradient-end: #7b00ff;
-    --secondary-gradient-start: #ff0066;
-    --secondary-gradient-end: #ff69b4;
+    --primary-color: #00d4ff;
+    --secondary-color: #ff0066;
     --background-gradient-start: #0a0a0a;
     --background-gradient-end: #1a0033;
 }
@@ -42,8 +40,8 @@ body {
 .landing-page h1 {
     font-family: 'Inter', sans-serif;
     font-size: 5rem;
-    color: var(--primary-gradient-start);
-    text-shadow: 0 0 20px var(--primary-gradient-start), 0 0 40px var(--primary-gradient-end);
+    color: var(--primary-color);
+    text-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--primary-color);
     animation: glow 2s infinite alternate;
     margin-bottom: 1rem;
 }
@@ -69,7 +67,7 @@ body {
     width: 300px;
     background: rgba(26, 26, 26, 0.95);
     border-radius: 15px;
-    border: 3px solid var(--primary-gradient-start);
+    border: 3px solid var(--primary-color);
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -101,15 +99,15 @@ body {
     width: 100%;
     height: 200px;
     object-fit: cover;
-    border-bottom: 3px solid var(--primary-gradient-start);
+    border-bottom: 3px solid var(--primary-color);
 }
 
 .feature-card h3 {
     font-family: 'Inter', sans-serif;
     font-size: 1.8rem;
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
     margin: 1rem 0 0.5rem;
-    text-shadow: 0 0 10px var(--primary-gradient-start);
+    text-shadow: 0 0 10px var(--primary-color);
 }
 
 .feature-card p {
@@ -127,7 +125,7 @@ body {
 
 .auth-button {
     padding: 1rem 2rem;
-    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    background: var(--primary-color);
     border: none;
     border-radius: 15px;
     font-family: 'Inter', sans-serif;
@@ -142,6 +140,11 @@ body {
 .auth-button:hover {
     transform: scale(1.1);
     box-shadow: 0 0 25px rgba(0, 212, 255, 0.9);
+}
+
+.auth-button.small {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
 }
 
 /* Auth Page (Login/Register) */
@@ -161,7 +164,7 @@ body {
     background: rgba(26, 26, 26, 0.95);
     padding: 3rem;
     border-radius: 20px;
-    border: 3px solid var(--primary-gradient-start);
+    border: 3px solid var(--primary-color);
     box-shadow: 0 0 40px rgba(0, 212, 255, 0.5), 0 0 60px rgba(123, 0, 255, 0.3);
     animation: fadeIn 1s ease-in;
     width: 100%;
@@ -171,8 +174,8 @@ body {
 .auth-container h1 {
     font-family: 'Inter', sans-serif;
     font-size: 3rem;
-    color: var(--primary-gradient-start);
-    text-shadow: 0 0 20px var(--primary-gradient-start), 0 0 40px var(--primary-gradient-end);
+    color: var(--primary-color);
+    text-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--primary-color);
     margin-bottom: 2rem;
     animation: glow 2s infinite alternate;
 }
@@ -193,8 +196,8 @@ body {
 
 .form-group input {
     width: 100%;
-    padding harnessing: 0.8rem 1rem;
-    border: 2px solid var(--primary-gradient-start);
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--primary-color);
     border-radius: 10px;
     background: rgba(42, 42, 42, 0.8);
     color: #e0e0e0;
@@ -206,7 +209,7 @@ body {
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--primary-gradient-end);
+    border-color: var(--primary-color);
     box-shadow: 0 0 15px rgba(123, 0, 255, 0.7);
     transform: scale(1.02);
 }
@@ -224,19 +227,19 @@ body {
 }
 
 .auth-container a {
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
     text-decoration: none;
     transition: color 0.3s, text-shadow 0.3s;
 }
 
 .auth-container a:hover {
-    color: var(--primary-gradient-end);
-    text-shadow: 0 0 10px var(--primary-gradient-end);
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-color);
 }
 
 .flash-success {
     background: rgba(0, 212, 255, 0.2);
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
     padding: 0.5rem;
     border-radius: 5px;
     margin-bottom: 1rem;
@@ -316,7 +319,7 @@ body {
     width: 300px;
     height: 100%;
     background: rgba(26, 26, 26, 0.95);
-    border-right: 3px solid var(--primary-gradient-start);
+    border-right: 3px solid var(--primary-color);
     transition: left 0.3s ease-in-out;
     z-index: 5;
 }
@@ -346,12 +349,12 @@ body {
 }
 
 .nav-menu a:hover {
-    color: var(--primary-gradient-start);
-    text-shadow: 0 0 10px var(--primary-gradient-start), 0 0 20px var(--primary-gradient-start);
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
 }
 
 .divider {
-    border: 1px solid var(--primary-gradient-start);
+    border: 1px solid var(--primary-color);
     margin: 1rem 0;
 }
 
@@ -362,7 +365,7 @@ body {
 .chat-history h3 {
     font-family: 'Inter', sans-serif;
     font-size: 1.5rem;
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
     margin-bottom: 1rem;
 }
 
@@ -398,7 +401,7 @@ body {
 }
 
 .settings-icon:hover {
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
 }
 
 /* Settings Modal */
@@ -419,7 +422,7 @@ body {
     background: rgba(26, 26, 26, 0.95);
     padding: 2rem;
     border-radius: 15px;
-    border: 3px solid var(--primary-gradient-start);
+    border: 3px solid var(--primary-color);
     box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
     width: 90%;
     max-width: 400px;
@@ -429,7 +432,7 @@ body {
 .modal-content h2 {
     font-family: 'Inter', sans-serif;
     font-size: 2rem;
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
     margin-bottom: 1.5rem;
 }
 
@@ -472,7 +475,7 @@ body {
 
 .done-button {
     padding: 0.8rem 2rem;
-    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    background: var(--primary-color);
     border: none;
     border-radius: 15px;
     font-family: 'Inter', sans-serif;
@@ -499,7 +502,7 @@ body {
 }
 
 .close:hover {
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
 }
 
 .chatbot-page main {
@@ -561,12 +564,12 @@ body {
 }
 
 .chatbot-page .chat-window::-webkit-scrollbar-thumb {
-    background: var(--secondary-gradient-start);
+    background: var(--secondary-color);
     border-radius: 10px;
 }
 
 .chatbot-page .chat-window::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary-gradient-end);
+    background: var(--secondary-color);
 }
 
 .chatbot-page .greeting-message {
@@ -613,19 +616,19 @@ body {
     padding: 1.1rem 1.2rem;
     background: #2a2a2a;
     border-radius: 35px;
-    box-shadow: 0 5px 15px 5px rgba(var(--secondary-gradient-start-rgb), 0.5),
-                0 5px 15px 5px rgba(var(--secondary-gradient-end-rgb), 0.5),
-                inset 0 2px 5px rgba(var(--secondary-gradient-start-rgb), 0.3),
-                inset 0 -2px 5px rgba(var(--secondary-gradient-end-rgb), 0.3);
+    box-shadow: 0 5px 15px 5px rgba(var(--secondary-color-rgb), 0.5),
+                0 5px 15px 5px rgba(var(--secondary-color-rgb), 0.5),
+                inset 0 2px 5px rgba(var(--secondary-color-rgb), 0.3),
+                inset 0 -2px 5px rgba(var(--secondary-color-rgb), 0.3);
     z-index: 5;
     transition: height 0.3s ease;
 }
 
 .chatbot-page .search-box:hover {
-    box-shadow: 0 8px 20px 8px rgba(var(--secondary-gradient-start-rgb), 0.7),
-                0 8px 20px 8px rgba(var(--secondary-gradient-end-rgb), 0.7),
-                inset 0 3px 8px rgba(var(--secondary-gradient-start-rgb), 0.4),
-                inset 0 -3px 8px rgba(var(--secondary-gradient-end-rgb), 0.4);
+    box-shadow: 0 8px 20px 8px rgba(var(--secondary-color-rgb), 0.7),
+                0 8px 20px 8px rgba(var(--secondary-color-rgb), 0.7),
+                inset 0 3px 8px rgba(var(--secondary-color-rgb), 0.4),
+                inset 0 -3px 8px rgba(var(--secondary-color-rgb), 0.4);
 }
 
 .chatbot-page #userInput {
@@ -657,7 +660,7 @@ body {
 }
 
 .chatbot-page .plus-button {
-    background: linear-gradient(90deg, var(--secondary-gradient-start), var(--secondary-gradient-end));
+    background: var(--secondary-color);
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -677,7 +680,7 @@ body {
 }
 
 .chatbot-page .search-box .send-button {
-    background: linear-gradient(90deg, var(--secondary-gradient-start), var(--secondary-gradient-end));
+    background: var(--secondary-color);
     border: none;
     border-radius: 50%;
     width: 40px;
@@ -695,7 +698,7 @@ body {
 }
 
 .chatbot-page .search-box .send-button.faded {
-    background: linear-gradient(90deg, rgba(var(--secondary-gradient-start-rgb), 0.5), rgba(var(--secondary-gradient-end-rgb), 0.5));
+    background: rgba(var(--secondary-color-rgb), 0.5);
     cursor: not-allowed;
 }
 
@@ -766,7 +769,7 @@ body {
 }
 
 .chatbot-page .dropup-content a.highlighted {
-    background: var(--secondary-gradient-start);
+    background: var(--secondary-color);
 }
 
 .chatbot-page .message {
@@ -827,7 +830,7 @@ body {
 }
 
 .chatbot-page .message-actions .action-icon:hover {
-    color: var(--primary-gradient-start);
+    color: var(--primary-color);
 }
 
 .chatbot-page .message.thinking {
@@ -881,8 +884,8 @@ body {
 
 /* Animations */
 @keyframes glow {
-    0% { text-shadow: 0 0 10px var(--primary-gradient-start), 0 0 20px var(--primary-gradient-end); }
-    100% { text-shadow: 0 0 20px var(--primary-gradient-start), 0 0 40px var(--primary-gradient-end); }
+    0% { text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color); }
+    100% { text-shadow: 0 0 20px var(--primary-color), 0 0 40px var(--primary-color); }
 }
 
 @keyframes fadeIn {
@@ -918,6 +921,12 @@ body {
 @media (max-width: 600px) {
     .chatbot-page header {
         padding: 0.8rem 1rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(26, 26, 26, 0.95);
     }
 
     .chatbot-page .logo {
@@ -930,7 +939,7 @@ body {
     }
 
     .chatbot-page main {
-        padding-top: 3rem;
+        padding-top: 4rem; /* Adjusted to account for fixed header */
         padding-bottom: 1rem;
     }
 
@@ -952,8 +961,8 @@ body {
 
     .chatbot-page .chat-window {
         width: 90vw;
-        height: 100%;
-        min-height: calc(100vh - 4rem);
+        height: calc(100vh - 5rem); /* Adjusted for fixed header */
+        min-height: calc(100vh - 5rem);
         padding: 0.8rem;
         gap: 1rem;
         margin-top: 0;
@@ -984,13 +993,13 @@ body {
 
     .chatbot-page .search-box {
         padding: 0.7rem 0.8rem;
-        box-shadow: 0 5px 15px 5px rgba(var(--secondary-gradient-start-rgb), 0.5),
-                    0 5px 15px 5px rgba(var(--secondary-gradient-end-rgb), 0.5);
+        box-shadow: 0 5px 15px 5px rgba(var(--secondary-color-rgb), 0.5),
+                    0 5px 15px 5px rgba(var(--secondary-color-rgb), 0.5);
     }
 
     .chatbot-page .search-box:hover {
-        box-shadow: 0 8px 20px 8px rgba(var(--secondary-gradient-start-rgb), 0.7),
-                    0 8px 20px 8px rgba(var(--secondary-gradient-end-rgb), 0.7);
+        box-shadow: 0 8px 20px 8px rgba(var(--secondary-color-rgb), 0.7),
+                    0 8px 20px 8px rgba(var(--secondary-color-rgb), 0.7);
     }
 
     .chatbot-page #userInput {
@@ -1106,6 +1115,11 @@ body {
     .auth-button {
         padding: 0.8rem 1.5rem;
         font-size: 1rem;
+    }
+
+    .auth-button.small {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
     }
 
     .auth-container {
