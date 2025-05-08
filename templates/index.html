@@ -8,13 +8,82 @@
 </head>
 <body>
     <div class="landing-page">
-        <div class="content">
-            <h1>Welcome, {{ current_user.username }}!</h1>
-            <p class="tagline">Choose an app to get started!</p>
-            <div class="auth-buttons">
-                <a href="{{ url_for('ai_chat') }}" class="auth-button">AI Chat</a>
-                <a href="{{ url_for('messaging') }}" class="auth-button">Messaging</a>
+        <!-- Auth buttons in top-left corner -->
+        <div class="auth-buttons" style="position: absolute; top: 20px; left: 20px;">
+            {% if current_user.is_authenticated %}
                 <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="auth-button">Login</a>
+                <a href="{{ url_for('register') }}" class="auth-button">Register</a>
+            {% endif %}
+        </div>
+        <div class="content">
+            <h1>ChatGod</h1>
+            <p class="tagline">Your Ultimate AI & Messaging Platform!</p>
+            <div class="feature-container">
+                <!-- AI Chat Card -->
+                <a href="{{ url_for('ai_chat') }}" class="feature-card ai-chat">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGpqvos-VlvuaV_2gj-Q76vCjHJC8VkDh-kQ&s" alt="AI Chat">
+                    <h3>AI Chat</h3>
+                    <p>Chat with our intelligent AI to get answers, insights, and more!</p>
+                </a>
+                <!-- Forex Trading Card (Placeholder) -->
+                <a href="#" class="feature-card forex-trading">
+                    <img src="https://img.freepik.com/premium-vector/forex-trading-wallpaper_23-2148590593.jpg" alt="Forex Trading">
+                    <h3>Forex Trading</h3>
+                    <p>Trade forex with real-time insights and analytics. (Coming Soon)</p>
+                </a>
+                <!-- Messaging Card -->
+                <a href="{{ url_for('messaging') }}" class="feature-card messaging-app">
+                    <img src="https://intelcorp.scene7.com/is/image/intelcorp/unison-app-messages-image:1920-1080?wid=864&hei=486&fmt=webp-alpha" alt="Messaging">
+                    <h3>Messaging</h3>
+                    <p>Connect with friends and chat in real-time!</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGod - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="landing-page">
+        <!-- Auth buttons in top-left corner -->
+        <div class="auth-buttons" style="position: absolute; top: 20px; left: 20px;">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="auth-button">Login</a>
+                <a href="{{ url_for('register') }}" class="auth-button">Register</a>
+            {% endif %}
+        </div>
+        <div class="content">
+            <h1>ChatGod</h1>
+            <p class="tagline">Your Ultimate AI & Messaging Platform!</p>
+            <div class="feature-container">
+                <!-- AI Chat Card -->
+                <a href="{{ url_for('ai_chat') }}" class="feature-card ai-chat">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGpqvos-VlvuaV_2gj-Q76vCjHJC8VkDh-kQ&s" alt="AI Chat">
+                    <h3>AI Chat</h3>
+                    <p>Chat with our intelligent AI to get answers, insights, and more!</p>
+                </a>
+                <!-- Forex Trading Card (Placeholder) -->
+                <a href="#" class="feature-card forex-trading">
+                    <img src="https://img.freepik.com/premium-vector/forex-trading-wallpaper_23-2148590593.jpg" alt="Forex Trading">
+                    <h3>Forex Trading</h3>
+                    <p>Trade forex with real-time insights and analytics. (Coming Soon)</p>
+                </a>
+                <!-- Messaging Card -->
+                <a href="{{ url_for('messaging') }}" class="feature-card messaging-app">
+                    <img src="https://intelcorp.scene7.com/is/image/intelcorp/unison-app-messages-image:1920-1080?wid=864&hei=486&fmt=webp-alpha" alt="Messaging">
+                    <h3>Messaging</h3>
+                    <p>Connect with friends and chat in real-time!</p>
+                </a>
             </div>
         </div>
     </div>
