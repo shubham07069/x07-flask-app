@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 import requests
 import os
 import logging
@@ -12,7 +14,12 @@ import smtplib
 import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+from email.mime.base import MIMEBase
+from email import encoders
 import datetime
+from PIL import Image
+import io
 
 app = Flask(__name__)
 
@@ -28,6 +35,14 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "your-secret-key-here")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+app.config['PROFILE_PICS_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], 'profile_pics')
+app.config['MESSAGES_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], 'messages')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'pdf', 'doc', 'docx'}
+
+# Ensure upload folders exist
+os.makedirs(app.config['PROFILE_PICS_FOLDER'], exist_ok=True)
+os.makedirs(app.config['MESSAGES_FOLDER'], exist_ok=True)
 
 # Initialize Flask-SQLAlchemy
 db = SQLAlchemy(app)
@@ -40,12 +55,19 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Generate encryption key
+ENCRYPTION_KEY = Fernet.generate_key()
+cipher = Fernet(ENCRYPTION_KEY)
+
 # User model for database
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)  # Optional for messaging app
+    email = db.Column(db.String(120), unique=True, nullable=True)
     password_hash = db.Column(db.String(120), nullable=False)
+    profile_pic = db.Column(db.String(120), nullable=True)
+    last_seen = db.Column(db.DateTime, nullable=True)
+    is_online = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -62,13 +84,30 @@ class ChatHistory(db.Model):
     bot_reply = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
-# Message model for messaging app
+# Group model
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+
+# GroupMember model (to track group members)
+class GroupMember(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+# Message model for messaging app (1:1 and group chats)
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # For 1:1 chats
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)  # For group chats
+    content = db.Column(db.Text, nullable=True)  # Encrypted text content
+    content_type = db.Column(db.String(20), nullable=False, default='text')  # text, image, video, file
+    file_path = db.Column(db.String(200), nullable=True)  # Path to media/file
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
 
 # Create database tables
 with app.app_context():
@@ -78,7 +117,21 @@ with app.app_context():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Function to clean LaTeX formatting and convert to plain text
+# Utility functions
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
+def encrypt_message(message):
+    return cipher.encrypt(message.encode()).decode()
+
+def decrypt_message(encrypted_message):
+    try:
+        return cipher.decrypt(encrypted_message.encode()).decode()
+    except Exception as e:
+        logger.error(f"Error decrypting message: {str(e)}")
+        return "Error decrypting message"
+
+# Function to clean LaTeX formatting and convert to plain text (for AI chat)
 def clean_latex(text):
     text = re.sub(r'\\boxed\{(.*?)\}', r'\1', text)
     text = re.sub(r'\\[\[\(](.*?)\\[\]\)]', r'\1', text)
@@ -86,7 +139,7 @@ def clean_latex(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-# Function to map model name to OpenRouter model
+# Function to map model name to OpenRouter model (for AI chat)
 def map_model_to_openrouter(model_name):
     model_map = {
         'ChatGPT': 'openai/gpt-4.1-nano',
@@ -96,9 +149,9 @@ def map_model_to_openrouter(model_name):
         'MetaAI': 'meta-llama/llama-4-maverick:free',
         'Gemini': 'google/gemini-2.5-flash-preview'
     }
-    return model_map.get(model_name, 'x-ai/grok-3-mini-beta')  # Default to Grok if model not found
+    return model_map.get(model_name, 'x-ai/grok-3-mini-beta')
 
-# Function to generate chat name based on user's first message
+# Function to generate chat name based on user's first message (for AI chat)
 def generate_chat_name(message):
     words = message.split()[:5]
     chat_name = ' '.join(words).capitalize()
@@ -195,6 +248,9 @@ def login():
             
             if user and user.check_password(password):
                 login_user(user)
+                user.is_online = True
+                user.last_seen = datetime.datetime.utcnow()
+                db.session.commit()
                 flash('Logged in successfully!', 'success')
                 return redirect(url_for('index'))
             else:
@@ -262,6 +318,9 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    current_user.is_online = False
+    current_user.last_seen = datetime.datetime.utcnow()
+    db.session.commit()
     logout_user()
     flash('Logged out successfully!', 'success')
     return redirect(url_for('index'))
@@ -499,40 +558,192 @@ def ask():
 @login_required
 def messaging():
     users = User.query.filter(User.id != current_user.id).all()
+    groups = Group.query.join(GroupMember, GroupMember.group_id == Group.id).filter(GroupMember.user_id == current_user.id).all()
     selected_user_id = request.args.get('user_id')
+    selected_group_id = request.args.get('group_id')
     messages = []
     selected_user = None
-    
+    selected_group = None
+    chat_type = 'user'
+
     if selected_user_id:
         selected_user = User.query.get(selected_user_id)
         if selected_user:
             messages = Message.query.filter(
                 ((Message.sender_id == current_user.id) & (Message.receiver_id == selected_user.id)) |
                 ((Message.sender_id == selected_user.id) & (Message.receiver_id == current_user.id))
-            ).order_by(Message.timestamp.asc()).all()
+            ).filter_by(group_id=None).order_by(Message.timestamp.asc()).all()
+            # Mark messages as read
+            for message in messages:
+                if message.sender_id == selected_user.id and not message.is_read:
+                    message.is_read = True
+            db.session.commit()
+            chat_type = 'user'
 
-    return render_template('messaging.html', users=users, messages=messages, selected_user=selected_user)
+    elif selected_group_id:
+        selected_group = Group.query.get(selected_group_id)
+        if selected_group:
+            messages = Message.query.filter_by(group_id=selected_group_id).order_by(Message.timestamp.asc()).all()
+            chat_type = 'group'
 
-# SocketIO event for sending messages
+    return render_template('messaging.html', users=users, groups=groups, messages=messages, 
+                           selected_user=selected_user, selected_group=selected_group, chat_type=chat_type)
+
+@app.route('/create_group', methods=['GET', 'POST'])
+@login_required
+def create_group():
+    if request.method == 'POST':
+        group_name = request.form['group_name']
+        member_ids = request.form.getlist('members')
+
+        # Create group
+        group = Group(name=group_name, creator_id=current_user.id)
+        db.session.add(group)
+        db.session.commit()
+
+        # Add creator as a member
+        creator_member = GroupMember(group_id=group.id, user_id=current_user.id)
+        db.session.add(creator_member)
+
+        # Add selected members
+        for member_id in member_ids:
+            member = GroupMember(group_id=group.id, user_id=member_id)
+            db.session.add(member)
+
+        db.session.commit()
+        flash('Group created successfully!', 'success')
+        return redirect(url_for('messaging', group_id=group.id))
+
+    users = User.query.filter(User.id != current_user.id).all()
+    return render_template('group_create.html', users=users)
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                user_id = str(current_user.id)
+                ext = filename.rsplit('.', 1)[1].lower()
+                new_filename = f"{user_id}.{ext}"
+                file_path = os.path.join(app.config['PROFILE_PICS_FOLDER'], new_filename)
+                
+                # Save and resize image
+                img = Image.open(file)
+                img = img.resize((150, 150), Image.LANCZOS)
+                img.save(file_path)
+
+                current_user.profile_pic = new_filename
+                db.session.commit()
+                flash('Profile picture updated!', 'success')
+            else:
+                flash('Invalid file format!', 'error')
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html', user=current_user)
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# SocketIO events for messaging
+@socketio.on('connect')
+def handle_connect():
+    if current_user.is_authenticated:
+        current_user.is_online = True
+        current_user.last_seen = datetime.datetime.utcnow()
+        db.session.commit()
+        emit('user_status', {'user_id': current_user.id, 'status': 'online'}, broadcast=True)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    if current_user.is_authenticated:
+        current_user.is_online = False
+        current_user.last_seen = datetime.datetime.utcnow()
+        db.session.commit()
+        emit('user_status', {'user_id': current_user.id, 'status': 'offline', 'last_seen': current_user.last_seen.strftime('%Y-%m-%d %H:%M:%S')}, broadcast=True)
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    logger.info(f"User {current_user.id} joined room {room}")
+
+@socketio.on('leave')
+def on_leave(data):
+    room = data['room']
+    leave_room(room)
+    logger.info(f"User {current_user.id} left room {room}")
+
+@socketio.on('typing')
+def handle_typing(data):
+    room = data['room']
+    emit('typing', {'user_id': current_user.id, 'username': current_user.username}, room=room, broadcast=True)
+
+@socketio.on('stop_typing')
+def handle_stop_typing(data):
+    room = data['room']
+    emit('stop_typing', {'user_id': current_user.id}, room=room, broadcast=True)
+
 @socketio.on('send_message')
 def handle_send_message(data):
-    receiver_id = data['receiver_id']
-    content = data['content']
-    
+    receiver_id = data.get('receiver_id')
+    group_id = data.get('group_id')
+    content = data.get('content')
+    content_type = data.get('content_type', 'text')
+    file_path = data.get('file_path')
+
+    # Encrypt content if it's text
+    encrypted_content = encrypt_message(content) if content_type == 'text' and content else None
+
     message = Message(
         sender_id=current_user.id,
-        receiver_id=receiver_id,
-        content=content
+        receiver_id=receiver_id if receiver_id else None,
+        group_id=group_id if group_id else None,
+        content=encrypted_content,
+        content_type=content_type,
+        file_path=file_path
     )
     db.session.add(message)
     db.session.commit()
-    
-    emit('receive_message', {
-        'sender_id': current_user.id,
-        'sender_username': current_user.username,
-        'content': content,
-        'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-    }, broadcast=True)
+
+    # Decrypt content for sending to client
+    decrypted_content = decrypt_message(encrypted_content) if encrypted_content else content
+
+    if group_id:
+        room = f"group_{group_id}"
+        emit('receive_message', {
+            'sender_id': current_user.id,
+            'sender_username': current_user.username,
+            'content': decrypted_content,
+            'content_type': content_type,
+            'file_path': file_path,
+            'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'message_id': message.id
+        }, room=room, broadcast=True)
+    else:
+        room = f"chat_{min(current_user.id, receiver_id)}_{max(current_user.id, receiver_id)}"
+        emit('receive_message', {
+            'sender_id': current_user.id,
+            'sender_username': current_user.username,
+            'content': decrypted_content,
+            'content_type': content_type,
+            'file_path': file_path,
+            'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'message_id': message.id
+        }, room=room, broadcast=True)
+
+@socketio.on('message_read')
+def handle_message_read(data):
+    message_id = data['message_id']
+    message = Message.query.get(message_id)
+    if message and message.sender_id != current_user.id and not message.is_read:
+        message.is_read = True
+        db.session.commit()
+        room = f"chat_{min(current_user.id, message.sender_id)}_{max(current_user.id, message.sender_id)}"
+        emit('message_read', {'message_id': message_id}, room=room, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
