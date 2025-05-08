@@ -384,6 +384,7 @@ async function startNewChat(event) {
             throw new Error('Failed to start new chat');
         }
         console.log("New chat started successfully");
+        showPopup('New Chat Started! History Reset. 🚀');
     } catch (error) {
         console.error("Error notifying backend for new chat:", error);
     }
@@ -681,6 +682,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Add model switch notification to chat
                 addModelSwitchNotification(chatWindow, currentModel);
+                // Show pop-up message for history reset
+                showPopup('Model Switched! History Reset. 🔄');
 
                 // Update button text
                 modelButton.innerHTML = `${selectedModel} <i class="fas fa-chevron-up"></i>`;
