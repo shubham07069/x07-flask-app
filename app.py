@@ -130,9 +130,7 @@ def send_email(to_email, subject, body):
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        return render_template('index.html')
-    return redirect(url_for('login'))
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
