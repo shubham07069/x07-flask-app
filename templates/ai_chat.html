@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X07 AI</title>
+    <title>AI Chat - ChatGod</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -17,8 +17,8 @@
                     <span></span>
                 </div>
             </div>
-            <h1 class="logo">X07 AI</h1>
-            <a href="{{ url_for('index') }}" class="auth-button">Home</a>
+            <h1 class="logo">AI Chat</h1>
+            <a href="{{ url_for('index') }}" class="auth-button small">Home</a>
         </header>
         <div id="sidebar" class="sidebar">
             <nav class="nav-menu">
@@ -83,15 +83,18 @@
         <!-- Settings Modal -->
         <div id="settingsModal" class="modal">
             <div class="modal-content">
-                <span class="close" onclick="closeSettingsModal()">&times;</span>
+                <span class="close" onclick="closeSettingsModal()">×</span>
                 <h2>Customize Chat Theme</h2>
                 <div class="theme-options">
                     <label>Select Theme Color:</label>
                     <div class="color-options">
-                        <button class="color-option" style="background: linear-gradient(90deg, #00d4ff, #7b00ff)" data-theme="default" onclick="selectTheme('default')"></button>
-                        <button class="color-option" style="background: linear-gradient(90deg, #ff0066, #ff69b4)" data-theme="pink" onclick="selectTheme('pink')"></button>
-                        <button class="color-option" style="background: linear-gradient(90deg, #00ff85, #00b7eb)" data-theme="green" onclick="selectTheme('green')"></button>
-                        <button class="color-option" style="background: linear-gradient(90deg, #ff9500, #ffcc00)" data-theme="orange" onclick="selectTheme('orange')"></button>
+                        <button class="color-option" style="background: #00d4ff" data-theme="default" onclick="selectTheme('default')"></button>
+                        <button class="color-option" style="background: #ff69b4" data-theme="pink" onclick="selectTheme('pink')"></button>
+                        <button class="color-option" style="background: #00ff85" data-theme="green" onclick="selectTheme('green')"></button>
+                        <button class="color-option" style="background: #ff9500" data-theme="orange" onclick="selectTheme('orange')"></button>
+                        <button class="color-option" style="background: #ffffff" data-theme="white" onclick="selectTheme('white')"></button>
+                        <button class="color-option" style="background: #a855f7" data-theme="purple" onclick="selectTheme('purple')"></button>
+                        <button class="color-option" style="background: #3b82f6" data-theme="blue" onclick="selectTheme('blue')"></button>
                     </div>
                 </div>
                 <button class="done-button" onclick="applyTheme()">Done</button>
