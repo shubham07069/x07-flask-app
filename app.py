@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_migrate import Migrate  # Added for migrations
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -49,7 +49,7 @@ os.makedirs(app.config['MESSAGES_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 
 # Initialize Flask-Migrate
-migrate = Migrate(app, db)  # Added for migrations
+migrate = Migrate(app, db)
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app)
@@ -112,10 +112,6 @@ class Message(db.Model):
     file_path = db.Column(db.String(200), nullable=True)  # Path to media/file
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
-
-# Create database tables
-with app.app_context():
-    db.create_all()
 
 @login_manager.user_loader
 def load_user(user_id):
