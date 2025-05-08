@@ -4,6 +4,98 @@ let latestConversationHeight = 0;
 let isUserScrolling = false;
 let isBotReplying = false;
 let currentChatName = null;
+let selectedTheme = 'default';
+
+// Function to convert hex to RGB
+function hexToRgb(hex) {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    return `${r}, ${g}, ${b}`;
+}
+
+// Function to apply theme
+function applyTheme() {
+    const themes = {
+        default: {
+            primaryGradientStart: '#00d4ff',
+            primaryGradientEnd: '#7b00ff',
+            secondaryGradientStart: '#ff0066',
+            secondaryGradientEnd: '#ff69b4',
+            backgroundGradientStart: '#0a0a0a',
+            backgroundGradientEnd: '#1a0033'
+        },
+        pink: {
+            primaryGradientStart: '#ff69b4',
+            primaryGradientEnd: '#ff0066',
+            secondaryGradientStart: '#00d4ff',
+            secondaryGradientEnd: '#7b00ff',
+            backgroundGradientStart: '#1a0033',
+            backgroundGradientEnd: '#0a0a0a'
+        },
+        green: {
+            primaryGradientStart: '#00ff85',
+            primaryGradientEnd: '#00b7eb',
+            secondaryGradientStart: '#ff0066',
+            secondaryGradientEnd: '#ff69b4',
+            backgroundGradientStart: '#0a0a0a',
+            backgroundGradientEnd: '#1a0033'
+        },
+        orange: {
+            primaryGradientStart: '#ff9500',
+            primaryGradientEnd: '#ffcc00',
+            secondaryGradientStart: '#00d4ff',
+            secondaryGradientEnd: '#7b00ff',
+            backgroundGradientStart: '#1a0033',
+            backgroundGradientEnd: '#0a0a0a'
+        }
+    };
+
+    const theme = themes[selectedTheme];
+    document.documentElement.style.setProperty('--primary-gradient-start', theme.primaryGradientStart);
+    document.documentElement.style.setProperty('--primary-gradient-end', theme.primaryGradientEnd);
+    document.documentElement.style.setProperty('--secondary-gradient-start', theme.secondaryGradientStart);
+    document.documentElement.style.setProperty('--secondary-gradient-end', theme.secondaryGradientEnd);
+    document.documentElement.style.setProperty('--background-gradient-start', theme.backgroundGradientStart);
+    document.documentElement.style.setProperty('--background-gradient-end', theme.backgroundGradientEnd);
+
+    // Convert hex to RGB for box-shadow
+    document.documentElement.style.setProperty('--primary-gradient-start-rgb', hexToRgb(theme.primaryGradientStart));
+    document.documentElement.style.setProperty('--primary-gradient-end-rgb', hexToRgb(theme.primaryGradientEnd));
+    document.documentElement.style.setProperty('--secondary-gradient-start-rgb', hexToRgb(theme.secondaryGradientStart));
+    document.documentElement.style.setProperty('--secondary-gradient-end-rgb', hexToRgb(theme.secondaryGradientEnd));
+
+    // Save theme to localStorage
+    localStorage.setItem('chatTheme', selectedTheme);
+
+    // Close modal
+    closeSettingsModal();
+}
+
+// Function to select theme
+function selectTheme(theme) {
+    selectedTheme = theme;
+    const colorOptions = document.querySelectorAll('.color-option');
+    colorOptions.forEach(option => {
+        if (option.getAttribute('data-theme') === theme) {
+            option.classList.add('selected');
+        } else {
+            option.classList.remove('selected');
+        }
+    });
+}
+
+// Function to open settings modal
+function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    modal.style.display = 'flex';
+}
+
+// Function to close settings modal
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    modal.style.display = 'none';
+}
 
 function renderMessageText(text) {
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -444,6 +536,13 @@ function scrollToBottom(chatWindow, adjustForLatest = false) {
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
+
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('chatTheme');
+    if (savedTheme) {
+        selectedTheme = savedTheme;
+        applyTheme();
+    }
 
     const userInput = document.getElementById('userInput');
     const sendButton = document.querySelector('.send-button');
