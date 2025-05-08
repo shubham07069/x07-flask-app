@@ -268,6 +268,8 @@ def chat():
     if 'current_chat_name' not in session:
         # Set new chat name
         session['current_chat_name'] = f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        session['reset_history'] = True  # Reset history for new chat
+        session['current_model'] = 'DeepSeek'  # Default model
         logger.info(f"New chat name set: {session['current_chat_name']}")
     return render_template('chat.html', chat_name=session['current_chat_name'])
 
@@ -276,9 +278,11 @@ def chat():
 def start_new_chat(chat_name):
     try:
         logger.info(f"Starting new chat for user {current_user.id} with chat name {chat_name}")
-        # Simply set the new chat name in the session, do not delete history
+        # Set the new chat name in the session
         session['current_chat_name'] = chat_name
-        logger.info("New chat started successfully")
+        # Reset history for new chat
+        session['reset_history'] = True
+        logger.info("New chat started successfully with history reset")
         return jsonify({'status': 'success'}), 200
     except Exception as e:
         logger.error(f"Error starting new chat: {str(e)}")
@@ -294,6 +298,8 @@ def delete_history():
         db.session.commit()
         # Clear session chat name to start a new chat
         session.pop('current_chat_name', None)
+        session.pop('reset_history', None)
+        session.pop('current_model', None)
         logger.info("Chat history deleted successfully")
         flash('Chat history deleted successfully!', 'success')
         return jsonify({'status': 'success'}), 200
@@ -325,6 +331,7 @@ def load_chat(chat_name):
         chat_history = ChatHistory.query.filter_by(user_id=current_user.id, chat_name=chat_name).order_by(ChatHistory.timestamp.asc()).all()
         history = [{'user': chat.user_message, 'bot': chat.bot_reply} for chat in chat_history]
         session['current_chat_name'] = chat_name  # Update current chat name
+        session['reset_history'] = False  # Do not reset history when loading a chat
         logger.info(f"Chat history loaded: {history}")
         return jsonify({'history': history})
     except Exception as e:
@@ -349,6 +356,14 @@ def ask():
         if not models or not isinstance(models, list):
             raise ValueError("Models must be a non-empty list")
 
+        # Check if the model has changed
+        current_model = session.get('current_model', 'DeepSeek')
+        new_model = models[0]  # Assuming single model for now
+        if current_model != new_model:
+            session['current_model'] = new_model
+            session['reset_history'] = True  # Reset history on model switch
+            logger.info(f"Model switched to {new_model}, resetting history")
+
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
@@ -358,10 +373,21 @@ def ask():
         logger.debug(f"Headers: {headers}")
 
         # Load user-specific chat history to provide context
-        chat_history = ChatHistory.query.filter_by(user_id=current_user.id).order_by(ChatHistory.timestamp.asc()).all()
         history_context = ""
-        for chat in chat_history:
-            history_context += f"User: {chat.user_message}\nBot: {chat.bot_reply}\n"
+        if not session.get('reset_history', False):
+            # Only include history from the current chat session
+            current_chat_name = session.get('current_chat_name')
+            if current_chat_name:
+                chat_history = ChatHistory.query.filter_by(
+                    user_id=current_user.id,
+                    chat_name=current_chat_name
+                ).order_by(ChatHistory.timestamp.asc()).all()
+                for chat in chat_history:
+                    history_context += f"User: {chat.user_message}\nBot: {chat.bot_reply}\n"
+        else:
+            # Reset the flag after using it
+            session['reset_history'] = False
+            logger.info("History reset for new chat or model switch")
 
         # Check if this is the first message in the current chat
         current_chat_name = session.get('current_chat_name', f"Chat_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
