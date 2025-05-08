@@ -5,20 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - ChatGod</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="auth-page">
-        <div class="background-image">
-            <video autoplay loop muted playsinline>
-                <source src="https://cdn.pixabay.com/video/2017/08/20/11490-230853032_tiny.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-        <div class="overlay"></div>
         <div class="auth-container">
-            <h1>Register for ChatGod</h1>
+            <h1>Register</h1>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -26,9 +17,8 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-
             {% if step == 'email' %}
-                <form method="POST" action="{{ url_for('register') }}">
+                <form method="POST">
                     <input type="hidden" name="step" value="email">
                     <div class="form-group">
                         <label for="email">Email</label>
@@ -36,19 +26,17 @@
                     </div>
                     <button type="submit" class="auth-button">Send Verification Code</button>
                 </form>
-
             {% elif step == 'verify' %}
-                <form method="POST" action="{{ url_for('register') }}">
+                <form method="POST">
                     <input type="hidden" name="step" value="verify">
                     <div class="form-group">
                         <label for="code">Verification Code</label>
-                        <input type="text" id="code" name="code" required placeholder="Enter the 6-digit code">
+                        <input type="text" id="code" name="code" required>
                     </div>
-                    <button type="submit" class="auth-button">Verify Code</button>
+                    <button type="submit" class="auth-button">Verify</button>
                 </form>
-
             {% elif step == 'password' %}
-                <form method="POST" action="{{ url_for('register') }}">
+                <form method="POST">
                     <input type="hidden" name="step" value="password">
                     <div class="form-group">
                         <label for="username">Username</label>
@@ -58,11 +46,10 @@
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
                     </div>
-                    <button type="submit" class="auth-button">Create Account</button>
+                    <button type="submit" class="auth-button">Register</button>
                 </form>
             {% endif %}
-
-            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
         </div>
     </div>
 </body>
