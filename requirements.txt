@@ -5,3 +5,5 @@ Flask-SocketIO==5.3.6
 Werkzeug==3.0.1
 requests==2.31.0
 python-dotenv==1.0.1
+Pillow==10.1.0  # For image processing
+cryptography==41.0.5  # For message encryption
