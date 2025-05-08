@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_migrate import Migrate  # Added for migrations
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -46,6 +47,9 @@ os.makedirs(app.config['MESSAGES_FOLDER'], exist_ok=True)
 
 # Initialize Flask-SQLAlchemy
 db = SQLAlchemy(app)
+
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)  # Added for migrations
 
 # Initialize Flask-SocketIO
 socketio = SocketIO(app)
