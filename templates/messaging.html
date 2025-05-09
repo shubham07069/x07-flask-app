@@ -1,293 +1,456 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGod - Messaging</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/messaging/messaging_styles.css') }}">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>WhatsApp & Telegram UI Clone</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin:0; padding:0; height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ECE5DD;
+    color: #111;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+  #app {
+    display: flex;
+    max-width: 350px;
+    height: 600px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    background: white;
+  }
+  /* Sidebar */
+  #sidebar {
+    width: 110px;
+    background: #f8f9fa;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+  }
+  #sidebar header {
+    height: 60px;
+    background: #075E54;
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select:none;
+  }
+  #contacts {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 10px;
+  }
+  #contacts::-webkit-scrollbar {
+    width: 6px;
+  }
+  #contacts::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
+  .contact {
+    display: flex;
+    align-items: center;
+    padding: 8px 8px;
+    cursor: pointer;
+    border-radius: 8px;
+    margin: 5px 8px;
+    transition: background-color 0.2s ease;
+  }
+  .contact:hover {
+    background: #ebf1f0;
+  }
+  .contact.active {
+    background: #dcf8c6;
+  }
+  .contact .avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #bbb;
+    margin-right: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 1.2rem;
+    user-select:none;
+  }
+  .contact .info {
+    flex: 1;
+  }
+  .contact .info .name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+  .contact .info .last-message {
+    font-size: 0.8rem;
+    color: #65676b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .contact .time {
+    font-size: 0.75rem;
+    color: #999;
+  }
+
+  /* Chat panel */
+  #chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+  }
+  #chat-header {
+    height: 60px;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    background: #f0f2f5;
+  }
+  #chat-header .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #bbb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 1.4rem;
+    user-select:none;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  #chat-header .user-info {
+    flex: 1;
+  }
+  #chat-header .user-info .name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  #chat-header .user-info .status {
+    font-size: 0.8rem;
+    color: #777;
+  }
+
+  /* Chat messages container */
+  #messages {
+    flex: 1;
+    background: #ece5dd;
+    padding: 15px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+  }
+  #messages::-webkit-scrollbar {
+    width: 6px;
+  }
+  #messages::-webkit-scrollbar-thumb {
+    background: #c4c4c4;
+    border-radius: 10px;
+  }
+  .message {
+    max-width: 75%;
+    margin-bottom: 15px;
+    line-height: 1.3;
+    word-break: break-word;
+    position: relative;
+    clear: both;
+  }
+  .message.received {
+    background: white;
+    color: #111;
+    padding: 8px 15px;
+    border-radius: 0 15px 15px 15px;
+    float: left;
+  }
+  .message.sent {
+    background: #dcf8c6;
+    color: #111;
+    padding: 8px 15px;
+    border-radius: 15px 0 15px 15px;
+    float: right;
+    text-align: right;
+  }
+  .message .time {
+    font-size: 0.6rem;
+    color: #999;
+    margin-top: 2px;
+  }
+  /* Clear float fix */
+  #messages::after {
+    content: "";
+    display: block;
+    clear: both;
+  }
+
+  /* Chat input area */
+  #input-area {
+    height: 58px;
+    background: #f0f2f5;
+    border-top: 1px solid #ddd;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+  }
+  #input-area input[type="text"] {
+    flex: 1;
+    height: 40px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 20px;
+    font-size: 1rem;
+    outline: none;
+    background: white;
+    box-shadow: inset 0 0 5px #ccc;
+  }
+  #input-area button {
+    background: #075E54;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    margin-left: 8px;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  #input-area button:hover {
+    background: #0a805b;
+  }
+
+  /* Emoji icon inside input */
+  #input-area .emoji-btn {
+    background: transparent;
+    color: #666;
+    margin-left: 5px;
+    font-size: 1.4rem;
+    width: 36px;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    transition: background-color 0.25s ease;
+  }
+  #input-area .emoji-btn:hover {
+    background: #ddd;
+  }
+
+  /* Responsive */
+  @media (max-width: 350px) {
+    #app {
+      width: 100vw;
+      height: 600px;
+      border: none;
+    }
+  }
+</style>
 </head>
-<body class="bg-gray-900 text-white">
-    <!-- Header with Hamburger Menu -->
-    <header class="bg-gray-800 p-4 flex justify-between items-center">
-        <div class="hamburger cursor-pointer">
-            <span class="block w-6 h-1 bg-white mb-1"></span>
-            <span class="block w-6 h-1 bg-white mb-1"></span>
-            <span class="block w-6 h-1 bg-white"></span>
+<body>
+<div id="app" role="main" aria-label="Chat application UI clone">
+  <aside id="sidebar" aria-label="Contacts sidebar">
+    <header>Chat</header>
+    <div id="contacts" role="list" aria-label="Contact list">
+      <div class="contact active" role="listitem" tabindex="0" data-id="1">
+        <div class="avatar" aria-hidden="true">A</div>
+        <div class="info">
+          <div class="name">Alice</div>
+          <div class="last-message">Hey, are you coming?</div>
         </div>
-        <h1 class="text-2xl font-bold text-neon-green">ChatGod</h1>
-        <div>
-            <a href="{{ url_for('profile') }}">
-                {% if current_user.profile_pic %}
-                    <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full">
-                {% else %}
-                    <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full">
-                {% endif %}
-            </a>
+        <div class="time" aria-label="Last message time">9:45 AM</div>
+      </div>
+      <div class="contact" role="listitem" tabindex="0" data-id="2">
+        <div class="avatar" aria-hidden="true">B</div>
+        <div class="info">
+          <div class="name">Bob</div>
+          <div class="last-message">Let's meet tomorrow</div>
         </div>
+        <div class="time" aria-label="Last message time">Yesterday</div>
+      </div>
+      <div class="contact" role="listitem" tabindex="0" data-id="3">
+        <div class="avatar" aria-hidden="true">C</div>
+        <div class="info">
+          <div class="name">Charlie</div>
+          <div class="last-message">Sent the files</div>
+        </div>
+        <div class="time" aria-label="Last message time">Mon</div>
+      </div>
+      <div class="contact" role="listitem" tabindex="0" data-id="4">
+        <div class="avatar" aria-hidden="true">D</div>
+        <div class="info">
+          <div class="name">Diana</div>
+          <div class="last-message">Thanks!</div>
+        </div>
+        <div class="time" aria-label="Last message time">Sun</div>
+      </div>
+    </div>
+  </aside>
+  <section id="chat" aria-label="Chat window">
+    <header id="chat-header">
+      <div class="avatar" aria-hidden="true">A</div>
+      <div class="user-info" aria-label="Chat user info">
+        <div class="name">Alice</div>
+        <div class="status">online</div>
+      </div>
     </header>
+    <main id="messages" aria-live="polite" aria-relevant="additions" tabindex="0">
+      <div class="message received" role="article" aria-label="Message from Alice at 9:42 AM">
+        Hi! Are you free today?
+        <div class="time">9:42 AM</div>
+      </div>
+      <div class="message sent" role="article" aria-label="Your message at 9:43 AM">
+        Yes, I am. What's up?
+        <div class="time">9:43 AM</div>
+      </div>
+      <div class="message received" role="article" aria-label="Message from Alice at 9:44 AM">
+        Let's catch up at 5 PM.
+        <div class="time">9:44 AM</div>
+      </div>
+      <div class="message sent" role="article" aria-label="Your message at 9:45 AM">
+        Sounds good! See you then.
+        <div class="time">9:45 AM</div>
+      </div>
+    </main>
+    <form id="input-area" aria-label="Send a message">
+      <button type="button" class="emoji-btn" title="Emoji picker" aria-label="Insert emoji">&#x1F642;</button>
+      <input type="text" placeholder="Type a message" aria-label="Message input" autocomplete="off" id="message-input" />
+      <button type="submit" title="Send message" aria-label="Send message">&#10148;</button>
+    </form>
+  </section>
+</div>
+<script>
+  (() => {
+    // Simulated chat messages per contact id
+    const chatData = {
+      1: [ // Alice
+        {text: "Hi! Are you free today?", sender: "received", time: "9:42 AM"},
+        {text: "Yes, I am. What's up?", sender: "sent", time: "9:43 AM"},
+        {text: "Let's catch up at 5 PM.", sender: "received", time: "9:44 AM"},
+        {text: "Sounds good! See you then.", sender: "sent", time: "9:45 AM"},
+      ],
+      2: [ // Bob
+        {text: "Are you coming tomorrow?", sender: "received", time: "Yesterday"},
+        {text: "I will be there!", sender: "sent", time: "Yesterday"},
+      ],
+      3: [ // Charlie
+        {text: "Sent the files via email.", sender: "received", time: "Mon"},
+      ],
+      4: [ // Diana
+        {text: "Thanks for your help!", sender: "received", time: "Sun"},
+        {text: "No problem, anytime!", sender: "sent", time: "Sun"},
+      ],
+    };
 
-    <!-- Sidebar (Hidden by Default, Opens with Hamburger Menu) -->
-    <div class="sidebar fixed top-0 left-0 h-full w-64 bg-gray-800 transform -translate-x-full transition-transform duration-300 ease-in-out">
-        <div class="p-4">
-            <h2 class="text-xl font-bold text-neon-green mb-4">Menu</h2>
-            <ul class="space-y-2">
-                <li><a href="{{ url_for('index') }}" class="text-white hover:text-neon-green">Home</a></li>
-                <li><a href="{{ url_for('status') }}" class="text-white hover:text-neon-green">Status</a></li>
-                <li><a href="{{ url_for('profile') }}" class="text-white hover:text-neon-green">Profile</a></li>
-                <li><a href="{{ url_for('logout') }}" class="text-white hover:text-neon-green">Logout</a></li>
-            </ul>
-        </div>
-    </div>
+    // Elements
+    const contacts = document.querySelectorAll(".contact");
+    const chatAvatar = document.querySelector("#chat-header .avatar");
+    const chatName = document.querySelector("#chat-header .user-info .name");
+    const chatStatus = document.querySelector("#chat-header .user-info .status");
+    const messagesContainer = document.getElementById("messages");
+    const inputForm = document.getElementById("input-area");
+    const inputField = document.getElementById("message-input");
 
-    <!-- Main Container -->
-    <div class="container flex h-[calc(100vh-64px)]">
-        <!-- Sidebar with Tabs and User/Group Lists -->
-        <div class="sidebar-content w-80 bg-gray-800 p-4">
-            <div class="tabs flex border-b-2 border-gray-600 mb-4">
-                <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 chat-tab active">Chats</div>
-                <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 group-tab">Group Chats</div>
-            </div>
+    let currentContactId = 1;
 
-            <!-- Chat List (Registered Users) -->
-            <div class="chat-list active">
-                {% for user in users %}
-                    <div class="chat-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('messaging', user_id=user.id, chat_type='user') }}'">
-                        {% if user.profile_pic %}
-                            <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full mr-3">
-                        {% else %}
-                            <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full mr-3">
-                        {% endif %}
-                        <span class="text-white">{{ user.username }}</span>
-                    </div>
-                {% endfor %}
-            </div>
+    // Render messages for selected contact
+    function renderMessages(contactId) {
+      messagesContainer.innerHTML = "";
+      const chats = chatData[contactId] || [];
+      chats.forEach(({text, sender, time}) => {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "message " + sender;
+        msgDiv.setAttribute("role", "article");
+        msgDiv.setAttribute("aria-label", (sender==="sent" ? "Your message" : "Message from "+chatName.textContent) + " at " + time);
+        msgDiv.textContent = text;
 
-            <!-- Group List -->
-            <div class="group-list hidden">
-                {% for group in groups %}
-                    <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('messaging', group_id=group.id, chat_type='group') }}'">
-                        <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon" class="w-10 h-10 rounded-full mr-3">
-                        <span class="text-white">{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
-                    </div>
-                {% endfor %}
-                <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('create_group') }}'">
-                    <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group" class="w-10 h-10 rounded-full mr-3">
-                    <span class="text-white">Create New Group</span>
-                </div>
-            </div>
-        </div>
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "time";
+        timeDiv.textContent = time;
+        msgDiv.appendChild(timeDiv);
 
-        <!-- Chat Area -->
-        <div class="chat-area flex-1 flex flex-col bg-gray-900">
-            {% if selected_user or selected_group %}
-                <div class="chat-header bg-gray-800 p-4 flex justify-between items-center border-b border-gray-600">
-                    <h2 class="text-lg text-neon-green">
-                        {% if selected_user %}
-                            {{ selected_user.username }}
-                        {% else %}
-                            {{ selected_group.name }}
-                        {% endif %}
-                    </h2>
-                    <a href="{{ url_for('messaging') }}" class="text-neon-green">Back</a>
-                </div>
-                <div class="chat-messages flex-1 p-4 overflow-y-auto bg-gray-900" id="chat-messages">
-                    {% for message in messages %}
-                        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %} mb-4 max-w-[70%] p-3 rounded-lg relative transition-opacity duration-300" data-id="{{ message.id }}">
-                            <div>{{ message.content | safe }}</div>
-                            <div class="timestamp text-xs text-gray-500 absolute bottom-[-1.5rem] right-2">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}{% if message.edited %} (Edited){% endif %}</div>
-                            {% if message.sender_id == current_user.id %}
-                                <div class="message-actions flex gap-2 mt-2 opacity-0 transition-opacity duration-300">
-                                    <button onclick="editMessage({{ message.id }})" class="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-500">Edit</button>
-                                    <select onchange="setDisappearTimer({{ message.id }}, this.value)" class="bg-gray-600 text-white px-2 py-1 rounded">
-                                        <option value="0">No Timer</option>
-                                        <option value="10">10s</option>
-                                        <option value="60">1min</option>
-                                        <option value="3600">1hr</option>
-                                    </select>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-                <div class="chat-input bg-gray-800 p-4 border-t border-gray-600 flex items-center gap-4">
-                    <form id="message-form" onsubmit="sendMessage(event)" class="flex-1 flex items-center gap-4">
-                        <input type="hidden" id="receiver-id" value="{{ selected_user.id if selected_user else '' }}">
-                        <input type="hidden" id="group-id" value="{{ selected_group.id if selected_group else '' }}">
-                        <input type="text" id="message-content" placeholder="Type a message..." required class="flex-1 p-3 border-none rounded-full bg-gray-700 text-white placeholder-gray-400">
-                        <label class="text-white"><input type="checkbox" id="is-secret"> Secret Chat</label>
-                        <button type="submit" class="bg-neon-green text-black p-3 rounded-full hover:bg-green-400 transition-all duration-200"><i class="fas fa-paper-plane"></i></button>
-                    </form>
-                </div>
-            {% else %}
-                <div class="no-selection flex-1 flex justify-center items-center text-gray-400 text-lg">Select a chat or group to start messaging, bhai! 😎</div>
-            {% endif %}
-        </div>
-    </div>
+        messagesContainer.appendChild(msgDiv);
+      });
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
-    <script>
-        const current_user_id = {{ current_user.id }};
-        const socket = io();
+    // Update chat header and messages
+    function updateChat(contactEl) {
+      contacts.forEach(c => c.classList.remove("active"));
+      contactEl.classList.add("active");
 
-        // Hamburger Menu Toggle
-        const hamburger = document.querySelector('.hamburger');
-        const sidebar = document.querySelector('.sidebar');
-        hamburger.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-            hamburger.classList.toggle('active');
-        });
+      const contactId = contactEl.getAttribute("data-id");
+      currentContactId = contactId;
 
-        // Tab Switching
-        const chatTab = document.querySelector('.chat-tab');
-        const groupTab = document.querySelector('.group-tab');
-        const chatList = document.querySelector('.chat-list');
-        const groupList = document.querySelector('.group-list');
+      const avatarLetter = contactEl.querySelector(".avatar").textContent;
+      chatAvatar.textContent = avatarLetter;
 
-        chatTab.addEventListener('click', () => {
-            chatTab.classList.add('active');
-            groupTab.classList.remove('active');
-            chatList.classList.remove('hidden');
-            groupList.classList.add('hidden');
-        });
+      const name = contactEl.querySelector(".name").textContent;
+      chatName.textContent = name;
 
-        groupTab.addEventListener('click', () => {
-            groupTab.classList.add('active');
-            chatTab.classList.remove('active');
-            groupList.classList.remove('hidden');
-            chatList.classList.add('hidden');
-        });
+      // For demo, set all online except last contact offline
+      chatStatus.textContent = contactId === "4" ? "offline" : "online";
 
-        // Chat Functionality
-        function sendMessage(event) {
-            event.preventDefault();
-            const receiverId = document.getElementById('receiver-id').value;
-            const groupId = document.getElementById('group-id').value;
-            const content = document.getElementById('message-content').value.trim();
-            const isSecret = document.getElementById('is-secret').checked;
-            if (!content) return;
+      renderMessages(contactId);
+    }
 
-            socket.emit('send_message', {
-                receiver_id: receiverId,
-                group_id: groupId,
-                content: content,
-                content_type: 'text',
-                is_secret: isSecret
-            });
-
-            document.getElementById('message-content').value = '';
+    // Handle contact click
+    contacts.forEach(contact => {
+      contact.addEventListener("click", () => {
+        updateChat(contact);
+      });
+      contact.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          updateChat(contact);
         }
+      });
+    });
 
-        function editMessage(messageId) {
-            const messageDiv = document.querySelector(`.message[data-id="${messageId}"]`);
-            const content = messageDiv.querySelector('div').innerText;
-            const newContent = prompt("Edit your message:", content);
-            if (newContent && newContent !== content) {
-                fetch(`/edit_message/${messageId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `content=${encodeURIComponent(newContent)}`
-                }).then(response => response.json()).then(data => {
-                    if (data.message) {
-                        alert(data.message);
-                    } else {
-                        alert(data.error);
-                    }
-                });
-            }
-        }
+    // Handle sending message
+    inputForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const text = inputField.value.trim();
+      if(text.length === 0) return;
 
-        function setDisappearTimer(messageId, timer) {
-            fetch(`/set_disappear_timer/${messageId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `timer=${timer}`
-            }).then(response => response.json()).then(data => {
-                if (data.message) {
-                    alert(data.message);
-                } else {
-                    alert(data.error);
-                }
-            });
-        }
+      if(!chatData[currentContactId]) {
+        chatData[currentContactId] = [];
+      }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const chatMessages = document.getElementById('chat-messages');
-            if (chatMessages) {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                const currentUserId = window.current_user_id;
-                const receiverId = document.getElementById('receiver-id') ? document.getElementById('receiver-id').value : null;
-                const groupId = document.getElementById('group-id') ? document.getElementById('group-id').value : null;
-                const room = groupId ? `group_${groupId}` : `chat_${Math.min(currentUserId, receiverId)}_${Math.max(currentUserId, receiverId)}`;
+      // Add new sent message
+      chatData[currentContactId].push({text, sender:"sent", time: timeStr});
 
-                socket.on('connect', () => {
-                    socket.emit('join', { room: room });
-                });
+      renderMessages(currentContactId);
 
-                socket.on('receive_message', (data) => {
-                    const messageDiv = document.createElement('div');
-                    messageDiv.classList.add('message', data.sender_id == currentUserId ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
-                    messageDiv.setAttribute('data-id', data.message_id);
-                    messageDiv.innerHTML = `
-                        <div>${data.content}</div>
-                        <div class="timestamp text-xs text-gray-500 absolute bottom-[-1.5rem] right-2">${data.timestamp}${data.edited ? ' (Edited)' : ''}</div>
-                        ${data.sender_id == currentUserId ? `
-                            <div class="message-actions flex gap-2 mt-2 opacity-0 transition-opacity duration-300">
-                                <button onclick="editMessage(${data.message_id})" class="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-500">Edit</button>
-                                <select onchange="setDisappearTimer(${data.message_id}, this.value)" class="bg-gray-600 text-white px-2 py-1 rounded">
-                                    <option value="0">No Timer</option>
-                                    <option value="10">10s</option>
-                                    <option value="60">1min</option>
-                                    <option value="3600">1hr</option>
-                                </select>
-                            </div>
-                        ` : ''}
-                    `;
-                    chatMessages.appendChild(messageDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
+      // Clear input
+      inputField.value = "";
+      inputField.focus();
+    });
 
-                    if (data.sender_id != currentUserId) {
-                        socket.emit('message_read', { message_id: data.message_id, room: room });
-                    }
+    // Initialize with first contact selected
+    updateChat(document.querySelector(".contact.active"));
 
-                    if (data.disappear_timer) {
-                        setTimeout(() => {
-                            messageDiv.remove();
-                        }, data.disappear_timer * 1000);
-                    }
-                });
-
-                socket.on('message_edited', (data) => {
-                    const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
-                    if (messageDiv) {
-                        messageDiv.querySelector('div').innerText = data.content;
-                        messageDiv.querySelector('.timestamp').innerText = `${messageDiv.querySelector('.timestamp').innerText.split(' (Edited)')[0]} (Edited)`;
-                    }
-                });
-
-                socket.on('disappear_timer_set', (data) => {
-                    const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
-                    if (messageDiv && data.timer > 0) {
-                        setTimeout(() => {
-                            messageDiv.remove();
-                        }, data.timer * 1000);
-                    }
-                });
-
-                // Show message actions on hover
-                document.querySelectorAll('.message.sent').forEach(message => {
-                    message.addEventListener('mouseenter', () => {
-                        message.querySelector('.message-actions').classList.remove('opacity-0');
-                    });
-                    message.addEventListener('mouseleave', () => {
-                        message.querySelector('.message-actions').classList.add('opacity-0');
-                    });
-                });
-            }
-        });
-    </script>
+  })();
+</script>
 </body>
 </html>
+
