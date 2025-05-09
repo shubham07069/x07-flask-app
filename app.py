@@ -63,7 +63,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # AES Encryption Key (32 bytes for AES-256)
-AES_KEY = get_random_bytes(32)  # Generate a random 32-byte key for AES-256
+AES_KEY = base64.b64decode(os.getenv("AES_KEY"))  # Generate a random 32-byte key for AES-256
 
 # User model for database
 class User(UserMixin, db.Model):
