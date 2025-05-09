@@ -60,7 +60,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # Use a fixed encryption key (or load from environment variable)
-ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "your-fixed-encryption-key-here")  # Add this to .env or hardcode for now
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "WvLf5lFLIUo7Xqi8qLPOH9DzM-sUb11tl5eJAUinFRQ=")  # Use the key from .env or a fixed key
 cipher = Fernet(ENCRYPTION_KEY.encode() if isinstance(ENCRYPTION_KEY, str) else ENCRYPTION_KEY)
 
 # User model for database
@@ -578,6 +578,10 @@ def messaging():
                 ((Message.sender_id == current_user.id) & (Message.receiver_id == selected_user.id)) |
                 ((Message.sender_id == selected_user.id) & (Message.receiver_id == current_user.id))
             ).filter_by(group_id=None).order_by(Message.timestamp.asc()).all()
+            # Decrypt messages for display
+            for message in messages:
+                if message.content and message.content_type == 'text':
+                    message.content = decrypt_message(message.content)
             # Mark messages as read
             for message in messages:
                 if message.sender_id == selected_user.id and not message.is_read:
@@ -589,6 +593,10 @@ def messaging():
         selected_group = Group.query.get(selected_group_id)
         if selected_group:
             messages = Message.query.filter_by(group_id=selected_group_id).order_by(Message.timestamp.asc()).all()
+            # Decrypt messages for display
+            for message in messages:
+                if message.content and message.content_type == 'text':
+                    message.content = decrypt_message(message.content)
             chat_type = 'group'
 
     return render_template('messaging.html', users=users, groups=groups, messages=messages, 
