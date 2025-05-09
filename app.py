@@ -74,6 +74,7 @@ class User(UserMixin, db.Model):
     profile_pic = db.Column(db.String(120), nullable=True)
     last_seen = db.Column(db.DateTime, nullable=True)
     is_online = db.Column(db.Boolean, default=False)
+    public_username = db.Column(db.String(80), unique=True, nullable=True)  # Telegram-like username
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -96,12 +97,14 @@ class Group(db.Model):
     name = db.Column(db.String(100), nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    is_channel = db.Column(db.Boolean, default=False)  # For Telegram-like channels
 
 # GroupMember model (to track group members)
 class GroupMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
 # Message model for messaging app (1:1 and group chats)
 class Message(db.Model):
@@ -114,6 +117,17 @@ class Message(db.Model):
     file_path = db.Column(db.String(200), nullable=True)  # Path to media/file
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
+    is_secret = db.Column(db.Boolean, default=False)  # For Telegram-like secret chats
+    disappear_timer = db.Column(db.Integer, nullable=True)  # Signal-like disappearing messages (in seconds)
+    edited = db.Column(db.Boolean, default=False)  # For Telegram-like edit feature
+
+# Status model for WhatsApp-like status feature
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.String(200), nullable=True)  # Text or file path
+    content_type = db.Column(db.String(20), nullable=False, default='text')  # text, image, video
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -257,6 +271,7 @@ def register():
 
         elif step == 'password':
             username = request.form['username']
+            public_username = request.form['public_username']
             password = request.form['password']
             email = session.get('email')
 
@@ -264,7 +279,11 @@ def register():
                 flash('Username already exists! Try a different one.', 'error')
                 return render_template('register.html', step='password')
 
-            user = User(username=username, email=email)
+            if public_username and User.query.filter_by(public_username=public_username).first():
+                flash('Public username already exists! Try a different one.', 'error')
+                return render_template('register.html', step='password')
+
+            user = User(username=username, email=email, public_username=public_username)
             user.set_password(password)
             db.session.add(user)
             db.session.commit()
@@ -594,19 +613,14 @@ def ask():
 @app.route('/messaging', methods=['GET', 'POST'])
 @login_required
 def messaging():
-    # Fetch all registered users except the current user for the Chat tab
     users = User.query.filter(User.id != current_user.id).all()
-    
-    # Fetch all groups where the current user is a member for the Group Chat tab
     groups = Group.query.join(GroupMember, GroupMember.group_id == Group.id).filter(GroupMember.user_id == current_user.id).all()
-    
-    # Get selected user or group for chatting
     selected_user_id = request.args.get('user_id')
     selected_group_id = request.args.get('group_id')
     messages = []
     selected_user = None
     selected_group = None
-    chat_type = request.args.get('chat_type', 'user')  # Default to user chat
+    chat_type = request.args.get('chat_type', 'user')
 
     if selected_user_id:
         selected_user = User.query.get(selected_user_id)
@@ -615,11 +629,9 @@ def messaging():
                 ((Message.sender_id == current_user.id) & (Message.receiver_id == selected_user.id)) |
                 ((Message.sender_id == selected_user.id) & (Message.receiver_id == current_user.id))
             ).filter_by(group_id=None).order_by(Message.timestamp.asc()).all()
-            # Decrypt messages for display
             for message in messages:
                 if message.content and message.content_type == 'text':
                     message.content = decrypt_message(message.content)
-            # Mark messages as read
             for message in messages:
                 if message.sender_id == selected_user.id and not message.is_read:
                     message.is_read = True
@@ -630,7 +642,6 @@ def messaging():
         selected_group = Group.query.get(selected_group_id)
         if selected_group:
             messages = Message.query.filter_by(group_id=selected_group_id).order_by(Message.timestamp.asc()).all()
-            # Decrypt messages for display
             for message in messages:
                 if message.content and message.content_type == 'text':
                     message.content = decrypt_message(message.content)
@@ -645,17 +656,15 @@ def create_group():
     if request.method == 'POST':
         group_name = request.form['group_name']
         member_ids = request.form.getlist('members')
+        is_channel = 'is_channel' in request.form  # Telegram-like channel
 
-        # Create group
-        group = Group(name=group_name, creator_id=current_user.id)
+        group = Group(name=group_name, creator_id=current_user.id, is_channel=is_channel)
         db.session.add(group)
         db.session.commit()
 
-        # Add creator as a member
-        creator_member = GroupMember(group_id=group.id, user_id=current_user.id)
+        creator_member = GroupMember(group_id=group.id, user_id=current_user.id, is_admin=True)
         db.session.add(creator_member)
 
-        # Add selected members
         for member_id in member_ids:
             member = GroupMember(group_id=group.id, user_id=member_id)
             db.session.add(member)
@@ -666,6 +675,73 @@ def create_group():
 
     users = User.query.filter(User.id != current_user.id).all()
     return render_template('group_create.html', users=users)
+
+@app.route('/status', methods=['GET', 'POST'])
+@login_required
+def status():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        content_type = 'text'
+        file_path = None
+
+        if 'file' in request.files:
+            file = request.files['file']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['MESSAGES_FOLDER'], f"status_{current_user.id}_{filename}")
+                file.save(file_path)
+                content_type = 'image' if file.mimetype.startswith('image') else 'video'
+
+        status = Status(user_id=current_user.id, content=content, content_type=content_type, file_path=file_path)
+        db.session.add(status)
+        db.session.commit()
+        flash('Status updated!', 'success')
+        return redirect(url_for('status'))
+
+    statuses = Status.query.all()
+    return render_template('status.html', statuses=statuses)
+
+@app.route('/edit_message/<int:message_id>', methods=['POST'])
+@login_required
+def edit_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    if message.sender_id != current_user.id:
+        return jsonify({'error': 'You can only edit your own messages!'}), 403
+
+    new_content = request.form.get('content')
+    encrypted_content = encrypt_message(new_content) if new_content else None
+    message.content = encrypted_content
+    message.edited = True
+    db.session.commit()
+
+    decrypted_content = decrypt_message(encrypted_content) if encrypted_content else new_content
+    room = f"chat_{min(current_user.id, message.receiver_id)}_{max(current_user.id, message.receiver_id)}" if message.receiver_id else f"group_{message.group_id}"
+    emit('message_edited', {
+        'message_id': message.id,
+        'content': decrypted_content,
+        'edited': True
+    }, room=room, broadcast=True)
+
+    return jsonify({'message': 'Message edited successfully!'})
+
+@app.route('/set_disappear_timer/<int:message_id>', methods=['POST'])
+@login_required
+def set_disappear_timer(message_id):
+    message = Message.query.get_or_404(message_id)
+    if message.sender_id != current_user.id:
+        return jsonify({'error': 'You can only set timers for your own messages!'}), 403
+
+    timer = int(request.form.get('timer', 0))
+    message.disappear_timer = timer
+    db.session.commit()
+
+    room = f"chat_{min(current_user.id, message.receiver_id)}_{max(current_user.id, message.receiver_id)}" if message.receiver_id else f"group_{message.group_id}"
+    emit('disappear_timer_set', {
+        'message_id': message.id,
+        'timer': timer
+    }, room=room, broadcast=True)
+
+    return jsonify({'message': 'Disappear timer set successfully!'})
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -680,7 +756,6 @@ def profile():
                 new_filename = f"{user_id}.{ext}"
                 file_path = os.path.join(app.config['PROFILE_PICS_FOLDER'], new_filename)
                 
-                # Save and resize image
                 img = Image.open(file)
                 img = img.resize((150, 150), Image.LANCZOS)
                 img.save(file_path)
@@ -744,8 +819,9 @@ def handle_send_message(data):
     content = data.get('content')
     content_type = data.get('content_type', 'text')
     file_path = data.get('file_path')
+    is_secret = data.get('is_secret', False)
+    disappear_timer = data.get('disappear_timer', None)
 
-    # Encrypt content if it's text
     encrypted_content = encrypt_message(content) if content_type == 'text' and content else None
 
     message = Message(
@@ -754,12 +830,13 @@ def handle_send_message(data):
         group_id=group_id if group_id else None,
         content=encrypted_content,
         content_type=content_type,
-        file_path=file_path
+        file_path=file_path,
+        is_secret=is_secret,
+        disappear_timer=disappear_timer
     )
     db.session.add(message)
     db.session.commit()
 
-    # Decrypt content for sending to client
     decrypted_content = decrypt_message(encrypted_content) if encrypted_content else content
 
     if group_id:
@@ -771,7 +848,9 @@ def handle_send_message(data):
             'content_type': content_type,
             'file_path': file_path,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'message_id': message.id
+            'message_id': message.id,
+            'is_secret': is_secret,
+            'disappear_timer': disappear_timer
         }, room=room, broadcast=True)
     else:
         room = f"chat_{min(current_user.id, receiver_id)}_{max(current_user.id, receiver_id)}"
@@ -782,7 +861,9 @@ def handle_send_message(data):
             'content_type': content_type,
             'file_path': file_path,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'message_id': message.id
+            'message_id': message.id,
+            'is_secret': is_secret,
+            'disappear_timer': disappear_timer
         }, room=room, broadcast=True)
 
 @socketio.on('message_read')
