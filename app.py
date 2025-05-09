@@ -6,7 +6,9 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-from cryptography.fernet import Fernet
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+import base64
 import requests
 import os
 import logging
@@ -60,9 +62,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Use a fixed encryption key (or load from environment variable)
-ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "WvLf5lFLIUo7Xqi8qLPOH9DzM-sUb11tl5eJAUinFRQ=")
-cipher = Fernet(ENCRYPTION_KEY.encode() if isinstance(ENCRYPTION_KEY, str) else ENCRYPTION_KEY)
+# AES Encryption Key (32 bytes for AES-256)
+AES_KEY = get_random_bytes(32)  # Generate a random 32-byte key for AES-256
 
 # User model for database
 class User(UserMixin, db.Model):
@@ -122,12 +123,24 @@ def load_user(user_id):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-# Re-enabled encryption with proper logging
+# AES Encryption and Decryption
 def encrypt_message(message):
     try:
-        encrypted = cipher.encrypt(message.encode()).decode()
-        logger.info(f"Encrypted message: {message} -> {encrypted}")
-        return encrypted
+        # Pad the message to be a multiple of 16 bytes
+        message = message.encode('utf-8')
+        pad_length = 16 - (len(message) % 16)
+        message += bytes([pad_length] * pad_length)
+
+        # Generate a random IV (Initialization Vector)
+        iv = get_random_bytes(16)
+        cipher = AES.new(AES_KEY, AES.MODE_CBC, iv)
+
+        # Encrypt the message
+        encrypted = cipher.encrypt(message)
+        # Combine IV and encrypted message, then encode to base64
+        encrypted_message = base64.b64encode(iv + encrypted).decode('utf-8')
+        logger.info(f"Encrypted message: {message} -> {encrypted_message}")
+        return encrypted_message
     except Exception as e:
         logger.error(f"Error encrypting message: {str(e)}")
         traceback.print_exc()
@@ -135,7 +148,19 @@ def encrypt_message(message):
 
 def decrypt_message(encrypted_message):
     try:
-        decrypted = cipher.decrypt(encrypted_message.encode()).decode()
+        # Decode from base64
+        encrypted = base64.b64decode(encrypted_message.encode('utf-8'))
+        # Extract IV and encrypted message
+        iv = encrypted[:16]
+        encrypted = encrypted[16:]
+
+        # Decrypt the message
+        cipher = AES.new(AES_KEY, AES.MODE_CBC, iv)
+        decrypted = cipher.decrypt(encrypted)
+
+        # Remove padding
+        pad_length = decrypted[-1]
+        decrypted = decrypted[:-pad_length].decode('utf-8')
         logger.info(f"Decrypted message: {encrypted_message} -> {decrypted}")
         return decrypted
     except Exception as e:
