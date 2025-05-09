@@ -3,161 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messaging - ChatGod</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>ChatGod - Messaging</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            background-color: #1a1a1a;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .navbar a {
+            color: #00ff88;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .navbar .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 64px);
+            background-color: #121212;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #1e1e1e;
+            border-right: 1px solid #333;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #333;
+            margin-bottom: 1rem;
+        }
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            color: #888;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .tab.active {
+            color: #00ff88;
+            border-bottom: 2px solid #00ff88;
+        }
+        .tab:hover {
+            color: #00ff88;
+        }
+        .chat-list, .group-list {
+            display: none;
+        }
+        .chat-list.active, .group-list.active {
+            display: block;
+        }
+        .chat-item, .group-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .chat-item:hover, .group-item:hover {
+            background-color: #3a3a3a;
+        }
+        .chat-item img, .group-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+        .chat-item span, .group-item span {
+            color: #e0e0e0;
+            font-size: 1rem;
+        }
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #181818;
+        }
+        .chat-header {
+            background-color: #1e1e1e;
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #00ff88;
+        }
+        .chat-header a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #121212;
+        }
+        .message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            position: relative;
+        }
+        .message.sent {
+            background-color: #00ff88;
+            color: #000;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+        }
+        .message.received {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+        }
+        .message .timestamp {
+            font-size: 0.75rem;
+            color: #888;
+            position: absolute;
+            bottom: -1.5rem;
+            right: 0.5rem;
+        }
+        .message.sent .timestamp {
+            right: 0.5rem;
+        }
+        .message.received .timestamp {
+            left: 0.5rem;
+        }
+        .chat-input {
+            background-color: #1e1e1e;
+            padding: 1rem;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+        }
+        .chat-input form {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        .chat-input input[type="text"] {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 20px;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            margin-right: 0.5rem;
+        }
+        .chat-input input[type="text"]::placeholder {
+            color: #888;
+        }
+        .chat-input button {
+            background-color: #00ff88;
+            color: #000;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .chat-input button:hover {
+            background-color: #00cc70;
+        }
+        .chat-input i {
+            font-size: 1.2rem;
+        }
+        .no-selection {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #888;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="chatbot-page">
-        <header class="flex justify-between items-center">
-            <div class="flex items-center">
-                <div class="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">ChatGod</a>
+        <a href="{{ url_for('profile') }}">
+            {% if current_user.profile_pic %}
+                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="profile-pic">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="profile-pic">
+            {% endif %}
+        </a>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <div class="tabs">
+                <div class="tab {% if chat_type == 'user' %}active{% endif %}" onclick="showTab('user')">Chats</div>
+                <div class="tab {% if chat_type == 'group' %}active{% endif %}" onclick="showTab('group')">Group Chats</div>
+            </div>
+            <div class="chat-list {% if chat_type == 'user' %}active{% endif %}">
+                {% for user in users %}
+                    <div class="chat-item" onclick="window.location.href='{{ url_for('messaging', user_id=user.id, chat_type='user') }}'">
+                        {% if user.profile_pic %}
+                            <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture">
+                        {% endif %}
+                        <span>{{ user.username }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="group-list {% if chat_type == 'group' %}active{% endif %}">
+                {% for group in groups %}
+                    <div class="group-item" onclick="window.location.href='{{ url_for('messaging', group_id=group.id, chat_type='group') }}'">
+                        <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon">
+                        <span>{{ group.name }}</span>
+                    </div>
+                {% endfor %}
+                <div class="group-item" onclick="window.location.href='{{ url_for('create_group') }}'">
+                    <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group">
+                    <span>Create New Group</span>
                 </div>
-            </div>
-            <h1 class="logo">Messaging</h1>
-            <a href="{{ url_for('index') }}" class="auth-button small">Home</a>
-        </header>
-        <div id="sidebar" class="sidebar">
-            <div class="user-profile">
-                <a href="{{ url_for('profile') }}">
-                    {% if current_user.profile_pic %}
-                        <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture">
-                    {% else %}
-                        <div class="default-pic">{{ current_user.username[0] | upper }}</div>
-                    {% endif %}
-                    <span>{{ current_user.username }}</span>
-                </a>
-                <a href="{{ url_for('create_group') }}" class="create-group-btn">+ New Group</a>
-            </div>
-            <div class="divider"></div>
-            <div class="chat-history flex flex-col h-[calc(100%-8rem)]">
-                <h3>Chats</h3>
-                <ul id="chatHistoryList" class="flex-1 overflow-y-auto">
-                    {% for user in users %}
-                        <li onclick="selectUser({{ user.id }})" class="{% if selected_user and selected_user.id == user.id %}highlighted{% endif %}">
-                            {% if user.profile_pic %}
-                                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="{{ user.username }}" class="chat-pic">
-                            {% else %}
-                                <div class="default-pic">{{ user.username[0] | upper }}</div>
-                            {% endif %}
-                            <div class="chat-info">
-                                <span>{{ user.username }}</span>
-                                <small id="status-{{ user.id }}">
-                                    {% if user.is_online %}
-                                        Online
-                                    {% else %}
-                                        Last seen: {{ user.last_seen.strftime('%Y-%m-%d %H:%M:%S') if user.last_seen else 'Unknown' }}
-                                    {% endif %}
-                                </small>
-                            </div>
-                        </li>
-                    {% endfor %}
-                    {% for group in groups %}
-                        <li onclick="selectGroup({{ group.id }})" class="{% if selected_group and selected_group.id == group.id %}highlighted{% endif %}">
-                            <div class="default-pic">{{ group.name[0] | upper }}</div>
-                            <div class="chat-info">
-                                <span>{{ group.name }}</span>
-                                <small>Group Chat</small>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
             </div>
         </div>
-        <main>
-            <div class="chat-container">
-                {% if selected_user or selected_group %}
-                    <div class="chat-header">
+        <div class="chat-area">
+            {% if selected_user or selected_group %}
+                <div class="chat-header">
+                    <h2>
                         {% if selected_user %}
-                            {% if selected_user.profile_pic %}
-                                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + selected_user.profile_pic) }}" alt="{{ selected_user.username }}" class="chat-pic">
-                            {% else %}
-                                <div class="default-pic">{{ selected_user.username[0] | upper }}</div>
-                            {% endif %}
-                            <div class="chat-info">
-                                <span>{{ selected_user.username }}</span>
-                                <small id="status-header-{{ selected_user.id }}">
-                                    {% if selected_user.is_online %}
-                                        Online
-                                    {% else %}
-                                        Last seen: {{ selected_user.last_seen.strftime('%Y-%m-%d %H:%M:%S') if selected_user.last_seen else 'Unknown' }}
-                                    {% endif %}
-                                </small>
-                            </div>
+                            {{ selected_user.username }}
                         {% else %}
-                            <div class="default-pic">{{ selected_group.name[0] | upper }}</div>
-                            <div class="chat-info">
-                                <span>{{ selected_group.name }}</span>
-                                <small>Group Chat</small>
-                            </div>
+                            {{ selected_group.name }}
                         {% endif %}
-                        <div id="typing-indicator"></div>
-                    </div>
-                {% endif %}
-                <div id="chatWindow" class="chat-window">
-                    {% if selected_user or selected_group %}
-                        {% for message in messages %}
-                            <div class="message {% if message.sender_id == current_user.id %}user{% else %}bot{% endif %}" data-message-id="{{ message.id }}">
-                                <div class="message-content">
-                                    <strong>{{ message.sender.username }}:</strong>
-                                    {% if message.content_type == 'text' %}
-                                        {{ message.content | decrypt_message }}
-                                    {% elif message.content_type == 'image' %}
-                                        <img src="{{ url_for('uploaded_file', filename=message.file_path) }}" alt="Image" style="max-width: 200px;">
-                                    {% elif message.content_type == 'video' %}
-                                        <video controls style="max-width: 200px;">
-                                            <source src="{{ url_for('uploaded_file', filename=message.file_path) }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    {% else %}
-                                        <a href="{{ url_for('uploaded_file', filename=message.file_path) }}" target="_blank">Download File</a>
-                                    {% endif %}
-                                    <br><small>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-                                    {% if message.sender_id == current_user.id %}
-                                        <span class="read-status">
-                                            {% if message.is_read %}
-                                                <i class="fas fa-check-double" style="color: #34b7f1;"></i> Seen
-                                            {% else %}
-                                                <i class="fas fa-check" style="color: #ccc;"></i> Delivered
-                                            {% endif %}
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="greeting-message">
-                            Select a user or group to start chatting!
-                        </div>
-                    {% endif %}
+                    </h2>
+                    <a href="{{ url_for('messaging') }}">Back</a>
                 </div>
-                {% if selected_user or selected_group %}
-                    <div class="search-box-wrapper">
-                        <div class="search-box">
-                            <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
-                            <div class="button-row">
-                                <label for="fileInput" class="plus-button">+</label>
-                                <input type="file" id="fileInput" style="display: none;">
-                                <button class="send-button">
-                                    <i class="fas fa-rocket"></i>
-                                </button>
-                            </div>
+                <div class="chat-messages" id="chat-messages">
+                    {% for message in messages %}
+                        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                            <div>{{ message.content | safe }}</div>
+                            <div class="timestamp">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
                         </div>
-                    </div>
-                {% endif %}
-            </div>
-        </main>
+                    {% endfor %}
+                </div>
+                <div class="chat-input">
+                    <form id="message-form" onsubmit="sendMessage(event)">
+                        <input type="hidden" id="receiver-id" value="{{ selected_user.id if selected_user else '' }}">
+                        <input type="hidden" id="group-id" value="{{ selected_group.id if selected_group else '' }}">
+                        <input type="text" id="message-content" placeholder="Type a message..." required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="no-selection">Select a chat or group to start messaging, bhai! 😎</div>
+            {% endif %}
+        </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='js/msg_script.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
     <script>
-        const selectedUserId = {{ selected_user.id if selected_user else 'null' }};
-        const selectedGroupId = {{ selected_group.id if selected_group else 'null' }};
-        const chatType = '{{ chat_type }}';
+        const socket = io();
         const currentUserId = {{ current_user.id }};
+        const receiverId = document.getElementById('receiver-id') ? document.getElementById('receiver-id').value : null;
+        const groupId = document.getElementById('group-id') ? document.getElementById('group-id').value : null;
+        const room = groupId ? `group_${groupId}` : `chat_${Math.min(currentUserId, receiverId)}_${Math.max(currentUserId, receiverId)}`;
+
+        socket.on('connect', () => {
+            socket.emit('join', { room: room });
+        });
+
+        socket.on('receive_message', (data) => {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(data.sender_id == currentUserId ? 'sent' : 'received');
+            messageDiv.innerHTML = `<div>${data.content}</div><div class="timestamp">${data.timestamp}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if (data.sender_id != currentUserId) {
+                socket.emit('message_read', { message_id: data.message_id, room: room });
+            }
+        });
+
+        function sendMessage(event) {
+            event.preventDefault();
+            const content = document.getElementById('message-content').value;
+            if (!content.trim()) return;
+
+            socket.emit('send_message', {
+                receiver_id: receiverId,
+                group_id: groupId,
+                content: content,
+                content_type: 'text'
+            });
+
+            document.getElementById('message-content').value = '';
+        }
+
+        function showTab(type) {
+            window.location.href = `{{ url_for('messaging') }}?chat_type=${type}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
     </script>
 </body>
 </html>
