@@ -59,9 +59,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Generate encryption key
-ENCRYPTION_KEY = Fernet.generate_key()
-cipher = Fernet(ENCRYPTION_KEY)
+# Use a fixed encryption key (or load from environment variable)
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "your-fixed-encryption-key-here")  # Add this to .env or hardcode for now
+cipher = Fernet(ENCRYPTION_KEY.encode() if isinstance(ENCRYPTION_KEY, str) else ENCRYPTION_KEY)
 
 # User model for database
 class User(UserMixin, db.Model):
