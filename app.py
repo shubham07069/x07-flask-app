@@ -557,14 +557,19 @@ def ask():
 @app.route('/messaging', methods=['GET', 'POST'])
 @login_required
 def messaging():
+    # Fetch all registered users except the current user for the Chat tab
     users = User.query.filter(User.id != current_user.id).all()
+    
+    # Fetch all groups where the current user is a member for the Group Chat tab
     groups = Group.query.join(GroupMember, GroupMember.group_id == Group.id).filter(GroupMember.user_id == current_user.id).all()
+    
+    # Get selected user or group for chatting
     selected_user_id = request.args.get('user_id')
     selected_group_id = request.args.get('group_id')
     messages = []
     selected_user = None
     selected_group = None
-    chat_type = 'user'
+    chat_type = request.args.get('chat_type', 'user')  # Default to user chat
 
     if selected_user_id:
         selected_user = User.query.get(selected_user_id)
@@ -612,7 +617,7 @@ def create_group():
 
         db.session.commit()
         flash('Group created successfully!', 'success')
-        return redirect(url_for('messaging', group_id=group.id))
+        return redirect(url_for('messaging', group_id=group.id, chat_type='group'))
 
     users = User.query.filter(User.id != current_user.id).all()
     return render_template('group_create.html', users=users)
