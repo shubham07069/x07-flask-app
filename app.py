@@ -55,7 +55,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # Initialize Flask-SocketIO
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='threading')
 
 # Initialize Flask-Login
 login_manager = LoginManager()
