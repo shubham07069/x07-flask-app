@@ -113,6 +113,7 @@
     padding: 0.75rem;
     border-radius: 12px;
     position: relative;
+    transition: opacity 0.3s ease;
 }
 
 .message.sent {
@@ -127,6 +128,11 @@
     color: #e0e0e0;
     margin-right: auto;
     border-bottom-left-radius: 0;
+}
+
+.message.secret {
+    background-color: #ff5555;
+    color: #fff;
 }
 
 .message .timestamp {
@@ -145,6 +151,31 @@
     left: 0.5rem;
 }
 
+.message-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-actions button, .message-actions select {
+    background-color: #333;
+    color: #e0e0e0;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.message-actions button:hover, .message-actions select:hover {
+    background-color: #444;
+}
+
 .chat-input {
     background-color: #1e1e1e;
     padding: 1rem;
@@ -157,6 +188,7 @@
     flex: 1;
     display: flex;
     align-items: center;
+    gap: 1rem;
 }
 
 .chat-input input[type="text"] {
@@ -171,6 +203,10 @@
 
 .chat-input input[type="text"]::placeholder {
     color: #888;
+}
+
+.chat-input label {
+    color: #e0e0e0;
 }
 
 .chat-input button {
