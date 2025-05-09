@@ -1,12 +1,43 @@
+:root {
+    --neon-green: #00ff88;
+    --neon-pink: #ff007a;
+}
+
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Arial', sans-serif;
+}
+
 .container {
     display: flex;
     flex: 1;
     height: calc(100vh - 64px);
-    background-color: #121212;
 }
 
 .sidebar {
-    width: 300px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+.sidebar-content {
+    width: 320px;
     background-color: #1e1e1e;
     border-right: 1px solid #333;
     padding: 1rem;
@@ -27,15 +58,16 @@
     color: #888;
     font-weight: bold;
     transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
 }
 
 .tab.active {
-    color: #00ff88;
-    border-bottom: 2px solid #00ff88;
+    color: var(--neon-green);
+    border-bottom: 2px solid var(--neon-green);
 }
 
 .tab:hover {
-    color: #00ff88;
+    color: var(--neon-green);
 }
 
 .chat-list, .group-list {
@@ -77,7 +109,6 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: #181818;
 }
 
 .chat-header {
@@ -92,11 +123,9 @@
 .chat-header h2 {
     margin: 0;
     font-size: 1.2rem;
-    color: #00ff88;
 }
 
 .chat-header a {
-    color: #00ff88;
     text-decoration: none;
 }
 
@@ -104,7 +133,6 @@
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
-    background-color: #121212;
 }
 
 .message {
@@ -117,7 +145,7 @@
 }
 
 .message.sent {
-    background-color: #00ff88;
+    background-color: var(--neon-green);
     color: #000;
     margin-left: auto;
     border-bottom-right-radius: 0;
@@ -137,26 +165,12 @@
 
 .message .timestamp {
     font-size: 0.75rem;
-    color: #888;
-    position: absolute;
-    bottom: -1.5rem;
-    right: 0.5rem;
-}
-
-.message.sent .timestamp {
-    right: 0.5rem;
-}
-
-.message.received .timestamp {
-    left: 0.5rem;
 }
 
 .message-actions {
     display: flex;
     gap: 0.5rem;
     margin-top: 0.5rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
 .message:hover .message-actions {
@@ -210,17 +224,11 @@
 }
 
 .chat-input button {
-    background-color: #00ff88;
-    color: #000;
     border: none;
     padding: 0.75rem;
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s ease;
-}
-
-.chat-input button:hover {
-    background-color: #00cc70;
 }
 
 .chat-input i {
