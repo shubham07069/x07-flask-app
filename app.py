@@ -21,6 +21,7 @@ from email import encoders
 import datetime
 from PIL import Image
 import io
+import traceback
 
 app = Flask(__name__)
 
@@ -60,7 +61,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # Use a fixed encryption key (or load from environment variable)
-ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "WvLf5lFLIUo7Xqi8qLPOH9DzM-sUb11tl5eJAUinFRQ=")  # Use the key from .env or a fixed key
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", "WvLf5lFLIUo7Xqi8qLPOH9DzM-sUb11tl5eJAUinFRQ=")
 cipher = Fernet(ENCRYPTION_KEY.encode() if isinstance(ENCRYPTION_KEY, str) else ENCRYPTION_KEY)
 
 # User model for database
@@ -126,9 +127,12 @@ def encrypt_message(message):
 
 def decrypt_message(encrypted_message):
     try:
-        return cipher.decrypt(encrypted_message.encode()).decode()
+        decrypted = cipher.decrypt(encrypted_message.encode()).decode()
+        logger.info(f"Successfully decrypted message: {decrypted}")
+        return decrypted
     except Exception as e:
         logger.error(f"Error decrypting message: {str(e)}")
+        traceback.print_exc()
         return "Error decrypting message"
 
 # Function to clean LaTeX formatting and convert to plain text (for AI chat)
