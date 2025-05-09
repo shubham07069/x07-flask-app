@@ -2,105 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat - ChatGod</title>
+    <title>AI Chat</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .hamburger {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            cursor: pointer;
+        }
+
+        #sidebar {
+            display: none;
+            position: fixed;
+            left: 0;
+            bottom: 80px;
+            background: #222;
+            color: white;
+            padding: 10px;
+            border-radius: 0 10px 10px 0;
+            z-index: 998;
+        }
+
+        .delete-all-btn {
+            background: none;
+            border: none;
+            color: #ff4d4d;
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.3s ease;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .delete-all-btn:hover {
+            transform: scale(1.2);
+            color: #ff1a1a;
+        }
+    </style>
 </head>
 <body>
-    <div class="chatbot-page">
-        <header class="flex justify-between items-center">
-            <div class="flex items-center">
-                <div class="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-            <h1 class="logo">AI Chat</h1>
-            <a href="{{ url_for('index') }}" class="auth-button small">Home</a>
+    <div class="chat-container">
+        <header class="chat-header">
+            <h1>AI Chat</h1>
         </header>
-        <div id="sidebar" class="sidebar">
-            <nav class="nav-menu">
-                <ul>
-                    <li><a id="new-chat-link" href="#">New Chat</a></li>
-                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                </ul>
-            </nav>
-            <div class="divider"></div>
-            <div class="chat-history flex flex-col h-[calc(100%-8rem)]">
-                <h3>Chat History</h3>
-                <ul id="chatHistoryList" class="flex-1 overflow-y-auto"></ul>
-                <form id="delete-history-form" method="POST" action="{{ url_for('delete_history') }}" class="mt-4">
-                    <button type="submit" class="w-full py-2 bg-gradient-to-r from-red-500 to-red-700 text-white font-orbitron text-lg rounded-lg hover:scale-105 hover:shadow-[0_0_15px_rgba(255,0,0,0.7)] transition-all duration-300">
-                        <i class="fas fa-trash-can mr-2"></i> Delete All
-                    </button>
-                </form>
-            </div>
-            <!-- Settings Icon -->
-            <div class="settings-icon" onclick="openSettingsModal()">
-                <i class="fas fa-cog"></i>
-            </div>
-        </div>
-        <main>
-            <div class="chat-container">
-                <div id="chatWindow" class="chat-window"></div>
-                <div id="greetingMessage" class="greeting-message">
-                    Hey there! I'm ChatGod, your friendly AI companion. What do you want to chat about today?
+
+        <main class="chat-messages">
+            {% for message in messages %}
+                <div class="message">
+                    <strong>{{ message.user }}:</strong> {{ message.text }}
                 </div>
-                <div class="search-box-wrapper">
-                    <div class="search-box">
-                        <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
-                        <div class="button-row">
-                            <button class="plus-button">+</button>
-                            <div class="mode-selector">
-                                <button class="mode-button">Normal <i class="fas fa-chevron-up"></i></button>
-                                <div class="dropup-content">
-                                    <a href="#" class="mode-option highlighted" data-mode="Normal">Normal</a>
-                                    <a href="#" class="mode-option" data-mode="Pro">Pro</a>
-                                    <a href="#" class="mode-option" data-mode="Fun">Fun</a>
-                                </div>
-                            </div>
-                            <div class="model-selector">
-                                <button class="model-button">DeepSeek <i class="fas fa-chevron-up"></i></button>
-                                <div class="dropup-content">
-                                    <a href="#" class="model-option" data-model="ChatGPT">ChatGPT</a>
-                                    <a href="#" class="model-option" data-model="Grok">Grok</a>
-                                    <a href="#" class="model-option highlighted" data-model="DeepSeek">DeepSeek</a>
-                                    <a href="#" class="model-option" data-model="Claude">Claude</a>
-                                    <a href="#" class="model-option" data-model="MetaAI">MetaAI</a>
-                                    <a href="#" class="model-option" data-model="Gemini">Gemini</a>
-                                </div>
-                            </div>
-                            <button class="send-button">
-                                <i class="fas fa-rocket"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </main>
-        <!-- Settings Modal -->
-        <div id="settingsModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeSettingsModal()">×</span>
-                <h2>Customize Chat Theme</h2>
-                <div class="theme-options">
-                    <label>Select Theme Color:</label>
-                    <div class="color-options">
-                        <button class="color-option" style="background: #00d4ff" data-theme="default" onclick="selectTheme('default')"></button>
-                        <button class="color-option" style="background: #ff69b4" data-theme="pink" onclick="selectTheme('pink')"></button>
-                        <button class="color-option" style="background: #00ff85" data-theme="green" onclick="selectTheme('green')"></button>
-                        <button class="color-option" style="background: #ff9500" data-theme="orange" onclick="selectTheme('orange')"></button>
-                        <button class="color-option" style="background: #ffffff" data-theme="white" onclick="selectTheme('white')"></button>
-                        <button class="color-option" style="background: #a855f7" data-theme="purple" onclick="selectTheme('purple')"></button>
-                        <button class="color-option" style="background: #3b82f6" data-theme="blue" onclick="selectTheme('blue')"></button>
-                    </div>
-                </div>
-                <button class="done-button" onclick="applyTheme()">Done</button>
-            </div>
+
+        <form method="POST" class="chat-form">
+            <input type="text" name="message" placeholder="Type your message...">
+            <button type="submit">Send</button>
+        </form>
+
+        <!-- Hamburger menu button -->
+        <button class="hamburger" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Sidebar with Trash icon -->
+        <div id="sidebar">
+            <form method="POST" action="/delete_all_chats">
+                <button type="submit" class="delete-all-btn" title="Delete All Chats">
+                    <i class="fas fa-trash-can"></i>
+                </button>
+            </form>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/ai_script.js') }}"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = (sidebar.style.display === 'none') ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>
