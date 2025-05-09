@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGod - Status</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .status-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .status-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+        }
+        .status-item img, .status-item video {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">ChatGod</a>
+        <a href="{{ url_for('profile') }}">
+            {% if current_user.profile_pic %}
+                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="profile-pic">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="profile-pic">
+            {% endif %}
+        </a>
+    </div>
+    <div class="status-container">
+        <h1 class="text-3xl font-bold text-green-400 text-center mb-4">Status Updates</h1>
+        <form method="POST" enctype="multipart/form-data" class="mb-8">
+            <div class="mb-4">
+                <label for="content" class="block text-sm font-medium">Your Status</label>
+                <input type="text" id="content" name="content" class="mt-1 p-2 w-full bg-gray-700 rounded-lg text-white">
+            </div>
+            <div class="mb-4">
+                <label for="file" class="block text-sm font-medium">Upload Image/Video</label>
+                <input type="file" id="file" name="file" class="mt-1 p-2 w-full bg-gray-700 rounded-lg text-white">
+            </div>
+            <button type="submit" class="w-full bg-green-500 text-black py-2 rounded-lg hover:bg-green-600">Post Status</button>
+        </form>
+        {% for status in statuses %}
+            <div class="status-item">
+                <p class="text-sm text-gray-400">{{ status.user.username }} - {{ status.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                {% if status.content_type == 'text' %}
+                    <p>{{ status.content }}</p>
+                {% elif status.content_type == 'image' %}
+                    <img src="{{ url_for('uploaded_file', filename=status.file_path.split('/')[-1]) }}" alt="Status Image">
+                {% elif status.content_type == 'video' %}
+                    <video controls>
+                        <source src="{{ url_for('uploaded_file', filename=status.file_path.split('/')[-1]) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
