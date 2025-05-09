@@ -9,72 +9,99 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/messaging/messaging_styles.css') }}">
 </head>
-<body>
-    <div class="navbar">
-        <a href="{{ url_for('index') }}">ChatGod</a>
+<body class="bg-gray-900 text-white">
+    <!-- Header with Hamburger Menu -->
+    <header class="bg-gray-800 p-4 flex justify-between items-center">
+        <div class="hamburger cursor-pointer">
+            <span class="block w-6 h-1 bg-white mb-1"></span>
+            <span class="block w-6 h-1 bg-white mb-1"></span>
+            <span class="block w-6 h-1 bg-white"></span>
+        </div>
+        <h1 class="text-2xl font-bold text-neon-green">ChatGod</h1>
         <div>
-            <a href="{{ url_for('status') }}" class="mr-4">Status</a>
             <a href="{{ url_for('profile') }}">
                 {% if current_user.profile_pic %}
-                    <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="profile-pic">
+                    <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full">
                 {% else %}
-                    <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="profile-pic">
+                    <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full">
                 {% endif %}
             </a>
         </div>
+    </header>
+
+    <!-- Sidebar (Hidden by Default, Opens with Hamburger Menu) -->
+    <div class="sidebar fixed top-0 left-0 h-full w-64 bg-gray-800 transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-4">
+            <h2 class="text-xl font-bold text-neon-green mb-4">Menu</h2>
+            <ul class="space-y-2">
+                <li><a href="{{ url_for('index') }}" class="text-white hover:text-neon-green">Home</a></li>
+                <li><a href="{{ url_for('status') }}" class="text-white hover:text-neon-green">Status</a></li>
+                <li><a href="{{ url_for('profile') }}" class="text-white hover:text-neon-green">Profile</a></li>
+                <li><a href="{{ url_for('logout') }}" class="text-white hover:text-neon-green">Logout</a></li>
+            </ul>
+        </div>
     </div>
-    <div class="container">
-        <div class="sidebar">
-            <div class="tabs">
-                <div class="tab {% if chat_type == 'user' %}active{% endif %}" onclick="showTab('user')">Chats</div>
-                <div class="tab {% if chat_type == 'group' %}active{% endif %}" onclick="showTab('group')">Group Chats</div>
+
+    <!-- Main Container -->
+    <div class="container flex h-[calc(100vh-64px)]">
+        <!-- Sidebar with Tabs and User/Group Lists -->
+        <div class="sidebar-content w-80 bg-gray-800 p-4">
+            <div class="tabs flex border-b-2 border-gray-600 mb-4">
+                <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 chat-tab active">Chats</div>
+                <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 group-tab">Group Chats</div>
             </div>
-            <div class="chat-list {% if chat_type == 'user' %}active{% endif %}">
+
+            <!-- Chat List (Registered Users) -->
+            <div class="chat-list active">
                 {% for user in users %}
-                    <div class="chat-item" onclick="window.location.href='{{ url_for('messaging', user_id=user.id, chat_type='user') }}'">
+                    <div class="chat-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('messaging', user_id=user.id, chat_type='user') }}'">
                         {% if user.profile_pic %}
-                            <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture">
+                            <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full mr-3">
                         {% else %}
-                            <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture">
+                            <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full mr-3">
                         {% endif %}
-                        <span>{{ user.username }}</span>
+                        <span class="text-white">{{ user.username }}</span>
                     </div>
                 {% endfor %}
             </div>
-            <div class="group-list {% if chat_type == 'group' %}active{% endif %}">
+
+            <!-- Group List -->
+            <div class="group-list hidden">
                 {% for group in groups %}
-                    <div class="group-item" onclick="window.location.href='{{ url_for('messaging', group_id=group.id, chat_type='group') }}'">
-                        <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon">
-                        <span>{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
+                    <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('messaging', group_id=group.id, chat_type='group') }}'">
+                        <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon" class="w-10 h-10 rounded-full mr-3">
+                        <span class="text-white">{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
                     </div>
                 {% endfor %}
-                <div class="group-item" onclick="window.location.href='{{ url_for('create_group') }}'">
-                    <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group">
-                    <span>Create New Group</span>
+                <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('create_group') }}'">
+                    <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group" class="w-10 h-10 rounded-full mr-3">
+                    <span class="text-white">Create New Group</span>
                 </div>
             </div>
         </div>
-        <div class="chat-area">
+
+        <!-- Chat Area -->
+        <div class="chat-area flex-1 flex flex-col bg-gray-900">
             {% if selected_user or selected_group %}
-                <div class="chat-header">
-                    <h2>
+                <div class="chat-header bg-gray-800 p-4 flex justify-between items-center border-b border-gray-600">
+                    <h2 class="text-lg text-neon-green">
                         {% if selected_user %}
                             {{ selected_user.username }}
                         {% else %}
                             {{ selected_group.name }}
                         {% endif %}
                     </h2>
-                    <a href="{{ url_for('messaging') }}">Back</a>
+                    <a href="{{ url_for('messaging') }}" class="text-neon-green">Back</a>
                 </div>
-                <div class="chat-messages" id="chat-messages">
+                <div class="chat-messages flex-1 p-4 overflow-y-auto bg-gray-900" id="chat-messages">
                     {% for message in messages %}
-                        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}" data-id="{{ message.id }}">
+                        <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %} mb-4 max-w-[70%] p-3 rounded-lg relative transition-opacity duration-300" data-id="{{ message.id }}">
                             <div>{{ message.content | safe }}</div>
-                            <div class="timestamp">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}{% if message.edited %} (Edited){% endif %}</div>
+                            <div class="timestamp text-xs text-gray-500 absolute bottom-[-1.5rem] right-2">{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}{% if message.edited %} (Edited){% endif %}</div>
                             {% if message.sender_id == current_user.id %}
-                                <div class="message-actions">
-                                    <button onclick="editMessage({{ message.id }})">Edit</button>
-                                    <select onchange="setDisappearTimer({{ message.id }}, this.value)">
+                                <div class="message-actions flex gap-2 mt-2 opacity-0 transition-opacity duration-300">
+                                    <button onclick="editMessage({{ message.id }})" class="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-500">Edit</button>
+                                    <select onchange="setDisappearTimer({{ message.id }}, this.value)" class="bg-gray-600 text-white px-2 py-1 rounded">
                                         <option value="0">No Timer</option>
                                         <option value="10">10s</option>
                                         <option value="60">1min</option>
@@ -85,29 +112,55 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="chat-input">
-                    <form id="message-form" onsubmit="sendMessage(event)">
+                <div class="chat-input bg-gray-800 p-4 border-t border-gray-600 flex items-center gap-4">
+                    <form id="message-form" onsubmit="sendMessage(event)" class="flex-1 flex items-center gap-4">
                         <input type="hidden" id="receiver-id" value="{{ selected_user.id if selected_user else '' }}">
                         <input type="hidden" id="group-id" value="{{ selected_group.id if selected_group else '' }}">
-                        <input type="text" id="message-content" placeholder="Type a message..." required>
-                        <label><input type="checkbox" id="is-secret"> Secret Chat</label>
-                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                        <input type="text" id="message-content" placeholder="Type a message..." required class="flex-1 p-3 border-none rounded-full bg-gray-700 text-white placeholder-gray-400">
+                        <label class="text-white"><input type="checkbox" id="is-secret"> Secret Chat</label>
+                        <button type="submit" class="bg-neon-green text-black p-3 rounded-full hover:bg-green-400 transition-all duration-200"><i class="fas fa-paper-plane"></i></button>
                     </form>
                 </div>
             {% else %}
-                <div class="no-selection">Select a chat or group to start messaging, bhai! 😎</div>
+                <div class="no-selection flex-1 flex justify-center items-center text-gray-400 text-lg">Select a chat or group to start messaging, bhai! 😎</div>
             {% endif %}
         </div>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
     <script>
         const current_user_id = {{ current_user.id }};
         const socket = io();
 
-        function showTab(type) {
-            window.location.href = `/messaging?chat_type=${type}`;
-        }
+        // Hamburger Menu Toggle
+        const hamburger = document.querySelector('.hamburger');
+        const sidebar = document.querySelector('.sidebar');
+        hamburger.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            hamburger.classList.toggle('active');
+        });
 
+        // Tab Switching
+        const chatTab = document.querySelector('.chat-tab');
+        const groupTab = document.querySelector('.group-tab');
+        const chatList = document.querySelector('.chat-list');
+        const groupList = document.querySelector('.group-list');
+
+        chatTab.addEventListener('click', () => {
+            chatTab.classList.add('active');
+            groupTab.classList.remove('active');
+            chatList.classList.remove('hidden');
+            groupList.classList.add('hidden');
+        });
+
+        groupTab.addEventListener('click', () => {
+            groupTab.classList.add('active');
+            chatTab.classList.remove('active');
+            groupList.classList.remove('hidden');
+            chatList.classList.add('hidden');
+        });
+
+        // Chat Functionality
         function sendMessage(event) {
             event.preventDefault();
             const receiverId = document.getElementById('receiver-id').value;
@@ -176,16 +229,15 @@
 
                 socket.on('receive_message', (data) => {
                     const messageDiv = document.createElement('div');
-                    messageDiv.classList.add('message');
-                    messageDiv.classList.add(data.sender_id == currentUserId ? 'sent' : 'received');
+                    messageDiv.classList.add('message', data.sender_id == currentUserId ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
                     messageDiv.setAttribute('data-id', data.message_id);
                     messageDiv.innerHTML = `
                         <div>${data.content}</div>
-                        <div class="timestamp">${data.timestamp}${data.edited ? ' (Edited)' : ''}</div>
+                        <div class="timestamp text-xs text-gray-500 absolute bottom-[-1.5rem] right-2">${data.timestamp}${data.edited ? ' (Edited)' : ''}</div>
                         ${data.sender_id == currentUserId ? `
-                            <div class="message-actions">
-                                <button onclick="editMessage(${data.message_id})">Edit</button>
-                                <select onchange="setDisappearTimer(${data.message_id}, this.value)">
+                            <div class="message-actions flex gap-2 mt-2 opacity-0 transition-opacity duration-300">
+                                <button onclick="editMessage(${data.message_id})" class="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-500">Edit</button>
+                                <select onchange="setDisappearTimer(${data.message_id}, this.value)" class="bg-gray-600 text-white px-2 py-1 rounded">
                                     <option value="0">No Timer</option>
                                     <option value="10">10s</option>
                                     <option value="60">1min</option>
@@ -223,6 +275,16 @@
                             messageDiv.remove();
                         }, data.timer * 1000);
                     }
+                });
+
+                // Show message actions on hover
+                document.querySelectorAll('.message.sent').forEach(message => {
+                    message.addEventListener('mouseenter', () => {
+                        message.querySelector('.message-actions').classList.remove('opacity-0');
+                    });
+                    message.addEventListener('mouseleave', () => {
+                        message.querySelector('.message-actions').classList.add('opacity-0');
+                    });
                 });
             }
         });
