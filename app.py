@@ -108,7 +108,7 @@ class Message(db.Model):
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # For 1:1 chats
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)  # For group chats
-    content = db.Column(db.Text, nullable=True)  # Plain text content (encryption bypassed)
+    content = db.Column(db.Text, nullable=True)  # Encrypted text content
     content_type = db.Column(db.String(20), nullable=False, default='text')  # text, image, video, file
     file_path = db.Column(db.String(200), nullable=True)  # Path to media/file
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
@@ -122,14 +122,26 @@ def load_user(user_id):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-# Bypassed encryption to avoid "Error decrypting message"
+# Re-enabled encryption with proper logging
 def encrypt_message(message):
-    logger.info(f"Bypassing encryption for message: {message}")
-    return message  # Encryption hata diya
+    try:
+        encrypted = cipher.encrypt(message.encode()).decode()
+        logger.info(f"Encrypted message: {message} -> {encrypted}")
+        return encrypted
+    except Exception as e:
+        logger.error(f"Error encrypting message: {str(e)}")
+        traceback.print_exc()
+        raise e
 
 def decrypt_message(encrypted_message):
-    logger.info(f"Bypassing decryption for message: {encrypted_message}")
-    return encrypted_message  # Decryption hata diya
+    try:
+        decrypted = cipher.decrypt(encrypted_message.encode()).decode()
+        logger.info(f"Decrypted message: {encrypted_message} -> {decrypted}")
+        return decrypted
+    except Exception as e:
+        logger.error(f"Error decrypting message: {str(e)}")
+        traceback.print_exc()
+        return "Error decrypting message"
 
 # Function to clean LaTeX formatting and convert to plain text (for AI chat)
 def clean_latex(text):
@@ -578,6 +590,10 @@ def messaging():
                 ((Message.sender_id == current_user.id) & (Message.receiver_id == selected_user.id)) |
                 ((Message.sender_id == selected_user.id) & (Message.receiver_id == current_user.id))
             ).filter_by(group_id=None).order_by(Message.timestamp.asc()).all()
+            # Decrypt messages for display
+            for message in messages:
+                if message.content and message.content_type == 'text':
+                    message.content = decrypt_message(message.content)
             # Mark messages as read
             for message in messages:
                 if message.sender_id == selected_user.id and not message.is_read:
@@ -589,6 +605,10 @@ def messaging():
         selected_group = Group.query.get(selected_group_id)
         if selected_group:
             messages = Message.query.filter_by(group_id=selected_group_id).order_by(Message.timestamp.asc()).all()
+            # Decrypt messages for display
+            for message in messages:
+                if message.content and message.content_type == 'text':
+                    message.content = decrypt_message(message.content)
             chat_type = 'group'
 
     return render_template('messaging.html', users=users, groups=groups, messages=messages, 
@@ -700,24 +720,29 @@ def handle_send_message(data):
     content_type = data.get('content_type', 'text')
     file_path = data.get('file_path')
 
-    # Encryption bypassed, content as plain text
+    # Encrypt content if it's text
+    encrypted_content = encrypt_message(content) if content_type == 'text' and content else None
+
     message = Message(
         sender_id=current_user.id,
         receiver_id=receiver_id if receiver_id else None,
         group_id=group_id if group_id else None,
-        content=content,
+        content=encrypted_content,
         content_type=content_type,
         file_path=file_path
     )
     db.session.add(message)
     db.session.commit()
 
+    # Decrypt content for sending to client
+    decrypted_content = decrypt_message(encrypted_content) if encrypted_content else content
+
     if group_id:
         room = f"group_{group_id}"
         emit('receive_message', {
             'sender_id': current_user.id,
             'sender_username': current_user.username,
-            'content': content,
+            'content': decrypted_content,
             'content_type': content_type,
             'file_path': file_path,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
@@ -728,7 +753,7 @@ def handle_send_message(data):
         emit('receive_message', {
             'sender_id': current_user.id,
             'sender_username': current_user.username,
-            'content': content,
+            'content': decrypted_content,
             'content_type': content_type,
             'file_path': file_path,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
