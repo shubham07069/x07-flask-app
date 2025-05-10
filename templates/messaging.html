@@ -207,6 +207,8 @@
             });
 
             const current_user_id = {{ current_user.id }};
+            const usersList = {{ users_list | tojson }};
+            const groupsList = {{ groups_list | tojson }};
 
             // Hamburger Menu Toggle
             const hamburger = document.querySelector('.hamburger');
@@ -332,9 +334,6 @@
             }
 
             // Chat Functions (PC)
-            const usersList = {{ users | tojson }};
-            const groupsList = {{ groups | tojson }};
-
             function openChat(id, type) {
                 console.log(`Attempting to open chat for ${type} with ID: ${id}`);
                 const chatArea = document.querySelector('#chat-area-pc');
@@ -432,7 +431,6 @@
                         }
                         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                        // Emit join event for Socket.IO
                         const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, parseInt(receiverIdInput.value))}_${Math.max(current_user_id, parseInt(receiverIdInput.value))}`;
                         console.log(`Joining room: ${room}`);
                         socket.emit('join', { room: room });
@@ -540,7 +538,6 @@
                         }
                         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                        // Emit join event for Socket.IO
                         const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, parseInt(receiverIdInput.value))}_${Math.max(current_user_id, parseInt(receiverIdInput.value))}`;
                         console.log(`Joining room (Mobile): ${room}`);
                         socket.emit('join', { room: room });
