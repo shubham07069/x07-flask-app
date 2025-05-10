@@ -6,9 +6,6 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
-import base64
 import requests
 import os
 import logging
@@ -55,15 +52,12 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # Initialize Flask-SocketIO
-socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app)
 
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-# AES Encryption Key (32 bytes for AES-256)
-AES_KEY = base64.b64decode(os.getenv("AES_KEY"))  # Generate a random 32-byte key for AES-256
 
 # User model for database
 class User(UserMixin, db.Model):
@@ -74,7 +68,7 @@ class User(UserMixin, db.Model):
     profile_pic = db.Column(db.String(120), nullable=True)
     last_seen = db.Column(db.DateTime, nullable=True)
     is_online = db.Column(db.Boolean, default=False)
-    public_username = db.Column(db.String(80), unique=True, nullable=True)  # Telegram-like username
+    public_username = db.Column(db.String(80), unique=True, nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -97,7 +91,7 @@ class Group(db.Model):
     name = db.Column(db.String(100), nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
-    is_channel = db.Column(db.Boolean, default=False)  # For Telegram-like channels
+    is_channel = db.Column(db.Boolean, default=False)
 
 # GroupMember model (to track group members)
 class GroupMember(db.Model):
@@ -110,23 +104,23 @@ class GroupMember(db.Model):
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # For 1:1 chats
-    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)  # For group chats
-    content = db.Column(db.Text, nullable=True)  # Encrypted text content
-    content_type = db.Column(db.String(20), nullable=False, default='text')  # text, image, video, file
-    file_path = db.Column(db.String(200), nullable=True)  # Path to media/file
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)
+    content = db.Column(db.Text, nullable=True)
+    content_type = db.Column(db.String(20), nullable=False, default='text')
+    file_path = db.Column(db.String(200), nullable=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     is_read = db.Column(db.Boolean, default=False)
-    is_secret = db.Column(db.Boolean, default=False)  # For Telegram-like secret chats
-    disappear_timer = db.Column(db.Integer, nullable=True)  # Signal-like disappearing messages (in seconds)
-    edited = db.Column(db.Boolean, default=False)  # For Telegram-like edit feature
+    is_secret = db.Column(db.Boolean, default=False)
+    disappear_timer = db.Column(db.Integer, nullable=True)
+    edited = db.Column(db.Boolean, default=False)
 
 # Status model for WhatsApp-like status feature
 class Status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content = db.Column(db.String(200), nullable=True)  # Text or file path
-    content_type = db.Column(db.String(20), nullable=False, default='text')  # text, image, video
+    content = db.Column(db.String(200), nullable=True)
+    content_type = db.Column(db.String(20), nullable=False, default='text')
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 @login_manager.user_loader
@@ -136,51 +130,6 @@ def load_user(user_id):
 # Utility functions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-# AES Encryption and Decryption
-def encrypt_message(message):
-    try:
-        # Pad the message to be a multiple of 16 bytes
-        message = message.encode('utf-8')
-        pad_length = 16 - (len(message) % 16)
-        message += bytes([pad_length] * pad_length)
-
-        # Generate a random IV (Initialization Vector)
-        iv = get_random_bytes(16)
-        cipher = AES.new(AES_KEY, AES.MODE_CBC, iv)
-
-        # Encrypt the message
-        encrypted = cipher.encrypt(message)
-        # Combine IV and encrypted message, then encode to base64
-        encrypted_message = base64.b64encode(iv + encrypted).decode('utf-8')
-        logger.info(f"Encrypted message: {message} -> {encrypted_message}")
-        return encrypted_message
-    except Exception as e:
-        logger.error(f"Error encrypting message: {str(e)}")
-        traceback.print_exc()
-        raise e
-
-def decrypt_message(encrypted_message):
-    try:
-        # Decode from base64
-        encrypted = base64.b64decode(encrypted_message.encode('utf-8'))
-        # Extract IV and encrypted message
-        iv = encrypted[:16]
-        encrypted = encrypted[16:]
-
-        # Decrypt the message
-        cipher = AES.new(AES_KEY, AES.MODE_CBC, iv)
-        decrypted = cipher.decrypt(encrypted)
-
-        # Remove padding
-        pad_length = decrypted[-1]
-        decrypted = decrypted[:-pad_length].decode('utf-8')
-        logger.info(f"Decrypted message: {encrypted_message} -> {decrypted}")
-        return decrypted
-    except Exception as e:
-        logger.error(f"Error decrypting message: {str(e)}")
-        traceback.print_exc()
-        return "Error decrypting message"
 
 # Function to clean LaTeX formatting and convert to plain text (for AI chat)
 def clean_latex(text):
@@ -630,9 +579,6 @@ def messaging():
                 ((Message.sender_id == selected_user.id) & (Message.receiver_id == current_user.id))
             ).filter_by(group_id=None).order_by(Message.timestamp.asc()).all()
             for message in messages:
-                if message.content and message.content_type == 'text':
-                    message.content = decrypt_message(message.content)
-            for message in messages:
                 if message.sender_id == selected_user.id and not message.is_read:
                     message.is_read = True
             db.session.commit()
@@ -642,9 +588,6 @@ def messaging():
         selected_group = Group.query.get(selected_group_id)
         if selected_group:
             messages = Message.query.filter_by(group_id=selected_group_id).order_by(Message.timestamp.asc()).all()
-            for message in messages:
-                if message.content and message.content_type == 'text':
-                    message.content = decrypt_message(message.content)
             chat_type = 'group'
 
     return render_template('messaging.html', users=users, groups=groups, messages=messages, 
@@ -656,7 +599,7 @@ def create_group():
     if request.method == 'POST':
         group_name = request.form['group_name']
         member_ids = request.form.getlist('members')
-        is_channel = 'is_channel' in request.form  # Telegram-like channel
+        is_channel = 'is_channel' in request.form
 
         group = Group(name=group_name, creator_id=current_user.id, is_channel=is_channel)
         db.session.add(group)
@@ -709,16 +652,14 @@ def edit_message(message_id):
         return jsonify({'error': 'You can only edit your own messages!'}), 403
 
     new_content = request.form.get('content')
-    encrypted_content = encrypt_message(new_content) if new_content else None
-    message.content = encrypted_content
+    message.content = new_content
     message.edited = True
     db.session.commit()
 
-    decrypted_content = decrypt_message(encrypted_content) if encrypted_content else new_content
     room = f"chat_{min(current_user.id, message.receiver_id)}_{max(current_user.id, message.receiver_id)}" if message.receiver_id else f"group_{message.group_id}"
     emit('message_edited', {
         'message_id': message.id,
-        'content': decrypted_content,
+        'content': new_content,
         'edited': True
     }, room=room, broadcast=True)
 
@@ -822,13 +763,11 @@ def handle_send_message(data):
     is_secret = data.get('is_secret', False)
     disappear_timer = data.get('disappear_timer', None)
 
-    encrypted_content = encrypt_message(content) if content_type == 'text' and content else None
-
     message = Message(
         sender_id=current_user.id,
         receiver_id=receiver_id if receiver_id else None,
         group_id=group_id if group_id else None,
-        content=encrypted_content,
+        content=content,
         content_type=content_type,
         file_path=file_path,
         is_secret=is_secret,
@@ -837,14 +776,12 @@ def handle_send_message(data):
     db.session.add(message)
     db.session.commit()
 
-    decrypted_content = decrypt_message(encrypted_content) if encrypted_content else content
-
     if group_id:
         room = f"group_{group_id}"
         emit('receive_message', {
             'sender_id': current_user.id,
             'sender_username': current_user.username,
-            'content': decrypted_content,
+            'content': content,
             'content_type': content_type,
             'file_path': file_path,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
@@ -857,7 +794,7 @@ def handle_send_message(data):
         emit('receive_message', {
             'sender_id': current_user.id,
             'sender_username': current_user.username,
-            'content': decrypted_content,
+            'content': content,
             'content_type': content_type,
             'file_path': file_path,
             'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
