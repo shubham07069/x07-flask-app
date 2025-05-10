@@ -590,7 +590,23 @@ def messaging():
             messages = Message.query.filter_by(group_id=selected_group_id).order_by(Message.timestamp.asc()).all()
             chat_type = 'group'
 
-    return render_template('messaging.html', users=users, groups=groups, messages=messages, 
+    # Convert users and groups to dictionaries
+    users_dict = [
+        {
+            'id': user.id,
+            'username': user.username,
+            'profile_pic': user.profile_pic
+        } for user in users
+    ]
+    groups_dict = [
+        {
+            'id': group.id,
+            'name': group.name,
+            'is_channel': group.is_channel
+        } for group in groups
+    ]
+
+    return render_template('messaging.html', users=users_dict, groups=groups_dict, messages=messages, 
                            selected_user=selected_user, selected_group=selected_group, chat_type=chat_type)
 
 @app.route('/create_group', methods=['GET', 'POST'])
