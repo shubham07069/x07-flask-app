@@ -131,6 +131,16 @@ class Status(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 # Create database tables and add a default user
+with app.app_context():
+    db.create_all()
+    # Add a default user if not exists
+    default_user = User.query.filter_by(username='testuser').first()
+    if not default_user:
+        default_user = User(username='testuser', email='testuser@example.com', public_username='testuser_public')
+        default_user.set_password('testpassword')
+        db.session.add(default_user)
+        db.session.commit()
+        print("Default user 'testuser' created with password 'testpassword'")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -402,7 +412,6 @@ def ai_chat():
         session['reset_history'] = True
         session['current_model'] = 'DeepSeek'
         logger.info(f"New chat name set: {session['current_chat_name']}")
-    # Fetch user's preferred theme
     preferred_theme = current_user.preferred_theme if current_user.preferred_theme else 'dark'
     return render_template('ai_chat.html', chat_name=session['current_chat_name'], theme=preferred_theme)
 
@@ -411,8 +420,8 @@ def ai_chat():
 def save_theme():
     try:
         theme = request.form.get('theme')
-        if theme not in ['dark', 'light']:
-            return jsonify({'status': 'error', 'message': 'Invalid theme! Choose "dark" or "light".'}), 400
+        if theme not in ['default', 'pink', 'green', 'orange', 'white', 'purple', 'blue']:
+            return jsonify({'status': 'error', 'message': 'Invalid theme! Choose a valid theme.'}), 400
         
         current_user.preferred_theme = theme
         db.session.commit()
