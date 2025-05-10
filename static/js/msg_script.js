@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM fully loaded, initializing script..."); // Debug log
+    console.log("DOM fully loaded, initializing script...");
 
-    const current_user_id = {{ current_user.id }};
+    const current_user_id = window.current_user_id;
     const socket = io();
 
     // Hamburger Menu Toggle
