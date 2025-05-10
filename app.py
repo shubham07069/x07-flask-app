@@ -642,9 +642,27 @@ def messaging():
     selected_group = None
     chat_type = request.args.get('chat_type', 'user')
 
+    # Convert users to JSON-serializable format
+    users_list = [
+        {
+            'id': user.id,
+            'username': user.username,
+            'profile_pic': user.profile_pic
+        } for user in users
+    ]
+
+    # Convert groups to JSON-serializable format
+    groups_list = [
+        {
+            'id': group.id,
+            'name': group.name,
+            'is_channel': group.is_channel
+        } for group in groups
+    ]
+
     print(f"Fetching messaging data for user {current_user.id}")
-    print(f"Users: {[u.username for u in users]}")
-    print(f"Groups: {[g.name for g in groups]}")
+    print(f"Users: {[u['username'] for u in users_list]}")
+    print(f"Groups: {[g['name'] for g in groups_list]}")
 
     if selected_user_id:
         selected_user = User.query.get(selected_user_id)
@@ -684,7 +702,7 @@ def messaging():
             print(f"Messages fetched for group {selected_group_id}: {len(messages)} messages")
 
     print("Rendering messaging.html")
-    return render_template('messaging.html', users=users, groups=groups, messages=messages, 
+    return render_template('messaging.html', users=users, users_list=users_list, groups=groups, groups_list=groups_list, messages=messages, 
                            selected_user=selected_user, selected_group=selected_group, chat_type=chat_type)
 
 @app.route('/create_group', methods=['GET', 'POST'])
