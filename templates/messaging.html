@@ -1,512 +1,515 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGod - Messaging</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/messaging/messaging_styles.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/emoji-mart@5.6.0/css/emoji-mart.css" rel="stylesheet">
-</head>
-<body class="bg-gray-900 text-white">
-    <!-- Header -->
-    <header class="bg-gray-800 p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-10">
-        <div class="hamburger cursor-pointer">
-            <span class="block w-6 h-1 bg-white mb-1"></span>
-            <span class="block w-6 h-1 bg-white mb-1"></span>
-            <span class="block w-6 h-1 bg-white"></span>
-        </div>
-        <h1 class="text-2xl font-bold text-neon-green">ChatGod</h1>
-        <a href="{{ url_for('profile') }}">
-            {% if current_user.profile_pic %}
-                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full">
-            {% else %}
-                <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full">
-            {% endif %}
-        </a>
-    </header>
+   <html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>ChatGod - Messaging</title>
+       <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+       <link rel="stylesheet" href="{{ url_for('static', filename='css/messaging/messaging_styles.css') }}">
+       <link href="https://cdn.jsdelivr.net/npm/emoji-mart@5.6.0/css/emoji-mart.css" rel="stylesheet">
+   </head>
+   <body class="bg-gray-900 text-white">
+       <!-- Header -->
+       <header class="bg-gray-800 p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-10">
+           <div class="hamburger cursor-pointer">
+               <span class="block w-6 h-1 bg-white mb-1"></span>
+               <span class="block w-6 h-1 bg-white mb-1"></span>
+               <span class="block w-6 h-1 bg-white"></span>
+           </div>
+           <h1 class="text-2xl font-bold text-neon-green">ChatGod</h1>
+           <a href="{{ url_for('profile') }}">
+               {% if current_user.profile_pic %}
+                   <img src="{{ url_for('uploaded_file', filename='profile_pics/' + current_user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full">
+               {% else %}
+                   <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full">
+               {% endif %}
+           </a>
+       </header>
 
-    <!-- Sidebar (Hidden by Default, Opens with Hamburger Menu) -->
-    <div class="sidebar fixed top-0 left-0 h-full w-64 bg-gray-800 transform -translate-x-full transition-transform duration-300 ease-in-out z-20">
-        <div class="p-4 mt-16">
-            <h2 class="text-xl font-bold text-neon-green mb-4">Menu</h2>
-            <ul class="space-y-2">
-                <li><a href="{{ url_for('index') }}" class="text-white hover:text-neon-green">Home</a></li>
-                <li><a href="{{ url_for('status') }}" class="text-white hover:text-neon-green">Status</a></li>
-                <li><a href="{{ url_for('profile') }}" class="text-white hover:text-neon-green">Profile</a></li>
-                <li><a href="{{ url_for('logout') }}" class="text-white hover:text-neon-green">Logout</a></li>
-            </ul>
-        </div>
-    </div>
+       <!-- Sidebar (Hidden by Default, Opens with Hamburger Menu) -->
+       <div class="sidebar fixed top-0 left-0 h-full w-64 bg-gray-800 transform -translate-x-full transition-transform duration-300 ease-in-out z-20">
+           <div class="p-4 mt-16">
+               <h2 class="text-xl font-bold text-neon-green mb-4">Menu</h2>
+               <ul class="space-y-2">
+                   <li><a href="{{ url_for('index') }}" class="text-white hover:text-neon-green">Home</a></li>
+                   <li><a href="{{ url_for('status') }}" class="text-white hover:text-neon-green">Status</a></li>
+                   <li><a href="{{ url_for('profile') }}" class="text-white hover:text-neon-green">Profile</a></li>
+                   <li><a href="{{ url_for('logout') }}" class="text-white hover:text-neon-green">Logout</a></li>
+               </ul>
+           </div>
+       </div>
 
-    <!-- Main Container -->
-    <div class="container mt-16">
-        <!-- PC Layout -->
-        <div class="pc-layout flex h-[calc(100vh-64px)] hidden md:flex">
-            <!-- Left Sidebar (Chat and Group Chat Options) -->
-            <div class="sidebar-content w-80 bg-gray-800 p-4">
-                <div class="tabs flex border-b-2 border-gray-600 mb-4">
-                    <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 chat-tab active">Chats</div>
-                    <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 group-tab">Group Chats</div>
-                </div>
+       <!-- Main Container -->
+       <div class="container mt-16">
+           <!-- PC Layout -->
+           <div class="pc-layout flex h-[calc(100vh-64px)] hidden md:flex">
+               <!-- Left Sidebar (Chat and Group Chat Options) -->
+               <div class="sidebar-content w-80 bg-gray-800 p-4">
+                   <div class="tabs flex border-b-2 border-gray-600 mb-4">
+                       <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 chat-tab active">Chats</div>
+                       <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 group-tab">Group Chats</div>
+                   </div>
 
-                <!-- Chat List (Registered Users) -->
-                <div class="chat-list active">
-                    {% for user in users %}
-                        <div class="chat-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="openChat('{{ user.id }}', 'user')">
-                            {% if user.profile_pic %}
-                                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full mr-3">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full mr-3">
-                            {% endif %}
-                            <span class="text-white">{{ user.username }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
+                   <!-- Chat List (Registered Users) -->
+                   <div class="chat-list active">
+                       {% for user in users %}
+                           <div class="chat-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="openChat('{{ user.id }}', 'user')">
+                               {% if user.profile_pic %}
+                                   <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full mr-3">
+                               {% else %}
+                                   <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full mr-3">
+                               {% endif %}
+                               <span class="text-white">{{ user.username }}</span>
+                           </div>
+                       {% endfor %}
+                   </div>
 
-                <!-- Group List -->
-                <div class="group-list hidden">
-                    {% for group in groups %}
-                        <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="openChat('{{ group.id }}', 'group')">
-                            <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon" class="w-10 h-10 rounded-full mr-3">
-                            <span class="text-white">{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
-                        </div>
-                    {% endfor %}
-                    <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('create_group') }}'">
-                        <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group" class="w-10 h-10 rounded-full mr-3">
-                        <span class="text-white">Create New Group</span>
-                    </div>
-                </div>
-            </div>
+                   <!-- Group List -->
+                   <div class="group-list hidden">
+                       {% for group in groups %}
+                           <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="openChat('{{ group.id }}', 'group')">
+                               <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon" class="w-10 h-10 rounded-full mr-3">
+                               <span class="text-white">{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
+                           </div>
+                       {% endfor %}
+                       <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center" onclick="window.location.href='{{ url_for('create_group') }}'">
+                           <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group" class="w-10 h-10 rounded-full mr-3">
+                           <span class="text-white">Create New Group</span>
+                       </div>
+                   </div>
+               </div>
 
-            <!-- Chat Area (PC) -->
-            <div class="chat-area flex-1 flex flex-col bg-gray-900 hidden" id="chat-area-pc">
-                <div class="chat-header bg-gray-800 p-4 flex justify-between items-center border-b border-gray-600">
-                    <div class="flex items-center gap-3">
-                        <a href="{{ url_for('messaging') }}" class="text-neon-green"><i class="fas fa-arrow-left"></i></a>
-                        <img id="chat-header-img" src="" alt="Profile Picture" class="w-10 h-10 rounded-full">
-                        <h2 id="chat-header-name" class="text-lg text-neon-green"></h2>
-                    </div>
-                    <div class="relative">
-                        <button class="text-neon-green"><i class="fas fa-ellipsis-v"></i></button>
-                        <div class="dropdown-menu absolute right-0 top-10 bg-gray-700 rounded-lg shadow-lg hidden">
-                            <button onclick="muteChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Mute</button>
-                            <button onclick="blockChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Block</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-messages flex-1 p-4 overflow-y-auto" id="chat-messages-pc"></div>
-                <div class="chat-input bg-gray-800 p-4 border-t border-gray-600 flex items-center gap-3 relative">
-                    <form id="message-form-pc" onsubmit="sendMessage(event)" class="flex-1 flex items-center gap-3">
-                        <input type="hidden" id="receiver-id-pc">
-                        <input type="hidden" id="group-id-pc">
-                        <button type="button" class="emoji-btn text-neon-pink"><i class="fas fa-smile"></i></button>
-                        <div class="emoji-panel absolute bottom-16 left-4 hidden" id="emoji-panel-pc"></div>
-                        <input type="text" id="message-content-pc" placeholder="Type a message..." class="input-3d flex-1 p-3 border-none rounded-full bg-gray-700 text-white placeholder-gray-400">
-                        <button type="button" class="plus-btn bg-gray-700 text-neon-green p-3 rounded-full hover:bg-gray-600"><i class="fas fa-plus"></i></button>
-                        <button type="submit" class="send-btn bg-neon-green text-black p-3 rounded-full hover:bg-green-400 transition-all duration-200"><i class="fas fa-paper-plane"></i></button>
-                    </form>
-                </div>
-            </div>
-            <div class="no-selection flex-1 flex justify-center items-center text-gray-400 text-lg">Select a chat or group to start messaging, bhai! 😎</div>
-        </div>
+               <!-- Chat Area (PC) -->
+               <div class="chat-area flex-1 flex flex-col bg-gray-900 hidden" id="chat-area-pc">
+                   <div class="chat-header bg-gray-800 p-4 flex justify-between items-center border-b border-gray-600">
+                       <div class="flex items-center gap-3">
+                           <a href="{{ url_for('messaging') }}" class="text-neon-green"><i class="fas fa-arrow-left"></i></a>
+                           <img id="chat-header-img" src="" alt="Profile Picture" class="w-10 h-10 rounded-full">
+                           <h2 id="chat-header-name" class="text-lg text-neon-green"></h2>
+                       </div>
+                       <div class="relative">
+                           <button class="text-neon-green"><i class="fas fa-ellipsis-v"></i></button>
+                           <div class="dropdown-menu absolute right-0 top-10 bg-gray-700 rounded-lg shadow-lg hidden">
+                               <button onclick="muteChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Mute</button>
+                               <button onclick="blockChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Block</button>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="chat-messages flex-1 p-4 overflow-y-auto" id="chat-messages-pc"></div>
+                   <div class="chat-input bg-gray-800 p-4 border-t border-gray-600 flex items-center gap-3 relative">
+                       <form id="message-form-pc" onsubmit="sendMessage(event)" class="flex-1 flex items-center gap-3">
+                           <input type="hidden" id="receiver-id-pc">
+                           <input type="hidden" id="group-id-pc">
+                           <button type="button" class="emoji-btn text-neon-pink"><i class="fas fa-smile"></i></button>
+                           <div class="emoji-panel absolute bottom-16 left-4 hidden" id="emoji-panel-pc"></div>
+                           <input type="text" id="message-content-pc" placeholder="Type a message..." class="input-3d flex-1 p-3 border-none rounded-full bg-gray-700 text-white placeholder-gray-400">
+                           <button type="button" class="plus-btn bg-gray-700 text-neon-green p-3 rounded-full hover:bg-gray-600"><i class="fas fa-plus"></i></button>
+                           <button type="submit" class="send-btn bg-neon-green text-black p-3 rounded-full hover:bg-green-400 transition-all duration-200"><i class="fas fa-paper-plane"></i></button>
+                       </form>
+                   </div>
+               </div>
+               <div class="no-selection flex-1 flex justify-center items-center text-gray-400 text-lg">Select a chat or group to start messaging, bhai! 😎</div>
+           </div>
 
-        <!-- Mobile Layout -->
-        <div class="mobile-layout md:hidden">
-            <!-- Chat List (Mobile) -->
-            <div class="chat-list-mobile active">
-                <div class="tabs flex border-b-2 border-gray-600 mb-4 px-4 pt-4">
-                    <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 chat-tab-mobile active">Chats</div>
-                    <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 group-tab-mobile">Group Chats</div>
-                </div>
-                <div class="chat-list-content">
-                    {% for user in users %}
-                        <div class="chat-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center mx-4" onclick="openChatMobile('{{ user.id }}', 'user')">
-                            {% if user.profile_pic %}
-                                <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full mr-3">
-                            {% else %}
-                                <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full mr-3">
-                            {% endif %}
-                            <span class="text-white">{{ user.username }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-                <div class="group-list-content hidden">
-                    {% for group in groups %}
-                        <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center mx-4" onclick="openChatMobile('{{ group.id }}', 'group')">
-                            <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon" class="w-10 h-10 rounded-full mr-3">
-                            <span class="text-white">{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
-                        </div>
-                    {% endfor %}
-                    <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center mx-4" onclick="window.location.href='{{ url_for('create_group') }}'">
-                        <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group" class="w-10 h-10 rounded-full mr-3">
-                        <span class="text-white">Create New Group</span>
-                    </div>
-                </div>
-            </div>
+           <!-- Mobile Layout -->
+           <div class="mobile-layout md:hidden">
+               <!-- Chat List (Mobile) -->
+               <div class="chat-list-mobile active">
+                   <div class="tabs flex border-b-2 border-gray-600 mb-4 px-4 pt-4">
+                       <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 chat-tab-mobile active">Chats</div>
+                       <div class="tab flex-1 p-3 text-center cursor-pointer text-gray-400 font-bold transition-all duration-300 group-tab-mobile">Group Chats</div>
+                   </div>
+                   <div class="chat-list-content">
+                       {% for user in users %}
+                           <div class="chat-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center mx-4" onclick="openChatMobile('{{ user.id }}', 'user')">
+                               {% if user.profile_pic %}
+                                   <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="w-10 h-10 rounded-full mr-3">
+                               {% else %}
+                                   <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="w-10 h-10 rounded-full mr-3">
+                               {% endif %}
+                               <span class="text-white">{{ user.username }}</span>
+                           </div>
+                       {% endfor %}
+                   </div>
+                   <div class="group-list-content hidden">
+                       {% for group in groups %}
+                           <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center mx-4" onclick="openChatMobile('{{ group.id }}', 'group')">
+                               <img src="{{ url_for('static', filename='images/group_icon.png') }}" alt="Group Icon" class="w-10 h-10 rounded-full mr-3">
+                               <span class="text-white">{{ group.name }} {% if group.is_channel %}(Channel){% endif %}</span>
+                           </div>
+                       {% endfor %}
+                       <div class="group-item p-3 mb-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 flex items-center mx-4" onclick="window.location.href='{{ url_for('create_group') }}'">
+                           <img src="{{ url_for('static', filename='images/add_group.png') }}" alt="Add Group" class="w-10 h-10 rounded-full mr-3">
+                           <span class="text-white">Create New Group</span>
+                       </div>
+                   </div>
+               </div>
 
-            <!-- Chatting Page (Mobile) -->
-            <div class="chatting-page-mobile hidden h-[calc(100vh-64px)] flex flex-col bg-gray-900" id="chatting-page-mobile">
-                <div class="chat-header bg-gray-800 p-4 flex justify-between items-center border-b border-gray-600">
-                    <div class="flex items-center gap-3">
-                        <button onclick="backToChatList()" class="text-neon-green"><i class="fas fa-arrow-left"></i></button>
-                        <img id="chat-header-img-mobile" src="" alt="Profile Picture" class="w-10 h-10 rounded-full">
-                        <h2 id="chat-header-name-mobile" class="text-lg text-neon-green"></h2>
-                    </div>
-                    <div class="relative">
-                        <button class="text-neon-green"><i class="fas fa-ellipsis-v"></i></button>
-                        <div class="dropdown-menu absolute right-0 top-10 bg-gray-700 rounded-lg shadow-lg hidden">
-                            <button onclick="muteChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Mute</button>
-                            <button onclick="blockChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Block</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="chat-messages flex-1 p-4 overflow-y-auto" id="chat-messages-mobile"></div>
-                <div class="chat-input bg-gray-800 p-4 border-t border-gray-600 flex items-center gap-3 relative">
-                    <form id="message-form-mobile" onsubmit="sendMessage(event)" class="flex-1 flex items-center gap-3">
-                        <input type="hidden" id="receiver-id-mobile">
-                        <input type="hidden" id="group-id-mobile">
-                        <button type="button" class="emoji-btn text-neon-pink"><i class="fas fa-smile"></i></button>
-                        <div class="emoji-panel absolute bottom-16 left-4 hidden" id="emoji-panel-mobile"></div>
-                        <input type="text" id="message-content-mobile" placeholder="Type a message..." class="input-3d flex-1 p-3 border-none rounded-full bg-gray-700 text-white placeholder-gray-400">
-                        <button type="button" class="plus-btn bg-gray-700 text-neon-green p-3 rounded-full hover:bg-gray-600"><i class="fas fa-plus"></i></button>
-                        <button type="submit" class="send-btn bg-neon-green text-black p-3 rounded-full hover:bg-green-400 transition-all duration-200"><i class="fas fa-paper-plane"></i></button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+               <!-- Chatting Page (Mobile) -->
+               <div class="chatting-page-mobile hidden h-[calc(100vh-64px)] flex flex-col bg-gray-900" id="chatting-page-mobile">
+                   <div class="chat-header bg-gray-800 p-4 flex justify-between items-center border-b border-gray-600">
+                       <div class="flex items-center gap-3">
+                           <button onclick="backToChatList()" class="text-neon-green"><i class="fas fa-arrow-left"></i></button>
+                           <img id="chat-header-img-mobile" src="" alt="Profile Picture" class="w-10 h-10 rounded-full">
+                           <h2 id="chat-header-name-mobile" class="text-lg text-neon-green"></h2>
+                       </div>
+                       <div class="relative">
+                           <button class="text-neon-green"><i class="fas fa-ellipsis-v"></i></button>
+                           <div class="dropdown-menu absolute right-0 top-10 bg-gray-700 rounded-lg shadow-lg hidden">
+                               <button onclick="muteChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Mute</button>
+                               <button onclick="blockChat()" class="block px-4 py-2 text-white hover:bg-gray-600 w-full text-left">Block</button>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="chat-messages flex-1 p-4 overflow-y-auto" id="chat-messages-mobile"></div>
+                   <div class="chat-input bg-gray-800 p-4 border-t border-gray-600 flex items-center gap-3 relative">
+                       <form id="message-form-mobile" onsubmit="sendMessage(event)" class="flex-1 flex items-center gap-3">
+                           <input type="hidden" id="receiver-id-mobile">
+                           <input type="hidden" id="group-id-mobile">
+                           <button type="button" class="emoji-btn text-neon-pink"><i class="fas fa-smile"></i></button>
+                           <div class="emoji-panel absolute bottom-16 left-4 hidden" id="emoji-panel-mobile"></div>
+                           <input type="text" id="message-content-mobile" placeholder="Type a message..." class="input-3d flex-1 p-3 border-none rounded-full bg-gray-700 text-white placeholder-gray-400">
+                           <button type="button" class="plus-btn bg-gray-700 text-neon-green p-3 rounded-full hover:bg-gray-600"><i class="fas fa-plus"></i></button>
+                           <button type="submit" class="send-btn bg-neon-green text-black p-3 rounded-full hover:bg-green-400 transition-all duration-200"><i class="fas fa-paper-plane"></i></button>
+                       </form>
+                   </div>
+               </div>
+           </div>
+       </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
-    <script type="module">
-        import { Picker } from 'https://cdn.jsdelivr.net/npm/emoji-mart@5.6.0/+esm';
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+       <script type="module">
+           import { Picker } from 'https://cdn.jsdelivr.net/npm/emoji-mart@5.6.0/+esm';
 
-        const current_user_id = {{ current_user.id }};
-        const socket = io();
+           const current_user_id = {{ current_user.id }};
+           const socket = io();
 
-        // Hamburger Menu Toggle
-        const hamburger = document.querySelector('.hamburger');
-        const sidebar = document.querySelector('.sidebar');
-        hamburger.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-            hamburger.classList.toggle('active');
-        });
+           // Hamburger Menu Toggle
+           const hamburger = document.querySelector('.hamburger');
+           const sidebar = document.querySelector('.sidebar');
+           hamburger.addEventListener('click', () => {
+               sidebar.classList.toggle('-translate-x-full');
+               hamburger.classList.toggle('active');
+           });
 
-        // Dropdown Menu Toggle
-        document.querySelectorAll('.chat-header button').forEach(button => {
-            button.addEventListener('click', () => {
-                const dropdown = button.nextElementSibling;
-                dropdown.classList.toggle('hidden');
-            });
-        });
+           // Dropdown Menu Toggle
+           document.querySelectorAll('.chat-header button').forEach(button => {
+               button.addEventListener('click', () => {
+                   const dropdown = button.nextElementSibling;
+                   dropdown.classList.toggle('hidden');
+               });
+           });
 
-        // Tab Switching (PC)
-        const chatTab = document.querySelector('.chat-tab');
-        const groupTab = document.querySelector('.group-tab');
-        const chatList = document.querySelector('.chat-list');
-        const groupList = document.querySelector('.group-list');
+           // Tab Switching (PC)
+           const chatTab = document.querySelector('.chat-tab');
+           const groupTab = document.querySelector('.group-tab');
+           const chatList = document.querySelector('.chat-list');
+           const groupList = document.querySelector('.group-list');
 
-        chatTab.addEventListener('click', () => {
-            chatTab.classList.add('active');
-            groupTab.classList.remove('active');
-            chatList.classList.remove('hidden');
-            groupList.classList.add('hidden');
-        });
+           chatTab.addEventListener('click', () => {
+               chatTab.classList.add('active');
+               groupTab.classList.remove('active');
+               chatList.classList.remove('hidden');
+               groupList.classList.add('hidden');
+           });
 
-        groupTab.addEventListener('click', () => {
-            groupTab.classList.add('active');
-            chatTab.classList.remove('active');
-            groupList.classList.remove('hidden');
-            chatList.classList.add('hidden');
-        });
+           groupTab.addEventListener('click', () => {
+               groupTab.classList.add('active');
+               chatTab.classList.remove('active');
+               groupList.classList.remove('hidden');
+               chatList.classList.add('hidden');
+           });
 
-        // Tab Switching (Mobile)
-        const chatTabMobile = document.querySelector('.chat-tab-mobile');
-        const groupTabMobile = document.querySelector('.group-tab-mobile');
-        const chatListMobile = document.querySelector('.chat-list-content');
-        const groupListMobile = document.querySelector('.group-list-content');
+           // Tab Switching (Mobile)
+           const chatTabMobile = document.querySelector('.chat-tab-mobile');
+           const groupTabMobile = document.querySelector('.group-tab-mobile');
+           const chatListMobile = document.querySelector('.chat-list-content');
+           const groupListMobile = document.querySelector('.group-list-content');
 
-        chatTabMobile.addEventListener('click', () => {
-            chatTabMobile.classList.add('active');
-            groupTabMobile.classList.remove('active');
-            chatListMobile.classList.remove('hidden');
-            groupListMobile.classList.add('hidden');
-        });
+           chatTabMobile.addEventListener('click', () => {
+               chatTabMobile.classList.add('active');
+               groupTabMobile.classList.remove('active');
+               chatListMobile.classList.remove('hidden');
+               groupListMobile.classList.add('hidden');
+           });
 
-        groupTabMobile.addEventListener('click', () => {
-            groupTabMobile.classList.add('active');
-            chatTabMobile.classList.remove('active');
-            groupListMobile.classList.remove('hidden');
-            chatListMobile.classList.add('hidden');
-        });
+           groupTabMobile.addEventListener('click', () => {
+               groupTabMobile.classList.add('active');
+               chatTabMobile.classList.remove('active');
+               groupListMobile.classList.remove('hidden');
+               chatListMobile.classList.add('hidden');
+           });
 
-        // Emoji Picker Setup
-        const emojiBtnPc = document.querySelector('.emoji-btn');
-        const emojiPanelPc = document.querySelector('#emoji-panel-pc');
-        const messageInputPc = document.querySelector('#message-content-pc');
-        const emojiBtnMobile = document.querySelector('#chatting-page-mobile .emoji-btn');
-        const emojiPanelMobile = document.querySelector('#emoji-panel-mobile');
-        const messageInputMobile = document.querySelector('#message-content-mobile');
+           // Emoji Picker Setup
+           const emojiBtnPc = document.querySelector('.emoji-btn');
+           const emojiPanelPc = document.querySelector('#emoji-panel-pc');
+           const messageInputPc = document.querySelector('#message-content-pc');
+           const emojiBtnMobile = document.querySelector('#chatting-page-mobile .emoji-btn');
+           const emojiPanelMobile = document.querySelector('#emoji-panel-mobile');
+           const messageInputMobile = document.querySelector('#message-content-mobile');
 
-        const pickerPc = new Picker({
-            data: async () => (await import('https://cdn.jsdelivr.net/npm/@emoji-mart/data@1.2.1/+esm')).default,
-            onEmojiSelect: (emoji) => {
-                messageInputPc.value += emoji.native;
-                emojiPanelPc.classList.add('hidden');
-            }
-        });
-        emojiPanelPc.appendChild(pickerPc);
+           const pickerPc = new Picker({
+               data: async () => (await import('https://cdn.jsdelivr.net/npm/@emoji-mart/data@1.2.1/+esm')).default,
+               onEmojiSelect: (emoji) => {
+                   messageInputPc.value += emoji.native;
+                   emojiPanelPc.classList.add('hidden');
+               }
+           });
+           emojiPanelPc.appendChild(pickerPc);
 
-        const pickerMobile = new Picker({
-            data: async () => (await import('https://cdn.jsdelivr.net/npm/@emoji-mart/data@1.2.1/+esm')).default,
-            onEmojiSelect: (emoji) => {
-                messageInputMobile.value += emoji.native;
-                emojiPanelMobile.classList.add('hidden');
-            }
-        });
-        emojiPanelMobile.appendChild(pickerMobile);
+           const pickerMobile = new Picker({
+               data: async () => (await import('https://cdn.jsdelivr.net/npm/@emoji-mart/data@1.2.1/+esm')).default,
+               onEmojiSelect: (emoji) => {
+                   messageInputMobile.value += emoji.native;
+                   emojiPanelMobile.classList.add('hidden');
+               }
+           });
+           emojiPanelMobile.appendChild(pickerMobile);
 
-        emojiBtnPc.addEventListener('click', () => {
-            emojiPanelPc.classList.toggle('hidden');
-        });
+           emojiBtnPc.addEventListener('click', () => {
+               emojiPanelPc.classList.toggle('hidden');
+           });
 
-        emojiBtnMobile.addEventListener('click', () => {
-            emojiPanelMobile.classList.toggle('hidden');
-        });
+           emojiBtnMobile.addEventListener('click', () => {
+               emojiPanelMobile.classList.toggle('hidden');
+           });
 
-        // Chat Functions (PC)
-        function openChat(id, type) {
-            document.querySelector('.no-selection').classList.add('hidden');
-            const chatArea = document.querySelector('#chat-area-pc');
-            chatArea.classList.remove('hidden');
-            chatArea.dataset.chatId = id;
-            chatArea.dataset.chatType = type;
+           // Chat Functions (PC)
+           const usersList = {{ users | tojson }};
+           const groupsList = {{ groups | tojson }};
 
-            const headerImg = document.querySelector('#chat-header-img');
-            const headerName = document.querySelector('#chat-header-name');
-            const receiverIdInput = document.querySelector('#receiver-id-pc');
-            const groupIdInput = document.querySelector('#group-id-pc');
+           function openChat(id, type) {
+               document.querySelector('.no-selection').classList.add('hidden');
+               const chatArea = document.querySelector('#chat-area-pc');
+               chatArea.classList.remove('hidden');
+               chatArea.dataset.chatId = id;
+               chatArea.dataset.chatType = type;
 
-            if (type === 'user') {
-                const user = {{ users | tojson }}.find(u => u.id == id);
-                headerImg.src = user.profile_pic ? `/uploads/profile_pics/${user.profile_pic}` : '/static/images/default_profile.jpg';
-                headerName.textContent = user.username;
-                receiverIdInput.value = id;
-                groupIdInput.value = '';
-            } else {
-                const group = {{ groups | tojson }}.find(g => g.id == id);
-                headerImg.src = '/static/images/group_icon.png';
-                headerName.textContent = group.name + (group.is_channel ? ' (Channel)' : '');
-                receiverIdInput.value = '';
-                groupIdInput.value = id;
-            }
+               const headerImg = document.querySelector('#chat-header-img');
+               const headerName = document.querySelector('#chat-header-name');
+               const receiverIdInput = document.querySelector('#receiver-id-pc');
+               const groupIdInput = document.querySelector('#group-id-pc');
 
-            fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const messages = doc.querySelectorAll('.message');
-                    const messagesContainer = document.querySelector('#chat-messages-pc');
-                    messagesContainer.innerHTML = '';
-                    messages.forEach(message => {
-                        const messageDiv = document.createElement('div');
-                        messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
-                        messageDiv.setAttribute('data-id', message.dataset.id);
-                        messageDiv.innerHTML = message.innerHTML;
-                        messagesContainer.appendChild(messageDiv);
-                    });
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+               if (type === 'user') {
+                   const user = usersList.find(u => u.id == id);
+                   headerImg.src = user.profile_pic ? `/uploads/profile_pics/${user.profile_pic}` : '/static/images/default_profile.jpg';
+                   headerName.textContent = user.username;
+                   receiverIdInput.value = id;
+                   groupIdInput.value = '';
+               } else {
+                   const group = groupsList.find(g => g.id == id);
+                   headerImg.src = '/static/images/group_icon.png';
+                   headerName.textContent = group.name + (group.is_channel ? ' (Channel)' : '');
+                   receiverIdInput.value = '';
+                   groupIdInput.value = id;
+               }
 
-                    const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, receiverIdInput.value)}_${Math.max(current_user_id, receiverIdInput.value)}`;
-                    socket.emit('join', { room: room });
-                });
-        }
+               fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
+                   .then(response => response.text())
+                   .then(html => {
+                       const parser = new DOMParser();
+                       const doc = parser.parseFromString(html, 'text/html');
+                       const messages = doc.querySelectorAll('.message');
+                       const messagesContainer = document.querySelector('#chat-messages-pc');
+                       messagesContainer.innerHTML = '';
+                       messages.forEach(message => {
+                           const messageDiv = document.createElement('div');
+                           messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
+                           messageDiv.setAttribute('data-id', message.dataset.id);
+                           messageDiv.innerHTML = message.innerHTML;
+                           messagesContainer.appendChild(messageDiv);
+                       });
+                       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Chat Functions (Mobile)
-        function openChatMobile(id, type) {
-            document.querySelector('.chat-list-mobile').classList.add('hidden');
-            const chattingPage = document.querySelector('#chatting-page-mobile');
-            chattingPage.classList.remove('hidden');
-            chattingPage.dataset.chatId = id;
-            chattingPage.dataset.chatType = type;
+                       const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, receiverIdInput.value)}_${Math.max(current_user_id, receiverIdInput.value)}`;
+                       socket.emit('join', { room: room });
+                   });
+           }
 
-            const headerImg = document.querySelector('#chat-header-img-mobile');
-            const headerName = document.querySelector('#chat-header-name-mobile');
-            const receiverIdInput = document.querySelector('#receiver-id-mobile');
-            const groupIdInput = document.querySelector('#group-id-mobile');
+           // Chat Functions (Mobile)
+           function openChatMobile(id, type) {
+               document.querySelector('.chat-list-mobile').classList.add('hidden');
+               const chattingPage = document.querySelector('#chatting-page-mobile');
+               chattingPage.classList.remove('hidden');
+               chattingPage.dataset.chatId = id;
+               chattingPage.dataset.chatType = type;
 
-            if (type === 'user') {
-                const user = {{ users | tojson }}.find(u => u.id == id);
-                headerImg.src = user.profile_pic ? `/uploads/profile_pics/${user.profile_pic}` : '/static/images/default_profile.jpg';
-                headerName.textContent = user.username;
-                receiverIdInput.value = id;
-                groupIdInput.value = '';
-            } else {
-                const group = {{ groups | tojson }}.find(g => g.id == id);
-                headerImg.src = '/static/images/group_icon.png';
-                headerName.textContent = group.name + (group.is_channel ? ' (Channel)' : '');
-                receiverIdInput.value = '';
-                groupIdInput.value = id;
-            }
+               const headerImg = document.querySelector('#chat-header-img-mobile');
+               const headerName = document.querySelector('#chat-header-name-mobile');
+               const receiverIdInput = document.querySelector('#receiver-id-mobile');
+               const groupIdInput = document.querySelector('#group-id-mobile');
 
-            fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const messages = doc.querySelectorAll('.message');
-                    const messagesContainer = document.querySelector('#chat-messages-mobile');
-                    messagesContainer.innerHTML = '';
-                    messages.forEach(message => {
-                        const messageDiv = document.createElement('div');
-                        messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
-                        messageDiv.setAttribute('data-id', message.dataset.id);
-                        messageDiv.innerHTML = message.innerHTML;
-                        messagesContainer.appendChild(messageDiv);
-                    });
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+               if (type === 'user') {
+                   const user = usersList.find(u => u.id == id);
+                   headerImg.src = user.profile_pic ? `/uploads/profile_pics/${user.profile_pic}` : '/static/images/default_profile.jpg';
+                   headerName.textContent = user.username;
+                   receiverIdInput.value = id;
+                   groupIdInput.value = '';
+               } else {
+                   const group = groupsList.find(g => g.id == id);
+                   headerImg.src = '/static/images/group_icon.png';
+                   headerName.textContent = group.name + (group.is_channel ? ' (Channel)' : '');
+                   receiverIdInput.value = '';
+                   groupIdInput.value = id;
+               }
 
-                    const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, receiverIdInput.value)}_${Math.max(current_user_id, receiverIdInput.value)}`;
-                    socket.emit('join', { room: room });
-                });
-        }
+               fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
+                   .then(response => response.text())
+                   .then(html => {
+                       const parser = new DOMParser();
+                       const doc = parser.parseFromString(html, 'text/html');
+                       const messages = doc.querySelectorAll('.message');
+                       const messagesContainer = document.querySelector('#chat-messages-mobile');
+                       messagesContainer.innerHTML = '';
+                       messages.forEach(message => {
+                           const messageDiv = document.createElement('div');
+                           messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
+                           messageDiv.setAttribute('data-id', message.dataset.id);
+                           messageDiv.innerHTML = message.innerHTML;
+                           messagesContainer.appendChild(messageDiv);
+                       });
+                       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        function backToChatList() {
-            document.querySelector('#chatting-page-mobile').classList.add('hidden');
-            document.querySelector('.chat-list-mobile').classList.remove('hidden');
-        }
+                       const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, receiverIdInput.value)}_${Math.max(current_user_id, receiverIdInput.value)}`;
+                       socket.emit('join', { room: room });
+                   });
+           }
 
-        function sendMessage(event) {
-            event.preventDefault();
-            const isMobile = !event.target.id.includes('pc');
-            const receiverId = document.querySelector(`#receiver-id-${isMobile ? 'mobile' : 'pc'}`).value;
-            const groupId = document.querySelector(`#group-id-${isMobile ? 'mobile' : 'pc'}`).value;
-            const content = document.querySelector(`#message-content-${isMobile ? 'mobile' : 'pc'}`).value.trim();
-            if (!content) return;
+           function backToChatList() {
+               document.querySelector('#chatting-page-mobile').classList.add('hidden');
+               document.querySelector('.chat-list-mobile').classList.remove('hidden');
+           }
 
-            socket.emit('send_message', {
-                receiver_id: receiverId,
-                group_id: groupId,
-                content: content,
-                content_type: 'text'
-            });
+           function sendMessage(event) {
+               event.preventDefault();
+               const isMobile = !event.target.id.includes('pc');
+               const receiverId = document.querySelector(`#receiver-id-${isMobile ? 'mobile' : 'pc'}`).value;
+               const groupId = document.querySelector(`#group-id-${isMobile ? 'mobile' : 'pc'}`).value;
+               const content = document.querySelector(`#message-content-${isMobile ? 'mobile' : 'pc'}`).value.trim();
+               if (!content) return;
 
-            document.querySelector(`#message-content-${isMobile ? 'mobile' : 'pc'}`).value = '';
-        }
+               socket.emit('send_message', {
+                   receiver_id: receiverId,
+                   group_id: groupId,
+                   content: content,
+                   content_type: 'text'
+               });
 
-        function editMessage(messageId) {
-            const messageDiv = document.querySelector(`.message[data-id="${messageId}"]`);
-            const content = messageDiv.querySelector('div').innerText;
-            const newContent = prompt("Edit your message:", content);
-            if (newContent && newContent !== content) {
-                fetch(`/edit_message/${messageId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `content=${encodeURIComponent(newContent)}`
-                }).then(response => response.json()).then(data => {
-                    if (data.message) {
-                        alert(data.message);
-                    } else {
-                        alert(data.error);
-                    }
-                });
-            }
-        }
+               document.querySelector(`#message-content-${isMobile ? 'mobile' : 'pc'}`).value = '';
+           }
 
-        function setDisappearTimer(messageId, timer) {
-            fetch(`/set_disappear_timer/${messageId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `timer=${timer}`
-            }).then(response => response.json()).then(data => {
-                if (data.message) {
-                    alert(data.message);
-                } else {
-                    alert(data.error);
-                }
-            });
-        }
+           function editMessage(messageId) {
+               const messageDiv = document.querySelector(`.message[data-id="${messageId}"]`);
+               const content = messageDiv.querySelector('div').innerText;
+               const newContent = prompt("Edit your message:", content);
+               if (newContent && newContent !== content) {
+                   fetch(`/edit_message/${messageId}`, {
+                       method: 'POST',
+                       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                       body: `content=${encodeURIComponent(newContent)}`
+                   }).then(response => response.json()).then(data => {
+                       if (data.message) {
+                           alert(data.message);
+                       } else {
+                           alert(data.error);
+                       }
+                   });
+               }
+           }
 
-        function muteChat() {
-            alert('Chat muted!');
-        }
+           function setDisappearTimer(messageId, timer) {
+               fetch(`/set_disappear_timer/${messageId}`, {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                   body: `timer=${timer}`
+               }).then(response => response.json()).then(data => {
+                   if (data.message) {
+                       alert(data.message);
+                   } else {
+                       alert(data.error);
+                   }
+               });
+           }
 
-        function blockChat() {
-            alert('Chat blocked!');
-        }
+           function muteChat() {
+               alert('Chat muted!');
+           }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const chatMessagesPc = document.getElementById('chat-messages-pc');
-            const chatMessagesMobile = document.getElementById('chat-messages-mobile');
+           function blockChat() {
+               alert('Chat blocked!');
+           }
 
-            socket.on('receive_message', (data) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message', data.sender_id == current_user_id ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
-                messageDiv.setAttribute('data-id', data.message_id);
-                messageDiv.innerHTML = `
-                    <div>${data.content}</div>
-                    <div class="timestamp text-xs text-gray-500 absolute bottom-[-1.5rem] right-2">${data.timestamp}${data.edited ? ' (Edited)' : ''}</div>
-                    ${data.sender_id == current_user_id ? `
-                        <div class="message-actions flex gap-2 mt-2 opacity-0 transition-opacity duration-300">
-                            <button onclick="editMessage(${data.message_id})" class="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-500">Edit</button>
-                            <select onchange="setDisappearTimer(${data.message_id}, this.value)" class="bg-gray-600 text-white px-2 py-1 rounded">
-                                <option value="0">No Timer</option>
-                                <option value="10">10s</option>
-                                <option value="60">1min</option>
-                                <option value="3600">1hr</option>
-                            </select>
-                        </div>
-                    ` : ''}
-                `;
-                if (chatMessagesPc && !chatMessagesPc.classList.contains('hidden')) {
-                    chatMessagesPc.appendChild(messageDiv);
-                    chatMessagesPc.scrollTop = chatMessagesPc.scrollHeight;
-                }
-                if (chatMessagesMobile && !chatMessagesMobile.classList.contains('hidden')) {
-                    chatMessagesMobile.appendChild(messageDiv);
-                    chatMessagesMobile.scrollTop = chatMessagesMobile.scrollHeight;
-                }
+           document.addEventListener('DOMContentLoaded', () => {
+               const chatMessagesPc = document.getElementById('chat-messages-pc');
+               const chatMessagesMobile = document.getElementById('chat-messages-mobile');
 
-                if (data.sender_id != current_user_id) {
-                    const room = data.group_id ? `group_${data.group_id}` : `chat_${Math.min(current_user_id, data.sender_id)}_${Math.max(current_user_id, data.sender_id)}`;
-                    socket.emit('message_read', { message_id: data.message_id, room: room });
-                }
+               socket.on('receive_message', (data) => {
+                   const messageDiv = document.createElement('div');
+                   messageDiv.classList.add('message', data.sender_id == current_user_id ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
+                   messageDiv.setAttribute('data-id', data.message_id);
+                   messageDiv.innerHTML = `
+                       <div>${data.content}</div>
+                       <div class="timestamp text-xs text-gray-500 absolute bottom-[-1.5rem] right-2">${data.timestamp}${data.edited ? ' (Edited)' : ''}</div>
+                       ${data.sender_id == current_user_id ? `
+                           <div class="message-actions flex gap-2 mt-2 opacity-0 transition-opacity duration-300">
+                               <button onclick="editMessage(${data.message_id})" class="bg-gray-600 text-white px-2 py-1 rounded hover:bg-gray-500">Edit</button>
+                               <select onchange="setDisappearTimer(${data.message_id}, this.value)" class="bg-gray-600 text-white px-2 py-1 rounded">
+                                   <option value="0">No Timer</option>
+                                   <option value="10">10s</option>
+                                   <option value="60">1min</option>
+                                   <option value="3600">1hr</option>
+                               </select>
+                           </div>
+                       ` : ''}
+                   `;
+                   if (chatMessagesPc && !chatMessagesPc.classList.contains('hidden')) {
+                       chatMessagesPc.appendChild(messageDiv);
+                       chatMessagesPc.scrollTop = chatMessagesPc.scrollHeight;
+                   }
+                   if (chatMessagesMobile && !chatMessagesMobile.classList.contains('hidden')) {
+                       chatMessagesMobile.appendChild(messageDiv);
+                       chatMessagesMobile.scrollTop = chatMessagesMobile.scrollHeight;
+                   }
 
-                if (data.disappear_timer) {
-                    setTimeout(() => {
-                        messageDiv.remove();
-                    }, data.disappear_timer * 1000);
-                }
-            });
+                   if (data.sender_id != current_user_id) {
+                       const room = data.group_id ? `group_${data.group_id}` : `chat_${Math.min(current_user_id, data.sender_id)}_${Math.max(current_user_id, data.sender_id)}`;
+                       socket.emit('message_read', { message_id: data.message_id, room: room });
+                   }
 
-            socket.on('message_edited', (data) => {
-                const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
-                if (messageDiv) {
-                    messageDiv.querySelector('div').innerText = data.content;
-                    messageDiv.querySelector('.timestamp').innerText = `${messageDiv.querySelector('.timestamp').innerText.split(' (Edited)')[0]} (Edited)`;
-                }
-            });
+                   if (data.disappear_timer) {
+                       setTimeout(() => {
+                           messageDiv.remove();
+                       }, data.disappear_timer * 1000);
+                   }
+               });
 
-            socket.on('disappear_timer_set', (data) => {
-                const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
-                if (messageDiv && data.timer > 0) {
-                    setTimeout(() => {
-                        messageDiv.remove();
-                    }, data.timer * 1000);
-                }
-            });
+               socket.on('message_edited', (data) => {
+                   const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
+                   if (messageDiv) {
+                       messageDiv.querySelector('div').innerText = data.content;
+                       messageDiv.querySelector('.timestamp').innerText = `${messageDiv.querySelector('.timestamp').innerText.split(' (Edited)')[0]} (Edited)`;
+                   }
+               });
 
-            document.querySelectorAll('.message.sent').forEach(message => {
-                message.addEventListener('mouseenter', () => {
-                    message.querySelector('.message-actions').classList.remove('opacity-0');
-                });
-                message.addEventListener('mouseleave', () => {
-                    message.querySelector('.message-actions').classList.add('opacity-0');
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+               socket.on('disappear_timer_set', (data) => {
+                   const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
+                   if (messageDiv && data.timer > 0) {
+                       setTimeout(() => {
+                           messageDiv.remove();
+                       }, data.timer * 1000);
+                   }
+               });
+
+               document.querySelectorAll('.message.sent').forEach(message => {
+                   message.addEventListener('mouseenter', () => {
+                       message.querySelector('.message-actions').classList.remove('opacity-0');
+                   });
+                   message.addEventListener('mouseleave', () => {
+                       message.querySelector('.message-actions').classList.add('opacity-0');
+                   });
+               });
+           });
+       </script>
+   </body>
+   </html>
