@@ -246,9 +246,8 @@ def send_email(to_email, subject, body):
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('messaging'))
-    return redirect(url_for('login'))
+    print("Rendering index.html for home page")
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
