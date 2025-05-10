@@ -836,6 +836,7 @@ def handle_connect():
         current_user.last_seen = datetime.datetime.utcnow()
         db.session.commit()
         emit('user_status', {'user_id': current_user.id, 'status': 'online'}, broadcast=True)
+        logger.info(f"User {current_user.id} connected with Socket.IO")
     print("Client connected!")
 
 @socketio.on('disconnect')
@@ -845,7 +846,13 @@ def handle_disconnect():
         current_user.last_seen = datetime.datetime.utcnow()
         db.session.commit()
         emit('user_status', {'user_id': current_user.id, 'status': 'offline', 'last_seen': current_user.last_seen.strftime('%Y-%m-%d %H:%M:%S')}, broadcast=True)
+        logger.info(f"User {current_user.id} disconnected from Socket.IO")
     print("Client disconnected!")
+
+@socketio.on('connect_error')
+def handle_connect_error(error):
+    logger.error(f"Socket.IO connect error: {str(error)}")
+    print(f"Socket.IO connect error: {str(error)}")
 
 @socketio.on('join')
 def on_join(data):
@@ -934,4 +941,4 @@ def handle_message_read(data):
         emit('message_read', {'message_id': message_id}, room=room, broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
