@@ -39,7 +39,7 @@ body {
 }
 
 .sidebar-content {
-    width: 320px;
+    width: 50%;
     background-color: #1e1e1e;
     border-right: 1px solid #333;
     padding: 1rem;
@@ -206,4 +206,101 @@ body {
 }
 
 .chat-input {
-    background-color: #1
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.chat-input form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-3d {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+    color: #e0e0e0;
+    box-shadow: 5px 5px 10px #1a1a1a, -5px -5px 10px #363636;
+    transition: all 0.3s ease;
+}
+
+.input-3d:focus {
+    outline: none;
+    box-shadow: inset 5px 5px 10px #1a1a1a, inset -5px -5px 10px #363636;
+}
+
+.input-3d::placeholder {
+    color: #888;
+}
+
+.send-btn {
+    border: none;
+    padding: 0.75rem;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--neon-green), #00cc70);
+    box-shadow: 5px 5px 10px #1a1a1a, -5px -5px 10px #363636;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.send-btn:hover {
+    background: linear-gradient(145deg, #00cc70, var(--neon-green));
+    box-shadow: inset 5px 5px 10px #1a1a1a, inset -5px -5px 10px #363636;
+}
+
+.send-btn i {
+    font-size: 1.2rem;
+}
+
+.plus-btn, .emoji-btn {
+    background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+    box-shadow: 5px 5px 10px #1a1a1a, -5px -5px 10px #363636;
+    transition: all 0.3s ease;
+}
+
+.plus-btn:hover, .emoji-btn:hover {
+    background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+    box-shadow: inset 5px 5px 10px #1a1a1a, inset -5px -5px 10px #363636;
+}
+
+.no-selection {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 1.2rem;
+}
+
+.chat-list-mobile, .chatting-page-mobile {
+    height: calc(100vh - 64px);
+}
+
+.chat-list-mobile.active {
+    display: block;
+}
+
+.chat-list-mobile, .chatting-page-mobile {
+    display: none;
+}
+
+.chat-list-mobile .tabs {
+    margin-bottom: 0;
+}
+
+.chat-list-content, .group-list-content {
+    padding-bottom: 1rem;
+}
+
+.emoji-panel {
+    z-index: 10;
+}
