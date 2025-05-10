@@ -1,1 +1,60 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGod - Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+        }
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="navbar bg-gray-800 p-4 flex justify-between items-center">
+        <a href="{{ url_for('index') }}" class="text-neon-green text-2xl font-bold">ChatGod</a>
+        <a href="{{ url_for('logout') }}" class="text-neon-green">Logout</a>
+    </div>
+    <div class="profile-container mt-16">
+        <h1 class="text-3xl font-bold text-neon-green mb-4">Your Profile</h1>
+        {% if user.profile_pic %}
+            <img src="{{ url_for('uploaded_file', filename='profile_pics/' + user.profile_pic) }}" alt="Profile Picture" class="profile-pic">
+        {% else %}
+            <img src="{{ url_for('static', filename='images/default_profile.jpg') }}" alt="Default Profile Picture" class="profile-pic">
+        {% endif %}
+        <p class="text-lg mb-2">Username: {{ user.username }}</p>
+        <p class="text-lg mb-2">Email: {{ user.email }}</p>
+        <p class="text-lg mb-2">Public Username: {{ user.public_username }}</p>
+        <form method="POST" enctype="multipart/form-data" class="mb-4">
+            <div class="mb-4">
+                <label for="profile_pic" class="block text-sm font-medium">Update Profile Picture</label>
+                <input type="file" id="profile_pic" name="profile_pic" class="mt-1 p-2 w-full bg-gray-700 rounded-lg text-white">
+            </div>
+            <button type="submit" class="w-full bg-neon-green text-black py-2 rounded-lg hover:bg-green-400 transition-all duration-200">Update</button>
+        </form>
+        <div class="button-group">
+            <a href="{{ url_for('messaging') }}" class="bg-gray-700 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all duration-200">Back to Messaging</a>
+            <a href="{{ url_for('ai_chat') }}" class="bg-neon-pink text-white py-2 px-4 rounded-lg hover:bg-pink-600 transition-all duration-200">AI Chat</a>
+        </div>
+    </div>
+</body>
+</html>
