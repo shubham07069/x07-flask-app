@@ -13,51 +13,6 @@
             padding: 0;
             border-radius: 0;
         }
-
-        /* Styling for formatted bot reply */
-        .chatbot-page .message.bot .message-content h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.5rem;
-            color: #00d4ff;
-            margin: 0.5rem 0;
-        }
-
-        .chatbot-page .message.bot .message-content strong {
-            font-weight: bold;
-            color: #e0e0e0;
-        }
-
-        .chatbot-page .message.bot .message-content em {
-            font-style: italic;
-            color: #e0e0e0;
-        }
-
-        .chatbot-page .message.bot .message-content ul {
-            list-style-type: disc;
-            margin: 0.5rem 0;
-            padding-left: 1.5rem;
-        }
-
-        .chatbot-page .message.bot .message-content li {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
-            color: #e0e0e0;
-            margin-bottom: 0.3rem;
-        }
-
-        .chatbot-page .message.bot .message-content pre {
-            background: #2a2a2a;
-            padding: 1rem;
-            border-radius: 10px;
-            overflow-x: auto;
-            margin: 0.5rem 0;
-        }
-
-        .chatbot-page .message.bot .message-content code {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
-            color: #00d4ff;
-        }
     </style>
 </head>
 <body class="{{ theme }}-theme" style="background-image: url('https://t4.ftcdn.net/jpg/01/76/67/25/360_F_176672598_cJ4yPCFhxvDXm9Cu7vDLIcXpvTMQJ9zm.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; min-height: 100vh;">
@@ -154,30 +109,6 @@
     </div>
     <script src="{{ url_for('static', filename='js/ai_script.js') }}"></script>
     <script>
-        // Simple Markdown to HTML parser
-        function parseMarkdown(text) {
-            // Handle headings (## Heading)
-            text = text.replace(/^##\s(.+)$/gm, '<h2>$1</h2>');
-
-            // Handle bold (**Bold**)
-            text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-            // Handle italic (*Italic*)
-            text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-            // Handle bullet points (- Item)
-            text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
-            text = text.replace(/(<li>.+<\/li>(\n<li>.+<\/li>)*)/g, '<ul>$1</ul>');
-
-            // Handle code blocks (```Code```)
-            text = text.replace(/```(.+?)```/gs, '<pre><code>$1</code></pre>');
-
-            // Replace newlines with <br> for paragraphs
-            text = text.replace(/\n/g, '<br>');
-
-            return text;
-        }
-
         let selectedTheme = '{{ theme }}' || 'default';
 
         function selectTheme(theme) {
@@ -253,10 +184,7 @@
 
                         const botMsg = document.createElement('div');
                         botMsg.classList.add('message');
-                        const messageContent = document.createElement('div');
-                        messageContent.classList.add('message-content');
-                        messageContent.innerHTML = parseMarkdown(msg.bot);
-                        botMsg.appendChild(messageContent);
+                        botMsg.textContent = msg.bot;
                         chatWindow.appendChild(botMsg);
                     });
                     chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -297,10 +225,7 @@
             .then(data => {
                 const botMsg = document.createElement('div');
                 botMsg.classList.add('message');
-                const messageContent = document.createElement('div');
-                messageContent.classList.add('message-content');
-                messageContent.innerHTML = parseMarkdown(data.reply);
-                botMsg.appendChild(messageContent);
+                botMsg.textContent = data.reply;
                 chatWindow.appendChild(botMsg);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             });
