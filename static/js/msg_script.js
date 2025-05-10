@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM fully loaded, initializing script..."); // Debug log
+
     const current_user_id = {{ current_user.id }};
     const socket = io();
 
@@ -6,17 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const sidebar = document.querySelector('.sidebar');
     if (hamburger && sidebar) {
+        console.log("Hamburger and sidebar found, attaching event listener...");
         hamburger.addEventListener('click', () => {
+            console.log("Hamburger clicked!");
             sidebar.classList.toggle('-translate-x-full');
             hamburger.classList.toggle('active');
         });
+    } else {
+        console.error("Hamburger or sidebar not found!");
     }
 
     // Dropdown Menu Toggle
     document.querySelectorAll('.chat-header button').forEach(button => {
         button.addEventListener('click', () => {
+            console.log("Dropdown button clicked!");
             const dropdown = button.nextElementSibling;
-            dropdown.classList.toggle('hidden');
+            if (dropdown) dropdown.classList.toggle('hidden');
         });
     });
 
@@ -27,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupList = document.querySelector('.group-list');
 
     if (chatTab && groupTab && chatList && groupList) {
+        console.log("PC tabs found, attaching event listeners...");
         chatTab.addEventListener('click', () => {
+            console.log("Chat tab clicked!");
             chatTab.classList.add('active');
             groupTab.classList.remove('active');
             chatList.classList.remove('hidden');
@@ -35,11 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         groupTab.addEventListener('click', () => {
+            console.log("Group tab clicked!");
             groupTab.classList.add('active');
             chatTab.classList.remove('active');
             groupList.classList.remove('hidden');
             chatList.classList.add('hidden');
         });
+    } else {
+        console.error("PC tabs not found!");
     }
 
     // Tab Switching (Mobile)
@@ -49,7 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const groupListMobile = document.querySelector('.group-list-content');
 
     if (chatTabMobile && groupTabMobile && chatListMobile && groupListMobile) {
+        console.log("Mobile tabs found, attaching event listeners...");
         chatTabMobile.addEventListener('click', () => {
+            console.log("Chat tab mobile clicked!");
             chatTabMobile.classList.add('active');
             groupTabMobile.classList.remove('active');
             chatListMobile.classList.remove('hidden');
@@ -57,11 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         groupTabMobile.addEventListener('click', () => {
+            console.log("Group tab mobile clicked!");
             groupTabMobile.classList.add('active');
             chatTabMobile.classList.remove('active');
             groupListMobile.classList.remove('hidden');
             chatListMobile.classList.add('hidden');
         });
+    } else {
+        console.error("Mobile tabs not found!");
     }
 
     // Emoji Picker Setup
@@ -73,8 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageInputMobile = document.querySelector('#message-content-mobile');
 
     if (emojiBtnPc && emojiPanelPc && messageInputPc) {
+        console.log("Setting up emoji picker for PC...");
         const pickerPc = new emojiMart.Picker({
             onEmojiSelect: (emoji) => {
+                console.log("Emoji selected on PC:", emoji.native);
                 messageInputPc.value += emoji.native;
                 emojiPanelPc.classList.add('hidden');
             }
@@ -82,13 +101,18 @@ document.addEventListener('DOMContentLoaded', () => {
         emojiPanelPc.appendChild(pickerPc);
 
         emojiBtnPc.addEventListener('click', () => {
+            console.log("Emoji button clicked on PC!");
             emojiPanelPc.classList.toggle('hidden');
         });
+    } else {
+        console.error("Emoji picker elements for PC not found!");
     }
 
     if (emojiBtnMobile && emojiPanelMobile && messageInputMobile) {
+        console.log("Setting up emoji picker for Mobile...");
         const pickerMobile = new emojiMart.Picker({
             onEmojiSelect: (emoji) => {
+                console.log("Emoji selected on Mobile:", emoji.native);
                 messageInputMobile.value += emoji.native;
                 emojiPanelMobile.classList.add('hidden');
             }
@@ -96,8 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
         emojiPanelMobile.appendChild(pickerMobile);
 
         emojiBtnMobile.addEventListener('click', () => {
+            console.log("Emoji button clicked on Mobile!");
             emojiPanelMobile.classList.toggle('hidden');
         });
+    } else {
+        console.error("Emoji picker elements for Mobile not found!");
     }
 
     // Chat Functions (PC)
@@ -109,7 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatArea = document.querySelector('#chat-area-pc');
         const noSelection = document.querySelector('.no-selection');
         
-        if (!chatArea || !noSelection) return;
+        if (!chatArea || !noSelection) {
+            console.error("Chat area or no-selection element not found!");
+            return;
+        }
 
         noSelection.classList.add('hidden');
         chatArea.classList.remove('hidden');
@@ -122,7 +152,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const groupIdInput = document.querySelector('#group-id-pc');
         const messagesContainer = document.querySelector('#chat-messages-pc');
 
-        if (!headerImg || !headerName || !receiverIdInput || !groupIdInput || !messagesContainer) return;
+        if (!headerImg || !headerName || !receiverIdInput || !groupIdInput || !messagesContainer) {
+            console.error("Chat header elements or messages container not found!");
+            return;
+        }
 
         if (type === 'user') {
             const user = usersList.find(u => u.id == parseInt(id));
@@ -201,7 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const chatListMobile = document.querySelector('.chat-list-mobile');
         const chattingPage = document.querySelector('#chatting-page-mobile');
         
-        if (!chatListMobile || !chattingPage) return;
+        if (!chatListMobile || !chattingPage) {
+            console.error("Chat list mobile or chatting page not found!");
+            return;
+        }
 
         chatListMobile.classList.add('hidden');
         chattingPage.classList.remove('hidden');
@@ -214,7 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const groupIdInput = document.querySelector('#group-id-mobile');
         const messagesContainer = document.querySelector('#chat-messages-mobile');
 
-        if (!headerImg || !headerName || !receiverIdInput || !groupIdInput || !messagesContainer) return;
+        if (!headerImg || !headerName || !receiverIdInput || !groupIdInput || !messagesContainer) {
+            console.error("Chat header elements or messages container for mobile not found!");
+            return;
+        }
 
         if (type === 'user') {
             const user = usersList.find(u => u.id == parseInt(id));
@@ -292,8 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const chattingPage = document.querySelector('#chatting-page-mobile');
         const chatListMobile = document.querySelector('.chat-list-mobile');
         if (chattingPage && chatListMobile) {
+            console.log("Back to chat list clicked!");
             chattingPage.classList.add('hidden');
             chatListMobile.classList.remove('hidden');
+        } else {
+            console.error("Chatting page or chat list mobile not found!");
         }
     }
 
@@ -304,13 +346,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const groupIdInput = document.querySelector(`#group-id-${isMobile ? 'mobile' : 'pc'}`);
         const messageInput = document.querySelector(`#message-content-${isMobile ? 'mobile' : 'pc'}`);
 
-        if (!receiverIdInput || !groupIdInput || !messageInput) return;
+        if (!receiverIdInput || !groupIdInput || !messageInput) {
+            console.error("Message input elements not found!");
+            return;
+        }
 
         const receiverId = receiverIdInput.value;
         const groupId = groupIdInput.value;
         const content = messageInput.value.trim();
         if (!content) return;
 
+        console.log("Sending message:", content);
         socket.emit('send_message', {
             receiver_id: receiverId,
             group_id: groupId,
@@ -323,11 +369,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function editMessage(messageId) {
         const messageDiv = document.querySelector(`.message[data-id="${messageId}"]`);
-        if (!messageDiv) return;
+        if (!messageDiv) {
+            console.error(`Message with ID ${messageId} not found!`);
+            return;
+        }
 
         const content = messageDiv.querySelector('div').innerText;
         const newContent = prompt("Edit your message:", content);
         if (newContent && newContent !== content) {
+            console.log(`Editing message ID ${messageId} with new content: ${newContent}`);
             fetch(`/edit_message/${messageId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -343,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setDisappearTimer(messageId, timer) {
+        console.log(`Setting disappear timer for message ID ${messageId} to ${timer} seconds`);
         fetch(`/set_disappear_timer/${messageId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -371,6 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // PC Chat Items
     document.querySelectorAll('.chat-list .chat-item').forEach(item => {
         item.addEventListener('click', () => {
+            console.log(`Chat item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
             const id = item.dataset.id;
             const type = item.dataset.type;
             openChat(id, type);
@@ -379,6 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.group-list .group-item:not(.create-group)').forEach(item => {
         item.addEventListener('click', () => {
+            console.log(`Group item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
             const id = item.dataset.id;
             const type = item.dataset.type;
             openChat(id, type);
@@ -388,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile Chat Items
     document.querySelectorAll('.chat-list-content .chat-item').forEach(item => {
         item.addEventListener('click', () => {
+            console.log(`Mobile chat item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
             const id = item.dataset.id;
             const type = item.dataset.type;
             openChatMobile(id, type);
@@ -396,6 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.group-list-content .group-item:not(.create-group)').forEach(item => {
         item.addEventListener('click', () => {
+            console.log(`Mobile group item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
             const id = item.dataset.id;
             const type = item.dataset.type;
             openChatMobile(id, type);
@@ -405,11 +460,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create Group Link
     document.querySelectorAll('.create-group').forEach(item => {
         item.addEventListener('click', () => {
+            console.log("Create group clicked!");
             window.location.href = '{{ url_for('create_group') }}';
         });
     });
 
     socket.on('receive_message', (data) => {
+        console.log("Received message:", data);
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', data.sender_id == current_user_id ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
         messageDiv.setAttribute('data-id', data.message_id);
@@ -450,6 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('message_edited', (data) => {
+        console.log("Message edited:", data);
         const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
         if (messageDiv) {
             messageDiv.querySelector('div').innerText = data.content;
@@ -458,6 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('disappear_timer_set', (data) => {
+        console.log("Disappear timer set:", data);
         const messageDiv = document.querySelector(`.message[data-id="${data.message_id}"]`);
         if (messageDiv && data.timer > 0) {
             setTimeout(() => {
