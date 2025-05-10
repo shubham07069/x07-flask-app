@@ -3,64 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat - X07</title>
+    <title>AI Chat - ChatGod</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        /* Remove background from bot reply */
-        .chatbot-page .message.bot .message-content {
-            background: transparent;
-            padding: 0;
-            border-radius: 0;
-        }
-
-        /* Styling for formatted bot reply */
-        .chatbot-page .message.bot .message-content h2 {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.5rem;
-            color: #00d4ff;
-            margin: 0.5rem 0;
-        }
-
-        .chatbot-page .message.bot .message-content strong {
-            font-weight: bold;
-            color: #e0e0e0;
-        }
-
-        .chatbot-page .message.bot .message-content em {
-            font-style: italic;
-            color: #e0e0e0;
-        }
-
-        .chatbot-page .message.bot .message-content ul {
-            list-style-type: disc;
-            margin: 0.5rem 0;
-            padding-left: 1.5rem;
-        }
-
-        .chatbot-page .message.bot .message-content li {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
-            color: #e0e0e0;
-            margin-bottom: 0.3rem;
-        }
-
-        .chatbot-page .message.bot .message-content pre {
-            background: #2a2a2a;
-            padding: 1rem;
-            border-radius: 10px;
-            overflow-x: auto;
-            margin: 0.5rem 0;
-        }
-
-        .chatbot-page .message.bot .message-content code {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1rem;
-            color: #00d4ff;
-        }
-    </style>
 </head>
-<body style="background-image: url('https://t4.ftcdn.net/jpg/01/76/67/25/360_F_176672598_cJ4yPCFhxvDXm9Cu7vDLIcXpvTMQJ9zm.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; min-height: 100vh;">
+<body>
     <div class="chatbot-page">
         <header class="flex justify-between items-center">
             <div class="flex items-center">
@@ -90,12 +37,16 @@
                     </button>
                 </form>
             </div>
+            <!-- Settings Icon -->
+            <div class="settings-icon" onclick="openSettingsModal()">
+                <i class="fas fa-cog"></i>
+            </div>
         </div>
         <main>
             <div class="chat-container">
                 <div id="chatWindow" class="chat-window"></div>
                 <div id="greetingMessage" class="greeting-message">
-                    Hey there! I'm X07 AI, your friendly AI companion. What do you want to chat about today?
+                    Hey there! I'm ChatGod, your friendly AI companion. What do you want to chat about today?
                 </div>
                 <div class="search-box-wrapper">
                     <div class="search-box">
@@ -114,7 +65,7 @@
                                 <button class="model-button">DeepSeek <i class="fas fa-chevron-up"></i></button>
                                 <div class="dropup-content">
                                     <a href="#" class="model-option" data-model="ChatGPT">ChatGPT</a>
-                                    <a href="#" class="model-option" data-model="Grok">Grok(beta)</a>
+                                    <a href="#" class="model-option" data-model="Grok">Grok</a>
                                     <a href="#" class="model-option highlighted" data-model="DeepSeek">DeepSeek</a>
                                     <a href="#" class="model-option" data-model="Claude">Claude</a>
                                     <a href="#" class="model-option" data-model="MetaAI">MetaAI</a>
@@ -129,151 +80,27 @@
                 </div>
             </div>
         </main>
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeSettingsModal()">×</span>
+                <h2>Customize Chat Theme</h2>
+                <div class="theme-options">
+                    <label>Select Theme Color:</label>
+                    <div class="color-options">
+                        <button class="color-option" style="background: #00d4ff" data-theme="default" onclick="selectTheme('default')"></button>
+                        <button class="color-option" style="background: #ff69b4" data-theme="pink" onclick="selectTheme('pink')"></button>
+                        <button class="color-option" style="background: #00ff85" data-theme="green" onclick="selectTheme('green')"></button>
+                        <button class="color-option" style="background: #ff9500" data-theme="orange" onclick="selectTheme('orange')"></button>
+                        <button class="color-option" style="background: #ffffff" data-theme="white" onclick="selectTheme('white')"></button>
+                        <button class="color-option" style="background: #a855f7" data-theme="purple" onclick="selectTheme('purple')"></button>
+                        <button class="color-option" style="background: #3b82f6" data-theme="blue" onclick="selectTheme('blue')"></button>
+                    </div>
+                </div>
+                <button class="done-button" onclick="applyTheme()">Done</button>
+            </div>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='js/ai_script.js') }}"></script>
-    <script>
-        // Simple Markdown to HTML parser
-        function parseMarkdown(text) {
-            // Handle headings (## Heading)
-            text = text.replace(/^##\s(.+)$/gm, '<h2>$1</h2>');
-
-            // Handle bold (**Bold**)
-            text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-            // Handle italic (*Italic*)
-            text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-            // Handle bullet points (- Item)
-            text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
-            text = text.replace(/(<li>.+<\/li>(\n<li>.+<\/li>)*)/g, '<ul>$1</ul>');
-
-            // Handle code blocks (```Code```)
-            text = text.replace(/```(.+?)```/gs, '<pre><code>$1</code></pre>');
-
-            // Replace newlines with <br> for paragraphs
-            text = text.replace(/\n/g, '<br>');
-
-            return text;
-        }
-
-        document.querySelector('.hamburger').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('active');
-        });
-
-        const chatHistoryList = document.getElementById('chatHistoryList');
-        fetch('/get_chat_history')
-            .then(response => response.json())
-            .then(data => {
-                const chatNames = data.chat_names;
-                if (chatNames.length > 0) {
-                    chatNames.forEach(chat => {
-                        const li = document.createElement('li');
-                        li.textContent = chat;
-                        li.onclick = () => loadChat(chat);
-                        chatHistoryList.appendChild(li);
-                    });
-                }
-            });
-
-        function loadChat(chatName) {
-            fetch(`/load_chat/${chatName}`)
-                .then(response => response.json())
-                .then(data => {
-                    const chatWindow = document.getElementById('chatWindow');
-                    chatWindow.innerHTML = '';
-                    document.getElementById('greetingMessage').style.display = 'none';
-                    data.history.forEach(msg => {
-                        const userMsg = document.createElement('div');
-                        userMsg.classList.add('message', 'user');
-                        userMsg.textContent = msg.user;
-                        chatWindow.appendChild(userMsg);
-
-                        const botMsg = document.createElement('div');
-                        botMsg.classList.add('message');
-                        const messageContent = document.createElement('div');
-                        messageContent.classList.add('message-content');
-                        messageContent.innerHTML = parseMarkdown(msg.bot);
-                        botMsg.appendChild(messageContent);
-                        chatWindow.appendChild(botMsg);
-                    });
-                    chatWindow.scrollTop = chatWindow.scrollHeight;
-                });
-        }
-
-        document.querySelector('.send-button').addEventListener('click', sendMessage);
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        function sendMessage() {
-            const userInput = document.getElementById('userInput');
-            const message = userInput.value.trim();
-            if (!message) return;
-
-            const chatWindow = document.getElementById('chatWindow');
-            const userMsg = document.createElement('div');
-            userMsg.classList.add('message', 'user');
-            userMsg.textContent = message;
-            chatWindow.appendChild(userMsg);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-
-            document.getElementById('greetingMessage').style.display = 'none';
-
-            const mode = document.querySelector('.mode-button').textContent.split(' ')[0];
-            const model = document.querySelector('.model-button').textContent.split(' ')[0];
-
-            fetch('/ask', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, mode: mode, models: [model] })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const botMsg = document.createElement('div');
-                botMsg.classList.add('message');
-                const messageContent = document.createElement('div');
-                messageContent.classList.add('message-content');
-                messageContent.innerHTML = parseMarkdown(data.reply);
-                botMsg.appendChild(messageContent);
-                chatWindow.appendChild(botMsg);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            });
-
-            userInput.value = '';
-        }
-
-        document.querySelectorAll('.mode-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelector('.mode-button').innerHTML = `${option.dataset.mode} <i class="fas fa-chevron-up"></i>`;
-                document.querySelectorAll('.mode-option').forEach(opt => opt.classList.remove('highlighted'));
-                option.classList.add('highlighted');
-            });
-        });
-
-        document.querySelectorAll('.model-option').forEach(option => {
-            option.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelector('.model-button').innerHTML = `${option.dataset.model} <i class="fas fa-chevron-up"></i>`;
-                document.querySelectorAll('.model-option').forEach(opt => opt.classList.remove('highlighted'));
-                option.classList.add('highlighted');
-            });
-        });
-
-        document.getElementById('new-chat-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            fetch(`/start_new_chat/New_Chat_${new Date().toISOString().replace(/[-:.]/g, '_')}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        document.getElementById('chatWindow').innerHTML = '';
-                        document.getElementById('greetingMessage').style.display = 'block';
-                    }
-                });
-        });
-    </script>
 </body>
 </html>
