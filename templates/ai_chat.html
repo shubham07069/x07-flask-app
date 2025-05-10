@@ -60,7 +60,7 @@
         }
     </style>
 </head>
-<body class="{{ theme }}-theme" style="background-image: url('https://t4.ftcdn.net/jpg/01/76/67/25/360_F_176672598_cJ4yPCFhxvDXm9Cu7vDLIcXpvTMQJ9zm.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; min-height: 100vh;">
+<body style="background-image: url('https://t4.ftcdn.net/jpg/01/76/67/25/360_F_176672598_cJ4yPCFhxvDXm9Cu7vDLIcXpvTMQJ9zm.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; min-height: 100vh;">
     <div class="chatbot-page">
         <header class="flex justify-between items-center">
             <div class="flex items-center">
@@ -89,9 +89,6 @@
                         <i class="fas fa-trash-can mr-2"></i> Delete All
                     </button>
                 </form>
-            </div>
-            <div class="settings-icon" onclick="openSettingsModal()">
-                <i class="fas fa-cog"></i>
             </div>
         </div>
         <main>
@@ -132,25 +129,6 @@
                 </div>
             </div>
         </main>
-        <div id="settingsModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeSettingsModal()">×</span>
-                <h2>Customize Chat Theme</h2>
-                <div class="theme-options">
-                    <label>Select Theme Color:</label>
-                    <div class="color-options">
-                        <button class="color-option" style="background: #00d4ff" data-theme="default" onclick="selectTheme('default')"></button>
-                        <button class="color-option" style="background: #ff69b4" data-theme="pink" onclick="selectTheme('pink')"></button>
-                        <button class="color-option" style="background: #00ff85" data-theme="green" onclick="selectTheme('green')"></button>
-                        <button class="color-option" style="background: #ff9500" data-theme="orange" onclick="selectTheme('orange')"></button>
-                        <button class="color-option" style="background: #ffffff" data-theme="white" onclick="selectTheme('white')"></button>
-                        <button class="color-option" style="background: #a855f7" data-theme="purple" onclick="selectTheme('purple')"></button>
-                        <button class="color-option" style="background: #3b82f6" data-theme="blue" onclick="selectTheme('blue')"></button>
-                    </div>
-                </div>
-                <button class="done-button" onclick="applyTheme()">Done</button>
-            </div>
-        </div>
     </div>
     <script src="{{ url_for('static', filename='js/ai_script.js') }}"></script>
     <script>
@@ -176,47 +154,6 @@
             text = text.replace(/\n/g, '<br>');
 
             return text;
-        }
-
-        let selectedTheme = '{{ theme }}' || 'default';
-
-        function selectTheme(theme) {
-            selectedTheme = theme;
-            document.body.className = `${theme}-theme`;
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.theme === theme) {
-                    option.classList.add('selected');
-                }
-            });
-        }
-
-        function applyTheme() {
-            fetch('/save_theme', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `theme=${selectedTheme}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    console.log("Theme saved successfully!");
-                    closeSettingsModal();
-                } else {
-                    console.error("Error saving theme:", data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Error saving theme:", error);
-            });
-        }
-
-        function openSettingsModal() {
-            document.getElementById('settingsModal').style.display = 'block';
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').style.display = 'none';
         }
 
         document.querySelector('.hamburger').addEventListener('click', () => {
