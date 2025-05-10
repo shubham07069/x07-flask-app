@@ -6,100 +6,8 @@
     <title>AI Chat - X07</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        /* Default black-grey gradient background for dark theme */
-        body {
-            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
-            color: #ffffff;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        /* Chat container and window */
-        .chat-container, .chat-window {
-            background: transparent; /* Let body gradient show through */
-        }
-
-        /* Theme-specific styles */
-        body.default-theme {
-            background: linear-gradient(135deg, #00d4ff, #333333);
-        }
-
-        body.pink-theme {
-            background: linear-gradient(135deg, #ff69b4, #333333);
-        }
-
-        body.green-theme {
-            background: linear-gradient(135deg, #00ff85, #333333);
-        }
-
-        body.orange-theme {
-            background: linear-gradient(135deg, #ff9500, #333333);
-        }
-
-        body.white-theme {
-            background: #ffffff;
-            color: #000000;
-        }
-
-        body.white-theme .chat-container, body.white-theme .chat-window {
-            background: #f0f0f0;
-        }
-
-        body.white-theme .chat-window .message {
-            background-color: #e0e0e0;
-            color: #000000;
-        }
-
-        body.white-theme .chat-window .message.user {
-            background-color: #d0d0d0;
-        }
-
-        body.white-theme .search-box {
-            background-color: #e0e0e0;
-        }
-
-        body.white-theme .search-box textarea {
-            background-color: #ffffff;
-            color: #000000;
-        }
-
-        body.purple-theme {
-            background: linear-gradient(135deg, #a855f7, #333333);
-        }
-
-        body.blue-theme {
-            background: linear-gradient(135deg, #3b82f6, #333333);
-        }
-
-        /* Messages in dark themes */
-        .chat-window .message {
-            background-color: #2d2d2d;
-            color: #ffffff;
-        }
-
-        .chat-window .message.user {
-            background-color: #444444;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 767px) {
-            .chat-container {
-                padding: 10px !important;
-            }
-            .chat-window {
-                padding: 10px !important;
-            }
-            .message {
-                max-width: 90% !important;
-                margin-bottom: 15px !important;
-            }
-            .search-box-wrapper {
-                padding: 10px !important;
-            }
-        }
-    </style>
 </head>
-<body class="{{ theme }}-theme">
+<body class="{{ theme }}-theme" style="background-image: url('https://t4.ftcdn.net/jpg/01/76/67/25/360_F_176672598_cJ4yPCFhxvDXm9Cu7vDLIcXpvTMQJ9zm.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; min-height: 100vh;">
     <div class="chatbot-page">
         <header class="flex justify-between items-center">
             <div class="flex items-center">
@@ -129,7 +37,6 @@
                     </button>
                 </form>
             </div>
-            <!-- Settings Icon -->
             <div class="settings-icon" onclick="openSettingsModal()">
                 <i class="fas fa-cog"></i>
             </div>
@@ -172,7 +79,6 @@
                 </div>
             </div>
         </main>
-        <!-- Settings Modal -->
         <div id="settingsModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeSettingsModal()">×</span>
@@ -209,7 +115,6 @@
         }
 
         function applyTheme() {
-            // Save theme to user account
             fetch('/save_theme', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -237,12 +142,10 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
 
-        // Hamburger Menu Toggle
         document.querySelector('.hamburger').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('active');
         });
 
-        // Load Chat History
         const chatHistoryList = document.getElementById('chatHistoryList');
         fetch('/get_chat_history')
             .then(response => response.json())
@@ -322,7 +225,6 @@
             userInput.value = '';
         }
 
-        // Mode and Model Dropdowns
         document.querySelectorAll('.mode-option').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -341,7 +243,6 @@
             });
         });
 
-        // New Chat
         document.getElementById('new-chat-link').addEventListener('click', (e) => {
             e.preventDefault();
             fetch(`/start_new_chat/New_Chat_${new Date().toISOString().replace(/[-:.]/g, '_')}`)
