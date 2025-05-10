@@ -75,7 +75,6 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, nullable=True)
     is_online = db.Column(db.Boolean, default=False)
     public_username = db.Column(db.String(80), unique=True, nullable=True)  # Telegram-like username
-    preferred_theme = db.Column(db.String(20), default='dark')  # Store user's preferred theme
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -412,25 +411,7 @@ def ai_chat():
         session['reset_history'] = True
         session['current_model'] = 'DeepSeek'
         logger.info(f"New chat name set: {session['current_chat_name']}")
-    # Fetch user's preferred theme
-    preferred_theme = current_user.preferred_theme if current_user.preferred_theme else 'dark'
-    return render_template('ai_chat.html', chat_name=session['current_chat_name'], theme=preferred_theme)
-
-@app.route('/save_theme', methods=['POST'])
-@login_required
-def save_theme():
-    try:
-        theme = request.form.get('theme')
-        if theme not in ['dark', 'light']:
-            return jsonify({'status': 'error', 'message': 'Invalid theme! Choose "dark" or "light".'}), 400
-        
-        current_user.preferred_theme = theme
-        db.session.commit()
-        logger.info(f"User {current_user.id} saved theme: {theme}")
-        return jsonify({'status': 'success', 'message': 'Theme saved successfully!'}), 200
-    except Exception as e:
-        logger.error(f"Error saving theme for user {current_user.id}: {str(e)}")
-        return jsonify({'status': 'error', 'message': f"Bhai, kuch galat ho gaya! 😅 Error: {str(e)}"}), 500
+    return render_template('ai_chat.html', chat_name=session['current_chat_name'])
 
 @app.route('/start_new_chat/<chat_name>', methods=['GET'])
 @login_required
@@ -497,10 +478,6 @@ def ask():
     try:
         logger.info("Received request at /ask endpoint")
         data = request.get_json()
-        if data is None:
-            logger.error("No JSON data found in request")
-            return jsonify({'reply': "Bhai, kuch toh galat hai! JSON data nahi mila. 😅"}), 400
-
         user_message = data.get('message')
         mode = data.get('mode', 'Normal')
         models = data.get('models', ['Grok'])
@@ -508,10 +485,6 @@ def ask():
         logger.debug(f"User message: {user_message}")
         logger.debug(f"Mode: {mode}")
         logger.debug(f"Models received: {models}")
-
-        if not user_message:
-            logger.error("No message provided in request")
-            return jsonify({'reply': "Bhai, message toh daal de! 😅"}), 400
 
         if not models or not isinstance(models, list):
             raise ValueError("Models must be a non-empty list")
@@ -560,14 +533,8 @@ def ask():
 
         base_instructions = (
             "Answer in a casual, conversational tone using simple language and Hindi slang like 'bhai', 'laude', 'dhang se', etc. "
-            "Use Markdown formatting for better readability:\n"
-            "- Use ## for headings\n"
-            "- Use **bold** for emphasis\n"
-            "- Use *italic* for subtle emphasis\n"
-            "- Use - for bullet points\n"
-            "- Use ```code``` for code blocks\n"
             "Break your answers into small paragraphs for easy reading. "
-            "Add emojis to make it fun 😎🚀. "
+            "Use **bold** and *italics* for emphasis, and add emojis to make it fun 😎🚀. "
             "Keep replies engaging, like you're talking to a friend. "
             "Here is the user's chat history to provide context:\n" + history_context
         )
