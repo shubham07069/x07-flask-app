@@ -4,6 +4,20 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+import eventlet
+eventlet.monkey_patch()
+from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+import base64
+import requests
+import osfrom flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_from_directory
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from Crypto.Cipher import AES
@@ -56,6 +70,60 @@ migrate = Migrate(app, db)
 
 # Initialize Flask-SocketIO with explicit transport configuration
 socketio = SocketIO(app, cors_allowed_origins="*", allow_transports=['polling', 'websocket'])
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# AES Encryption Key (32 bytes for AES-256)
+AES_KEY = get_random_bytes(32)  # Generate a random 32-byte key for AES-256
+
+import logging
+import re
+import smtplib
+import random
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
+from email.mime.base import MIMEBase
+from email import encoders
+import datetime
+from PIL import Image
+import io
+import traceback
+
+app = Flask(__name__)
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Load environment variables from .env
+load_dotenv()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "your-secret-key-here")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
+app.config['PROFILE_PICS_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], 'profile_pics')
+app.config['MESSAGES_FOLDER'] = os.path.join(app.config['UPLOAD_FOLDER'], 'messages')
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'pdf', 'doc', 'docx'}
+
+# Ensure upload folders exist
+os.makedirs(app.config['PROFILE_PICS_FOLDER'], exist_ok=True)
+os.makedirs(app.config['MESSAGES_FOLDER'], exist_ok=True)
+
+# Initialize Flask-SQLAlchemy
+db = SQLAlchemy(app)
+
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
+
+# Initialize Flask-SocketIO with explicit transport configuration
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", allow_upgrades=True)
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -941,4 +1009,4 @@ def handle_message_read(data):
         emit('message_read', {'message_id': message_id}, room=room, broadcast=True)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
