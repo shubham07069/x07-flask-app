@@ -7,6 +7,8 @@ body {
     background-color: #121212;
     color: #e0e0e0;
     font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
@@ -42,6 +44,19 @@ body {
     border-right: 1px solid #333;
     padding: 1rem;
     overflow-y: auto;
+}
+
+.sidebar-content::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar,
+.chat-messages-mobile::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar-content,
+.chat-messages,
+.chat-messages-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .tabs {
@@ -191,55 +206,4 @@ body {
 }
 
 .chat-input {
-    background-color: #1e1e1e;
-    padding: 1rem;
-    border-top: 1px solid #333;
-    display: flex;
-    align-items: center;
-}
-
-.chat-input form {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.chat-input input[type="text"] {
-    flex: 1;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 20px;
-    background-color: #2a2a2a;
-    color: #e0e0e0;
-    margin-right: 0.5rem;
-}
-
-.chat-input input[type="text"]::placeholder {
-    color: #888;
-}
-
-.chat-input label {
-    color: #e0e0e0;
-}
-
-.chat-input button {
-    border: none;
-    padding: 0.75rem;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.chat-input i {
-    font-size: 1.2rem;
-}
-
-.no-selection {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #888;
-    font-size: 1.2rem;
-}
+    background-color: #1
