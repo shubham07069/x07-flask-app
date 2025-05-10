@@ -75,7 +75,6 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, nullable=True)
     is_online = db.Column(db.Boolean, default=False)
     public_username = db.Column(db.String(80), unique=True, nullable=True)  # Telegram-like username
-    preferred_theme = db.Column(db.String(20), default='dark')  # Store user's preferred theme
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -412,24 +411,7 @@ def ai_chat():
         session['reset_history'] = True
         session['current_model'] = 'DeepSeek'
         logger.info(f"New chat name set: {session['current_chat_name']}")
-    preferred_theme = current_user.preferred_theme if current_user.preferred_theme else 'dark'
-    return render_template('ai_chat.html', chat_name=session['current_chat_name'], theme=preferred_theme)
-
-@app.route('/save_theme', methods=['POST'])
-@login_required
-def save_theme():
-    try:
-        theme = request.form.get('theme')
-        if theme not in ['default', 'pink', 'green', 'orange', 'white', 'purple', 'blue']:
-            return jsonify({'status': 'error', 'message': 'Invalid theme! Choose a valid theme.'}), 400
-        
-        current_user.preferred_theme = theme
-        db.session.commit()
-        logger.info(f"User {current_user.id} saved theme: {theme}")
-        return jsonify({'status': 'success', 'message': 'Theme saved successfully!'}), 200
-    except Exception as e:
-        logger.error(f"Error saving theme for user {current_user.id}: {str(e)}")
-        return jsonify({'status': 'error', 'message': f"Bhai, kuch galat ho gaya! 😅 Error: {str(e)}"}), 500
+    return render_template('ai_chat.html', chat_name=session['current_chat_name'])
 
 @app.route('/start_new_chat/<chat_name>', methods=['GET'])
 @login_required
