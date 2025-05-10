@@ -4,28 +4,107 @@ let latestConversationHeight = 0;
 let isUserScrolling = false;
 let isBotReplying = false;
 let currentChatName = null;
+let selectedTheme = 'default';
 
-// Function to parse Markdown and convert to HTML
+// Function to convert hex to RGB
+function hexToRgb(hex) {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    return `${r}, ${g}, ${b}`;
+}
+
+// Function to apply theme
+function applyTheme() {
+    const themes = {
+        default: {
+            primaryColor: '#00d4ff', // Main color for buttons, borders, etc.
+            secondaryColor: '#ff0066', // Secondary color for search box lighting, etc.
+            backgroundGradientStart: '#0a0a0a',
+            backgroundGradientEnd: '#1a0033'
+        },
+        pink: {
+            primaryColor: '#ff69b4',
+            secondaryColor: '#00d4ff',
+            backgroundGradientStart: '#1a0033',
+            backgroundGradientEnd: '#0a0a0a'
+        },
+        green: {
+            primaryColor: '#00ff85',
+            secondaryColor: '#ff0066',
+            backgroundGradientStart: '#0a0a0a',
+            backgroundGradientEnd: '#1a0033'
+        },
+        orange: {
+            primaryColor: '#ff9500',
+            secondaryColor: '#00d4ff',
+            backgroundGradientStart: '#1a0033',
+            backgroundGradientEnd: '#0a0a0a'
+        },
+        white: {
+            primaryColor: '#ffffff',
+            secondaryColor: '#00d4ff',
+            backgroundGradientStart: '#f0f0f0',
+            backgroundGradientEnd: '#d0d0d0'
+        },
+        purple: {
+            primaryColor: '#a855f7',
+            secondaryColor: '#ff9500',
+            backgroundGradientStart: '#1a0033',
+            backgroundGradientEnd: '#0a0a0a'
+        },
+        blue: {
+            primaryColor: '#3b82f6',
+            secondaryColor: '#ff69b4',
+            backgroundGradientStart: '#0a0a0a',
+            backgroundGradientEnd: '#1a0033'
+        }
+    };
+
+    const theme = themes[selectedTheme];
+    document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
+    document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor);
+    document.documentElement.style.setProperty('--background-gradient-start', theme.backgroundGradientStart);
+    document.documentElement.style.setProperty('--background-gradient-end', theme.backgroundGradientEnd);
+
+    // Convert hex to RGB for box-shadow
+    document.documentElement.style.setProperty('--primary-color-rgb', hexToRgb(theme.primaryColor));
+    document.documentElement.style.setProperty('--secondary-color-rgb', hexToRgb(theme.secondaryColor));
+
+    // Save theme to localStorage
+    localStorage.setItem('chatTheme', selectedTheme);
+
+    // Close modal
+    closeSettingsModal();
+}
+
+// Function to select theme
+function selectTheme(theme) {
+    selectedTheme = theme;
+    const colorOptions = document.querySelectorAll('.color-option');
+    colorOptions.forEach(option => {
+        if (option.getAttribute('data-theme') === theme) {
+            option.classList.add('selected');
+        } else {
+            option.classList.remove('selected');
+        }
+    });
+}
+
+// Function to open settings modal
+function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    modal.style.display = 'flex';
+}
+
+// Function to close settings modal
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    modal.style.display = 'none';
+}
+
 function renderMessageText(text) {
-    // Handle headings (## Heading)
-    text = text.replace(/^##\s(.+)$/gm, '<h2>$1</h2>');
-
-    // Handle bold (**Bold**)
-    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-    // Handle italic (*Italic*)
-    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-
-    // Handle bullet points (- Item)
-    text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
-    text = text.replace(/(<li>.+<\/li>(\n<li>.+<\/li>)*)/g, '<ul>$1</ul>');
-
-    // Handle code blocks (```Code```)
-    text = text.replace(/```(.+?)```/gs, '<pre><code>$1</code></pre>');
-
-    // Replace newlines with <br> for paragraphs
-    text = text.replace(/\n/g, '<br>');
-
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     return text;
 }
 
@@ -463,6 +542,13 @@ function scrollToBottom(chatWindow, adjustForLatest = false) {
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded");
+
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('chatTheme');
+    if (savedTheme) {
+        selectedTheme = savedTheme;
+        applyTheme();
+    }
 
     const userInput = document.getElementById('userInput');
     const sendButton = document.querySelector('.send-button');
