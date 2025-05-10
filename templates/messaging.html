@@ -318,15 +318,16 @@
             const groupsList = {{ groups | tojson }};
 
             function openChat(id, type) {
-                console.log(`Opening chat for ${type} with ID: ${id}`);
+                console.log(`Attempting to open chat for ${type} with ID: ${id}`);
                 const chatArea = document.querySelector('#chat-area-pc');
                 const noSelection = document.querySelector('.no-selection');
                 
                 if (!chatArea || !noSelection) {
-                    console.error("Chat area or no-selection element not found!");
+                    console.error("Chat area or no-selection element not found! Chat Area:", chatArea, "No Selection:", noSelection);
                     return;
                 }
 
+                console.log("Hiding no-selection and showing chat area...");
                 noSelection.classList.add('hidden');
                 chatArea.classList.remove('hidden');
                 chatArea.dataset.chatId = id;
@@ -339,37 +340,42 @@
                 const messagesContainer = document.querySelector('#chat-messages-pc');
 
                 if (!headerImg || !headerName || !receiverIdInput || !groupIdInput || !messagesContainer) {
-                    console.error("Chat header elements or messages container not found!");
+                    console.error("Chat header elements or messages container not found! Header Img:", headerImg, "Header Name:", headerName, "Receiver ID:", receiverIdInput, "Group ID:", groupIdInput, "Messages Container:", messagesContainer);
                     return;
                 }
 
+                console.log("Setting chat header details...");
                 if (type === 'user') {
                     const user = usersList.find(u => u.id == parseInt(id));
                     if (user) {
+                        console.log("User found:", user);
                         headerImg.src = user.profile_pic ? `/uploads/profile_pics/${user.profile_pic}` : '/static/images/default_profile.jpg';
                         headerName.textContent = user.username;
                         receiverIdInput.value = id;
                         groupIdInput.value = '';
                     } else {
-                        console.error(`User with ID ${id} not found`);
+                        console.error(`User with ID ${id} not found in usersList:`, usersList);
                         return;
                     }
                 } else {
                     const group = groupsList.find(g => g.id == parseInt(id));
                     if (group) {
+                        console.log("Group found:", group);
                         headerImg.src = '/static/images/group_icon.png';
                         headerName.textContent = group.name + (group.is_channel ? ' (Channel)' : '');
                         receiverIdInput.value = '';
                         groupIdInput.value = id;
                     } else {
-                        console.error(`Group with ID ${id} not found`);
+                        console.error(`Group with ID ${id} not found in groupsList:`, groupsList);
                         return;
                     }
                 }
 
+                console.log("Fetching messages from server...");
                 fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
                     .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
+                        console.log("Fetch response status:", response.status);
+                        if (!response.ok) throw new Error('Network response was not ok: ' + response.statusText);
                         return response.text();
                     })
                     .then(html => {
@@ -378,8 +384,10 @@
                         const doc = parser.parseFromString(html, 'text/html');
                         const messages = doc.querySelectorAll('.message');
                         messagesContainer.innerHTML = '';
+                        console.log("Messages found:", messages.length);
                         if (messages.length > 0) {
                             messages.forEach(message => {
+                                console.log("Processing message:", message);
                                 const messageDiv = document.createElement('div');
                                 messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
                                 messageDiv.setAttribute('data-id', message.dataset.id || '');
@@ -401,6 +409,7 @@
                                 messagesContainer.appendChild(messageDiv);
                             });
                         } else {
+                            console.log("No messages found, showing default message...");
                             messagesContainer.innerHTML = '<div class="text-gray-400 text-center">No messages yet, bhai! Start chatting! 😎</div>';
                         }
                         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -416,15 +425,16 @@
             }
 
             function openChatMobile(id, type) {
-                console.log(`Opening mobile chat for ${type} with ID: ${id}`);
+                console.log(`Attempting to open mobile chat for ${type} with ID: ${id}`);
                 const chatListMobile = document.querySelector('.chat-list-mobile');
                 const chattingPage = document.querySelector('#chatting-page-mobile');
                 
                 if (!chatListMobile || !chattingPage) {
-                    console.error("Chat list mobile or chatting page not found!");
+                    console.error("Chat list mobile or chatting page not found! Chat List Mobile:", chatListMobile, "Chatting Page:", chattingPage);
                     return;
                 }
 
+                console.log("Hiding chat list and showing chatting page...");
                 chatListMobile.classList.add('hidden');
                 chattingPage.classList.remove('hidden');
                 chattingPage.dataset.chatId = id;
@@ -437,37 +447,42 @@
                 const messagesContainer = document.querySelector('#chat-messages-mobile');
 
                 if (!headerImg || !headerName || !receiverIdInput || !groupIdInput || !messagesContainer) {
-                    console.error("Chat header elements or messages container for mobile not found!");
+                    console.error("Chat header elements or messages container for mobile not found! Header Img:", headerImg, "Header Name:", headerName, "Receiver ID:", receiverIdInput, "Group ID:", groupIdInput, "Messages Container:", messagesContainer);
                     return;
                 }
 
+                console.log("Setting mobile chat header details...");
                 if (type === 'user') {
                     const user = usersList.find(u => u.id == parseInt(id));
                     if (user) {
+                        console.log("User found:", user);
                         headerImg.src = user.profile_pic ? `/uploads/profile_pics/${user.profile_pic}` : '/static/images/default_profile.jpg';
                         headerName.textContent = user.username;
                         receiverIdInput.value = id;
                         groupIdInput.value = '';
                     } else {
-                        console.error(`User with ID ${id} not found`);
+                        console.error(`User with ID ${id} not found in usersList:`, usersList);
                         return;
                     }
                 } else {
                     const group = groupsList.find(g => g.id == parseInt(id));
                     if (group) {
+                        console.log("Group found:", group);
                         headerImg.src = '/static/images/group_icon.png';
                         headerName.textContent = group.name + (group.is_channel ? ' (Channel)' : '');
                         receiverIdInput.value = '';
                         groupIdInput.value = id;
                     } else {
-                        console.error(`Group with ID ${id} not found`);
+                        console.error(`Group with ID ${id} not found in groupsList:`, groupsList);
                         return;
                     }
                 }
 
+                console.log("Fetching messages for mobile chat...");
                 fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
                     .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
+                        console.log("Fetch response status:", response.status);
+                        if (!response.ok) throw new Error('Network response was not ok: ' + response.statusText);
                         return response.text();
                     })
                     .then(html => {
@@ -476,8 +491,10 @@
                         const doc = parser.parseFromString(html, 'text/html');
                         const messages = doc.querySelectorAll('.message');
                         messagesContainer.innerHTML = '';
+                        console.log("Messages found for mobile:", messages.length);
                         if (messages.length > 0) {
                             messages.forEach(message => {
+                                console.log("Processing message for mobile:", message);
                                 const messageDiv = document.createElement('div');
                                 messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
                                 messageDiv.setAttribute('data-id', message.dataset.id || '');
@@ -499,6 +516,7 @@
                                 messagesContainer.appendChild(messageDiv);
                             });
                         } else {
+                            console.log("No messages found for mobile, showing default message...");
                             messagesContainer.innerHTML = '<div class="text-gray-400 text-center">No messages yet, bhai! Start chatting! 😎</div>';
                         }
                         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -606,7 +624,9 @@
             const chatMessagesMobile = document.getElementById('chat-messages-mobile');
 
             // PC Chat Items
-            document.querySelectorAll('.chat-list .chat-item').forEach(item => {
+            const pcChatItems = document.querySelectorAll('.chat-list .chat-item');
+            console.log("PC Chat Items found:", pcChatItems.length);
+            pcChatItems.forEach(item => {
                 item.addEventListener('click', () => {
                     console.log(`Chat item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
                     const id = item.dataset.id;
@@ -615,7 +635,9 @@
                 });
             });
 
-            document.querySelectorAll('.group-list .group-item:not(.create-group)').forEach(item => {
+            const pcGroupItems = document.querySelectorAll('.group-list .group-item:not(.create-group)');
+            console.log("PC Group Items found:", pcGroupItems.length);
+            pcGroupItems.forEach(item => {
                 item.addEventListener('click', () => {
                     console.log(`Group item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
                     const id = item.dataset.id;
@@ -625,7 +647,9 @@
             });
 
             // Mobile Chat Items
-            document.querySelectorAll('.chat-list-content .chat-item').forEach(item => {
+            const mobileChatItems = document.querySelectorAll('.chat-list-content .chat-item');
+            console.log("Mobile Chat Items found:", mobileChatItems.length);
+            mobileChatItems.forEach(item => {
                 item.addEventListener('click', () => {
                     console.log(`Mobile chat item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
                     const id = item.dataset.id;
@@ -634,7 +658,9 @@
                 });
             });
 
-            document.querySelectorAll('.group-list-content .group-item:not(.create-group)').forEach(item => {
+            const mobileGroupItems = document.querySelectorAll('.group-list-content .group-item:not(.create-group)');
+            console.log("Mobile Group Items found:", mobileGroupItems.length);
+            mobileGroupItems.forEach(item => {
                 item.addEventListener('click', () => {
                     console.log(`Mobile group item clicked with ID: ${item.dataset.id}, Type: ${item.dataset.type}`);
                     const id = item.dataset.id;
