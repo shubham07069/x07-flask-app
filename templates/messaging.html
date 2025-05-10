@@ -203,7 +203,7 @@
 
         // Tab Switching (PC)
         const chatTab = document.querySelector('.chat-tab');
-        const groupTab = document.querySelector('.group-tab');
+        const groupTab = document.querySelector('.chat-tab');
         const chatList = document.querySelector('.chat-list');
         const groupList = document.querySelector('.group-list');
 
@@ -290,6 +290,7 @@
             const headerName = document.querySelector('#chat-header-name');
             const receiverIdInput = document.querySelector('#receiver-id-pc');
             const groupIdInput = document.querySelector('#group-id-pc');
+            const messagesContainer = document.querySelector('#chat-messages-pc');
 
             if (type === 'user') {
                 const user = usersList.find(u => u.id == id);
@@ -305,14 +306,14 @@
                 groupIdInput.value = id;
             }
 
+            // Fetch messages
             fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    const messages = doc.querySelectorAll('.chat-messages .message');
-                    const messagesContainer = document.querySelector('#chat-messages-pc');
-                    messagesContainer.innerHTML = '';
+                    const messages = doc.querySelectorAll('.message');
+                    messagesContainer.innerHTML = ''; // Clear previous messages
                     messages.forEach(message => {
                         const messageDiv = document.createElement('div');
                         messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
@@ -338,7 +339,8 @@
 
                     const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, receiverIdInput.value)}_${Math.max(current_user_id, receiverIdInput.value)}`;
                     socket.emit('join', { room: room });
-                });
+                })
+                .catch(error => console.error('Error fetching messages:', error));
         }
 
         // Chat Functions (Mobile)
@@ -353,6 +355,7 @@
             const headerName = document.querySelector('#chat-header-name-mobile');
             const receiverIdInput = document.querySelector('#receiver-id-mobile');
             const groupIdInput = document.querySelector('#group-id-mobile');
+            const messagesContainer = document.querySelector('#chat-messages-mobile');
 
             if (type === 'user') {
                 const user = usersList.find(u => u.id == id);
@@ -368,14 +371,14 @@
                 groupIdInput.value = id;
             }
 
+            // Fetch messages
             fetch(`/messaging?${type === 'user' ? 'user_id' : 'group_id'}=${id}&chat_type=${type}`)
                 .then(response => response.text())
                 .then(html => {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
-                    const messages = doc.querySelectorAll('.chat-messages .message');
-                    const messagesContainer = document.querySelector('#chat-messages-mobile');
-                    messagesContainer.innerHTML = '';
+                    const messages = doc.querySelectorAll('.message');
+                    messagesContainer.innerHTML = ''; // Clear previous messages
                     messages.forEach(message => {
                         const messageDiv = document.createElement('div');
                         messageDiv.classList.add('message', message.classList.contains('sent') ? 'sent' : 'received', 'mb-4', 'max-w-[70%]', 'p-3', 'rounded-lg', 'relative', 'transition-opacity', 'duration-300');
@@ -401,7 +404,8 @@
 
                     const room = groupIdInput.value ? `group_${groupIdInput.value}` : `chat_${Math.min(current_user_id, receiverIdInput.value)}_${Math.max(current_user_id, receiverIdInput.value)}`;
                     socket.emit('join', { room: room });
-                });
+                })
+                .catch(error => console.error('Error fetching messages:', error));
         }
 
         function backToChatList() {
