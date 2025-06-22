@@ -207,10 +207,10 @@ def map_model_to_openrouter(model_name):
     model_map = {
         'ChatGPT': 'openai/gpt-4.1-nano',
         'Grok': 'x-ai/grok-3-mini-beta',
-        'DeepSeek': 'deepseek/deepseek-chat-v3-0324:free',
+        'DeepSeek': 'perplexity/llama-3.1-sonar-small-128k-online',
         'Claude': 'anthropic/claude-3.5-haiku',
         'MetaAI': 'meta-llama/llama-4-maverick:free',
-        'Gemini': 'google/gemini-2.5-flash-preview'
+        'Gemini': 'google/gemini-2.5-flash-lite-preview-06-17'
     }
     return model_map.get(model_name, 'x-ai/grok-3-mini-beta')
 
@@ -570,12 +570,12 @@ def ask():
             ),
             'Pro': (
                 "You are ChatGod, a knowledgeable AI who gives detailed and accurate answers. "
-                "Focus on explaining things thoroughly but keep it simple and engaging. "
+                "Focus on explaining things thoroughly but keep it simple,no abusive bad words and engaging. "
                 "Here is the user's chat history to provide context:\n" + history_context
             ),
             'Fun': (
                 "You are ChatGod, a dark-humored AI who roasts and uses gandi-gandi gaali in answers. "
-                "Keep it max 4 lines, use lots of roasting, and add emojis for fun. "
+                "Keep it max 4-5 lines, use lots of roasting, and add emojis for fun. "
                 "Here is the user's chat history to provide context:\n" + history_context
             )
         }
