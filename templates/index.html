@@ -1,40 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGod - Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>x07.in - Next Gen AI & Chat App</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="landing-page">
-        <!-- Auth buttons in top-left corner -->
-        <div class="auth-buttons" style="position: absolute; top: 20px; left: 20px;">
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="auth-button">Login</a>
-                <a href="{{ url_for('register') }}" class="auth-button">Register</a>
-            {% endif %}
-        </div>
-        <div class="content">
-            <h1>ChatGod</h1>
-            <p class="tagline">Your Ultimate AI & Messaging Platform!</p>
-            <div class="feature-container">
-                <!-- AI Chat Card -->
-                <a href="{{ url_for('ai_chat') }}" class="feature-card ai-chat">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGpqvos-VlvuaV_2gj-Q76vCjHJC8VkDh-kQ&s" alt="AI Chat">
-                    <h3>AI Chat</h3>
-                    <p>Chat with our intelligent AI to get answers, insights, and more!</p>
-                </a>
-                <!-- Messaging Card -->
-                <a href="{{ url_for('messaging') }}" class="feature-card messaging-app">
-                    <img src="https://intelcorp.scene7.com/is/image/intelcorp/unison-app-messages-image:1920-1080?wid=864&hei=486&fmt=webp-alpha" alt="Messaging">
-                    <h3>Messaging</h3>
-                    <p>Connect with friends and chat in real-time!</p>
-                </a>
-            </div>
-        </div>
+  <nav>
+    <div class="logo">x07.in</div>
+    <div class="menu">
+      <a href="#ai">AI Chatbot</a>
+      <a href="#chatapp">Chatting App</a>
+      <a href="#about">About Us</a>
+      <a href="#" style="border-left: 1px solid #fff; padding-left: 1rem;">Login</a>
+      <a href="#">Register</a>
     </div>
+  </nav>
+
+  <section id="ai">
+    <div class="graphic"></div>
+    <h1>AI Chatbot</h1>
+    <p>Experience next-generation AI-powered conversations. Our chatbot understands your needs and responds like a real human—powered by the latest OpenRouter API technology.</p>
+    <button class="btn">Try AI Chatbot</button>
+    <div class="scroll-down" onclick="scrollToSection('chatapp')">⬇️</div>
+  </section>
+
+  <section id="chatapp" class="light-section">
+    <div class="graphic"></div>
+    <h1>Chatting App</h1>
+    <p>Connect instantly with friends and colleagues through our fast, secure, and intuitive chatting platform. Full end-to-end encryption ensures your privacy.</p>
+    <button class="btn">Open Chat App</button>
+    <div class="scroll-down" onclick="scrollToSection('about')">⬇️</div>
+  </section>
+
+  <section id="about">
+    <div class="graphic"></div>
+    <h1>About Us</h1>
+    <p>We are a passionate team of developers dedicated to bringing you innovative AI and chatting solutions. Join us in building the future of communication.</p>
+    <button class="btn">Contact Us</button>
+  </section>
+
+  <script>
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({behavior: 'smooth'});
+    }
+  </script>
 </body>
 </html>
