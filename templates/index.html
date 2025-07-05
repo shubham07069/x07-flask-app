@@ -1,60 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ChatGod - Home</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGod - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <!-- Auth buttons fixed top-left -->
-  <div class="auth-buttons">
-    {% if current_user.is_authenticated %}
-      <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
-    {% else %}
-      <a href="{{ url_for('login') }}" class="auth-button">Login</a>
-      <a href="{{ url_for('register') }}" class="auth-button">Register</a>
-    {% endif %}
-  </div>
-
-  <!-- Navbar -->
-  <nav>
-    <div class="logo">ChatGod</div>
-    <div class="menu">
-      <a href="#ai">AI Chatbot</a>
-      <a href="#chatapp">Messaging</a>
-      <a href="#about">About Us</a>
+    <div class="landing-page">
+        <!-- Auth buttons in top-left corner -->
+        <div class="auth-buttons" style="position: absolute; top: 20px; left: 20px;">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="auth-button">Login</a>
+                <a href="{{ url_for('register') }}" class="auth-button">Register</a>
+            {% endif %}
+        </div>
+        <div class="content">
+            <h1>ChatGod</h1>
+            <p class="tagline">Your Ultimate AI & Messaging Platform!</p>
+            <div class="feature-container">
+                <!-- AI Chat Card -->
+                <a href="{{ url_for('ai_chat') }}" class="feature-card ai-chat">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGpqvos-VlvuaV_2gj-Q76vCjHJC8VkDh-kQ&s" alt="AI Chat">
+                    <h3>AI Chat</h3>
+                    <p>Chat with our intelligent AI to get answers, insights, and more!</p>
+                </a>
+                <!-- Messaging Card -->
+                <a href="{{ url_for('messaging') }}" class="feature-card messaging-app">
+                    <img src="https://intelcorp.scene7.com/is/image/intelcorp/unison-app-messages-image:1920-1080?wid=864&hei=486&fmt=webp-alpha" alt="Messaging">
+                    <h3>Messaging</h3>
+                    <p>Connect with friends and chat in real-time!</p>
+                </a>
+            </div>
+        </div>
     </div>
-  </nav>
-
-  <!-- Sections -->
-  <section id="ai">
-    <div class="graphic"></div>
-    <h1>AI Chat</h1>
-    <p>Chat with our intelligent AI to get answers, insights, and more!</p>
-    <a href="{{ url_for('ai_chat') }}" class="btn">Try AI Chat</a>
-    <div class="scroll-down" onclick="scrollToSection('chatapp')">⬇️</div>
-  </section>
-
-  <section id="chatapp" class="light-section">
-    <div class="graphic"></div>
-    <h1>Messaging</h1>
-    <p>Connect with friends and chat in real-time!</p>
-    <a href="{{ url_for('messaging') }}" class="btn">Open Messaging</a>
-    <div class="scroll-down" onclick="scrollToSection('about')">⬇️</div>
-  </section>
-
-  <section id="about">
-    <div class="graphic"></div>
-    <h1>About Us</h1>
-    <p>We are a passionate team building the future of AI and chatting platforms.</p>
-    <a href="{{ url_for('contact') }}" class="btn">Contact Us</a>
-  </section>
-
-  <script>
-    function scrollToSection(id) {
-      document.getElementById(id).scrollIntoView({behavior: 'smooth'});
-    }
-  </script>
 </body>
 </html>
