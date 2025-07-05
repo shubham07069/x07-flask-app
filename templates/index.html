@@ -3,42 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>x07.in - Next Gen AI & Chat App</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>ChatGod - Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 </head>
 <body>
+  <!-- Auth buttons fixed top-left -->
+  <div class="auth-buttons">
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('logout') }}" class="auth-button">Logout</a>
+    {% else %}
+      <a href="{{ url_for('login') }}" class="auth-button">Login</a>
+      <a href="{{ url_for('register') }}" class="auth-button">Register</a>
+    {% endif %}
+  </div>
+
+  <!-- Navbar -->
   <nav>
-    <div class="logo">x07.in</div>
+    <div class="logo">ChatGod</div>
     <div class="menu">
       <a href="#ai">AI Chatbot</a>
-      <a href="#chatapp">Chatting App</a>
+      <a href="#chatapp">Messaging</a>
       <a href="#about">About Us</a>
-      <a href="#" style="border-left: 1px solid #fff; padding-left: 1rem;">Login</a>
-      <a href="#">Register</a>
     </div>
   </nav>
 
+  <!-- Sections -->
   <section id="ai">
     <div class="graphic"></div>
-    <h1>AI Chatbot</h1>
-    <p>Experience next-generation AI-powered conversations. Our chatbot understands your needs and responds like a real human—powered by the latest OpenRouter API technology.</p>
-    <button class="btn">Try AI Chatbot</button>
+    <h1>AI Chat</h1>
+    <p>Chat with our intelligent AI to get answers, insights, and more!</p>
+    <a href="{{ url_for('ai_chat') }}" class="btn">Try AI Chat</a>
     <div class="scroll-down" onclick="scrollToSection('chatapp')">⬇️</div>
   </section>
 
   <section id="chatapp" class="light-section">
     <div class="graphic"></div>
-    <h1>Chatting App</h1>
-    <p>Connect instantly with friends and colleagues through our fast, secure, and intuitive chatting platform. Full end-to-end encryption ensures your privacy.</p>
-    <button class="btn">Open Chat App</button>
+    <h1>Messaging</h1>
+    <p>Connect with friends and chat in real-time!</p>
+    <a href="{{ url_for('messaging') }}" class="btn">Open Messaging</a>
     <div class="scroll-down" onclick="scrollToSection('about')">⬇️</div>
   </section>
 
   <section id="about">
     <div class="graphic"></div>
     <h1>About Us</h1>
-    <p>We are a passionate team of developers dedicated to bringing you innovative AI and chatting solutions. Join us in building the future of communication.</p>
-    <button class="btn">Contact Us</button>
+    <p>We are a passionate team building the future of AI and chatting platforms.</p>
+    <a href="{{ url_for('contact') }}" class="btn">Contact Us</a>
   </section>
 
   <script>
